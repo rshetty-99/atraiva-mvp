@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/expire-registration-links",
+            "schedule": "0 0 * * *"
+        }
+    ]
+}

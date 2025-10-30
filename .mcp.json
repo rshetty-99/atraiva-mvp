@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "0"
+      }
+    },
+    "clerk": {
+      "command": "node",
+      "args": ["./lib/mcp/clerk-server.js"],
+      "env": {
+        "CLERK_PUBLISHABLE_KEY": "${CLERK_PUBLISHABLE_KEY}",
+        "CLERK_SECRET_KEY": "${CLERK_SECRET_KEY}",
+        "CLERK_WEBHOOK_SECRET": "${CLERK_WEBHOOK_SECRET}"
+      }
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["claude-talk-to-figma-mcp"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

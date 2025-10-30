@@ -1,0 +1,186 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#111827;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shield Gradient -->
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#237EFE;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#AB96F9;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FF91C2;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Neural Network Gradient -->
+    <linearGradient id="neuralGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4D9FFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C9B9FF;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Data Flow Gradient -->
+    <linearGradient id="dataFlow" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:0.6" />
+      <stop offset="50%" style="stop-color:#237EFE;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:0.6" />
+    </linearGradient>
+    
+    <!-- Glow Filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bgGradient)"/>
+  
+  <!-- Left Side - Breach Detection (Red alerts) -->
+  <g opacity="0.7">
+    <!-- Alert signals -->
+    <circle cx="150" cy="200" r="8" fill="#ef4444" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="300" r="6" fill="#ef4444" opacity="0.6">
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="180" cy="500" r="7" fill="#ef4444" opacity="0.7">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Chaotic data streams -->
+    <path d="M 50 150 Q 100 200, 150 180 T 200 220" stroke="#ef4444" stroke-width="2" fill="none" opacity="0.5" stroke-dasharray="5,5">
+      <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 80 400 Q 120 450, 160 420 T 210 480" stroke="#dc2626" stroke-width="2" fill="none" opacity="0.4" stroke-dasharray="5,5">
+      <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Center - Guardian Shield with AI Neural Network -->
+  <g transform="translate(600, 400)">
+    <!-- Main Shield -->
+    <path d="M 0 -180 L 120 -120 L 120 80 Q 120 140, 0 180 Q -120 140, -120 80 L -120 -120 Z" 
+          fill="url(#shieldGradient)" 
+          opacity="0.4" 
+          filter="url(#glow)"/>
+    
+    <!-- Shield Border -->
+    <path d="M 0 -180 L 120 -120 L 120 80 Q 120 140, 0 180 Q -120 140, -120 80 L -120 -120 Z" 
+          fill="none" 
+          stroke="#237EFE" 
+          stroke-width="3" 
+          opacity="0.8"/>
+    
+    <!-- AI Brain/Neural Network Center -->
+    <g>
+      <!-- Central AI Node -->
+      <circle cx="0" cy="0" r="40" fill="url(#neuralGradient)" opacity="0.7" filter="url(#glow)"/>
+      <circle cx="0" cy="0" r="35" fill="none" stroke="#FF91C2" stroke-width="2" opacity="0.6">
+        <animate attributeName="r" values="35;40;35" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      
+      <!-- Neural Network Nodes -->
+      <circle cx="-60" cy="-40" r="12" fill="#4D9FFF" opacity="0.8"/>
+      <circle cx="60" cy="-40" r="12" fill="#AB96F9" opacity="0.8"/>
+      <circle cx="-60" cy="40" r="12" fill="#FF91C2" opacity="0.8"/>
+      <circle cx="60" cy="40" r="12" fill="#FFB3D9" opacity="0.8"/>
+      <circle cx="0" cy="-70" r="10" fill="#C9B9FF" opacity="0.7"/>
+      <circle cx="0" cy="70" r="10" fill="#237EFE" opacity="0.7"/>
+      
+      <!-- Neural Connections -->
+      <line x1="0" y1="0" x2="-60" y2="-40" stroke="#FF91C2" stroke-width="2" opacity="0.5"/>
+      <line x1="0" y1="0" x2="60" y2="-40" stroke="#AB96F9" stroke-width="2" opacity="0.5"/>
+      <line x1="0" y1="0" x2="-60" y2="40" stroke="#4D9FFF" stroke-width="2" opacity="0.5"/>
+      <line x1="0" y1="0" x2="60" y2="40" stroke="#237EFE" stroke-width="2" opacity="0.5"/>
+      <line x1="0" y1="0" x2="0" y2="-70" stroke="#C9B9FF" stroke-width="2" opacity="0.5"/>
+      <line x1="0" y1="0" x2="0" y2="70" stroke="#FFB3D9" stroke-width="2" opacity="0.5"/>
+      
+      <!-- Data flowing through neural network -->
+      <circle cx="0" cy="0" r="3" fill="#ffffff" opacity="0.9">
+        <animateMotion dur="2s" repeatCount="indefinite" path="M 0,0 L -60,-40 M 0,0 L 60,-40"/>
+      </circle>
+    </g>
+    
+    <!-- Compliance Badges Orbiting -->
+    <g>
+      <!-- GDPR Badge -->
+      <g transform="translate(-100, -100)">
+        <rect x="-25" y="-15" width="50" height="30" rx="5" fill="#10b981" opacity="0.2"/>
+        <text x="0" y="5" font-family="Arial" font-size="12" fill="#10b981" text-anchor="middle" font-weight="bold">GDPR</text>
+        <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="360 600 400" dur="20s" repeatCount="indefinite"/>
+      </g>
+      
+      <!-- HIPAA Badge -->
+      <g transform="translate(100, -100)">
+        <rect x="-25" y="-15" width="50" height="30" rx="5" fill="#3b82f6" opacity="0.2"/>
+        <text x="0" y="5" font-family="Arial" font-size="12" fill="#3b82f6" text-anchor="middle" font-weight="bold">HIPAA</text>
+        <animateTransform attributeName="transform" type="rotate" from="120 600 400" to="480 600 400" dur="20s" repeatCount="indefinite"/>
+      </g>
+      
+      <!-- SOX Badge -->
+      <g transform="translate(0, 130)">
+        <rect x="-25" y="-15" width="50" height="30" rx="5" fill="#f59e0b" opacity="0.2"/>
+        <text x="0" y="5" font-family="Arial" font-size="12" fill="#f59e0b" text-anchor="middle" font-weight="bold">SOX</text>
+        <animateTransform attributeName="transform" type="rotate" from="240 600 400" to="600 600 400" dur="20s" repeatCount="indefinite"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Right Side - Success/Resolution (Green/Blue secure flows) -->
+  <g opacity="0.7">
+    <!-- Success indicators -->
+    <circle cx="1050" cy="250" r="6" fill="#10b981" opacity="0.9"/>
+    <circle cx="1000" cy="350" r="7" fill="#3b82f6" opacity="0.8"/>
+    <circle cx="1020" cy="550" r="6" fill="#10b981" opacity="0.9"/>
+    
+    <!-- Organized data streams -->
+    <path d="M 900 200 L 1100 220" stroke="#10b981" stroke-width="2" fill="none" opacity="0.6" stroke-dasharray="5,5">
+      <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 900 400 L 1100 400" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.5" stroke-dasharray="5,5">
+      <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 900 600 L 1100 580" stroke="#10b981" stroke-width="2" fill="none" opacity="0.6" stroke-dasharray="5,5">
+      <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Document checkmarks -->
+    <g transform="translate(980, 300)">
+      <rect x="0" y="0" width="40" height="50" rx="3" fill="#1f2937" stroke="#3b82f6" stroke-width="1" opacity="0.8"/>
+      <path d="M 10 25 L 17 32 L 30 15" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+    
+    <g transform="translate(1030, 450)">
+      <rect x="0" y="0" width="40" height="50" rx="3" fill="#1f2937" stroke="#3b82f6" stroke-width="1" opacity="0.8"/>
+      <path d="M 10 25 L 17 32 L 30 15" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+  
+  <!-- Main Data Flow Across Entire Image -->
+  <path d="M 100 400 Q 300 350, 600 400 T 1100 400" 
+        stroke="url(#dataFlow)" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.4" 
+        stroke-dasharray="10,5"
+        filter="url(#glow)">
+    <animate attributeName="stroke-dashoffset" from="0" to="30" dur="3s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Grid Pattern Overlay -->
+  <g opacity="0.1">
+    <defs>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="1200" height="800" fill="url(#grid)"/>
+  </g>
+</svg>
+

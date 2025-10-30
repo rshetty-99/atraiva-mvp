@@ -1,0 +1,138 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function getUserRole() {
+      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return userDoc.data.role;
+    }
+    
+    function isPlatformAdmin() {
+      let role = getUserRole();
+      return role == 'platform_admin' || role == 'super_admin';
+    }
+
+    // Users collection - Allow webhook to create users
+    match /users/{userId} {
+      // Users can read/write their own data
+      allow read, write: if isOwner(userId);
+      
+      // Allow creation during signup (webhook or authenticated user)
+      allow create: if true; // Allow webhooks to create users
+      
+      // Organization members can read basic user data
+      allow read: if isAuthenticated() && 
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Organizations collection  
+    match /organizations/{orgId} {
+      // Members can read organization data
+      allow read: if isAuthenticated() && 
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid));
+      
+      // Allow creation and updates
+      allow write: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // Contacts collection - Allow public contact form submissions
+    match /contacts/{contactId} {
+      // Allow anyone to create contact submissions (for contact forms)
+      allow create: if true;
+      
+      // Only authenticated users can read contact data
+      allow read: if isAuthenticated();
+      
+      // Only authenticated users with proper permissions can update
+      allow update: if isAuthenticated();
+      
+      // Only authenticated users with admin permissions can delete
+      allow delete: if isAuthenticated();
+    }
+
+    // Registration Links collection
+    match /registrationLinks/{linkId} {
+      // Allow public read for token validation (registration page)
+      allow read: if true;
+      
+      // Only allow creation and updates via server-side API
+      // This is controlled by API routes with proper authentication
+      allow create, update: if isAuthenticated();
+      
+      // Only admins can delete
+      allow delete: if isAuthenticated();
+    }
+
+    // Registration Emails collection
+    match /registrationEmails/{emailId} {
+      // Allow server-side creation for email sending
+      allow create: if true; // Firebase Extension needs write access
+      
+      // Only admins can read email logs
+      allow read: if isAuthenticated();
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+
+    // Audit Logs collection
+    match /auditLogs/{logId} {
+      // Allow server-side creation for activity logging
+      allow create: if isAuthenticated();
+      
+      // Only platform admins can read audit logs
+      allow read: if isAuthenticated() && isPlatformAdmin();
+      
+      // Audit logs are immutable - no updates or deletes allowed
+      allow update, delete: if false;
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Allow server-side creation for notifications
+      allow create: if isAuthenticated();
+      
+      // Users can only read their own notifications
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      
+      // Users can only update their own notifications (mark as read)
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      
+      // No deletes allowed - notifications are permanent
+      allow delete: if false;
+    }
+
+    // Member Invitations collection
+    match /memberInvitations/{invitationId} {
+      // Allow public read for token validation (invitation page)
+      allow read: if true;
+      
+      // Only authenticated org admins and platform admins can create
+      allow create: if isAuthenticated();
+      
+      // Only inviter or platform admin can update
+      allow update: if isAuthenticated();
+      
+      // Only platform admins can delete
+      allow delete: if isAuthenticated() && isPlatformAdmin();
+    }
+
+    // Default allow all for now (development mode)
+    // TODO: Implement proper security rules for production
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

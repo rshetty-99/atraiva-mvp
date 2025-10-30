@@ -1,0 +1,138 @@
+<svg width="800" height="1200" viewBox="0 0 800 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3730a3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="1200" fill="url(#bgGradient)"/>
+  
+  <!-- Floating particles -->
+  <circle cx="100" cy="200" r="2" fill="rgba(255,255,255,0.3)" opacity="0.8">
+    <animate attributeName="cy" values="200;180;200" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="700" cy="300" r="1.5" fill="rgba(255,255,255,0.2)" opacity="0.6">
+    <animate attributeName="cy" values="300;320;300" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="150" cy="800" r="1" fill="rgba(255,255,255,0.4)" opacity="0.7">
+    <animate attributeName="cy" values="800;780;800" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Main Shield -->
+  <g transform="translate(300, 250)">
+    <path d="M100 0 L180 40 L180 120 L100 180 L20 120 L20 40 Z" 
+          fill="url(#shieldGradient)" 
+          filter="url(#glow)" 
+          opacity="0.9"/>
+    <path d="M100 20 L160 50 L160 110 L100 150 L40 110 L40 50 Z" 
+          fill="none" 
+          stroke="rgba(255,255,255,0.3)" 
+          stroke-width="2"/>
+    
+    <!-- Shield checkmark -->
+    <path d="M70 90 L90 110 L130 70" 
+          fill="none" 
+          stroke="white" 
+          stroke-width="6" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Lock Icon -->
+  <g transform="translate(500, 400)">
+    <rect x="0" y="30" width="80" height="60" rx="8" 
+          fill="url(#lockGradient)" 
+          filter="url(#glow)" 
+          opacity="0.8"/>
+    <path d="M20 30 L20 10 C20 -10 40 -20 60 -10 L60 10 L60 30" 
+          fill="none" 
+          stroke="url(#lockGradient)" 
+          stroke-width="8" 
+          stroke-linecap="round"/>
+    <circle cx="40" cy="60" r="8" fill="white"/>
+    <rect x="36" y="65" width="8" height="15" fill="white" rx="2"/>
+  </g>
+  
+  <!-- Data Nodes Network -->
+  <g transform="translate(100, 550)" opacity="0.6">
+    <!-- Nodes -->
+    <circle cx="50" cy="50" r="8" fill="rgba(16, 185, 129, 0.8)"/>
+    <circle cx="150" cy="30" r="6" fill="rgba(16, 185, 129, 0.6)"/>
+    <circle cx="250" cy="80" r="10" fill="rgba(16, 185, 129, 0.9)"/>
+    <circle cx="180" cy="120" r="7" fill="rgba(16, 185, 129, 0.7)"/>
+    <circle cx="320" cy="40" r="5" fill="rgba(16, 185, 129, 0.5)"/>
+    
+    <!-- Connections -->
+    <line x1="50" y1="50" x2="150" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <line x1="150" y1="30" x2="250" y2="80" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <line x1="150" y1="30" x2="320" y2="40" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <line x1="250" y1="80" x2="180" y2="120" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    
+    <!-- Animated pulses -->
+    <circle cx="50" cy="50" r="15" fill="none" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1">
+      <animate attributeName="r" values="8;20;8" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Document Icons -->
+  <g transform="translate(550, 650)" opacity="0.7">
+    <rect x="0" y="0" width="40" height="50" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.3)"/>
+    <rect x="10" y="0" width="40" height="50" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+    <rect x="20" y="0" width="40" height="50" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)"/>
+    
+    <!-- Document lines -->
+    <line x1="25" y1="15" x2="50" y2="15" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <line x1="25" y1="25" x2="50" y2="25" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <line x1="25" y1="35" x2="45" y2="35" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+  </g>
+  
+  <!-- Compliance Badge -->
+  <g transform="translate(150, 900)">
+    <circle cx="0" cy="0" r="40" fill="rgba(245, 158, 11, 0.2)" stroke="rgba(245, 158, 11, 0.5)" stroke-width="2"/>
+    <text x="0" y="5" text-anchor="middle" fill="rgba(245, 158, 11, 0.9)" font-family="Arial, sans-serif" font-size="10" font-weight="bold">GDPR</text>
+  </g>
+  
+  <g transform="translate(600, 850)">
+    <circle cx="0" cy="0" r="35" fill="rgba(139, 69, 19, 0.2)" stroke="rgba(139, 69, 19, 0.5)" stroke-width="2"/>
+    <text x="0" y="5" text-anchor="middle" fill="rgba(139, 69, 19, 0.9)" font-family="Arial, sans-serif" font-size="9" font-weight="bold">SOX</text>
+  </g>
+  
+  <g transform="translate(300, 950)">
+    <circle cx="0" cy="0" r="45" fill="rgba(99, 102, 241, 0.2)" stroke="rgba(99, 102, 241, 0.5)" stroke-width="2"/>
+    <text x="0" y="5" text-anchor="middle" fill="rgba(99, 102, 241, 0.9)" font-family="Arial, sans-serif" font-size="8" font-weight="bold">HIPAA</text>
+  </g>
+  
+  <!-- Encryption Symbols -->
+  <g transform="translate(50, 1050)" opacity="0.4">
+    <text fill="rgba(255,255,255,0.6)" font-family="monospace" font-size="12">
+      01001001 01001110 01000011
+    </text>
+  </g>
+  
+  <!-- Geometric patterns -->
+  <g transform="translate(650, 250)" opacity="0.3">
+    <polygon points="0,20 20,0 40,20 20,40" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <polygon points="10,30 30,10 50,30 30,50" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1">
+      <animateTransform attributeName="transform" type="rotate" values="0 25 25;360 25 25" dur="20s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+</svg>

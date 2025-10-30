@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "clerk": {
+      "command": "npx",
+      "args": ["-y", "@clerk/agent-toolkit", "-p=local-mcp", "--tools=users,organizations,invitations"],
+      "env": {
+        "CLERK_SECRET_KEY": "sk_test_lgNGdqcQDJEXxnQHwWsJaUiBAU9hZOz2Mt2Ke41be6"
+      }
+    }
+  }
+}

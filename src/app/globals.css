@@ -1,26 +1,857 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Atraiva Primary Purple Colors */
+  --color-purple-950: oklch(0.20 0.08 280);  /* #190E42 - Darkest */
+  --color-purple-900: oklch(0.25 0.10 280);  /* #2B1B64 */
+  --color-purple-800: oklch(0.35 0.12 280);  /* #4D2E86 */
+  --color-purple-700: oklch(0.45 0.14 280);  /* #6E44AB */
+  --color-purple-600: oklch(0.55 0.16 280);  /* #975ACA */
+  --color-purple-500: oklch(0.60 0.14 280);  /* #9F72C5 */
+  --color-purple-400: oklch(0.65 0.12 285);  /* #B97FC2 */
+  --color-purple-300: oklch(0.75 0.12 285);  /* #C89EF2 */
+  --color-purple-200: oklch(0.80 0.10 285);  /* #D1B0F2 */
+  --color-purple-100: oklch(0.85 0.08 285);  /* #DFC6FF */
+  --color-purple-50: oklch(0.93 0.04 285);   /* #F1E2FF */
+
+  /* Button Gradient Colors */
+  --color-button-from: oklch(0.85 0.08 285);  /* #DFC6FF */
+  --color-button-to: oklch(0.35 0.12 280);    /* #492E86 */
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Explicit font sizes matching Tailwind defaults (16px base) */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+  --font-size-5xl: 3rem;       /* 48px */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.5rem;
+
+  /* Light Mode - Matching Atraiva Logo Colors */
+  --background: #f0f2f5; /* Light gray background from HTML mockup */
+  --foreground: #1f2937; /* gray-800 text */
+
+  --card: #FFFFFF; /* Pure white cards */
+  --card-foreground: #1f2937; /* gray-800 */
+
+  --popover: #FFFFFF; /* Pure white */
+  --popover-foreground: #1f2937; /* gray-800 */
+
+  --primary: #237EFE; /* Atraiva logo blue */
+  --primary-foreground: #FFFFFF; /* White for contrast */
+
+  --secondary: #FF91C2; /* Atraiva logo pink (changed from #AB96F9) */
+  --secondary-foreground: #FFFFFF; /* White for contrast */
+
+  --muted: #f3f4f6; /* gray-100 */
+  --muted-foreground: #6b7280; /* gray-500 */
+
+  --accent: #AB96F9; /* Original purple accent */
+  --accent-foreground: #FFFFFF; /* White for contrast */
+
+  --destructive: #ef4444; /* red-500 */
+  --destructive-foreground: #FFFFFF;
+
+  --border: #e5e7eb; /* gray-200 */
+  --input: #e5e7eb; /* gray-200 */
+  --ring: #237EFE; /* Atraiva logo blue */
+
+  /* Chart colors - Using logo colors */
+  --chart-1: #237EFE; /* Atraiva blue */
+  --chart-2: #10b981; /* green-500 */
+  --chart-3: #f59e0b; /* amber-500 */
+  --chart-4: #FF91C2; /* Atraiva pink */
+  --chart-5: #8b5cf6; /* purple-500 */
+
+  /* Sidebar colors - Dark sidebar with Atraiva accent */
+  --sidebar: #1f2937; /* gray-800 - Dark sidebar */
+  --sidebar-foreground: #d1d5db; /* gray-300 text */
+  --sidebar-primary: #374151; /* gray-700 for hover */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #374151; /* gray-700 */
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #374151; /* gray-700 */
+  --sidebar-ring: #237EFE; /* Atraiva blue */
+
+  /* Button gradient colors - Atraiva brand colors */
+  --button-start: #237EFE; /* Atraiva blue */
+  --button-end: #1a5fc7; /* Darker blue */
+}
+
+.dark {
+  /* Dark Mode - Matching Atraiva Logo Colors */
+  --background: #111827; /* gray-900 background */
+  --foreground: #f3f4f6; /* gray-100 text */
+
+  --card: #1f2937; /* gray-800 cards */
+  --card-foreground: #f3f4f6; /* gray-100 */
+
+  --popover: #1f2937; /* gray-800 */
+  --popover-foreground: #f3f4f6; /* gray-100 */
+
+  --primary: #4D9FFF; /* Lighter Atraiva blue for dark mode */
+  --primary-foreground: #111827; /* gray-900 */
+
+  --secondary: #FFB3D9; /* Lighter Atraiva pink for dark mode */
+  --secondary-foreground: #111827; /* gray-900 */
+
+  --muted: #374151; /* gray-700 */
+  --muted-foreground: #9ca3af; /* gray-400 */
+
+  --accent: #C9B9FF; /* Lighter purple for dark mode */
+  --accent-foreground: #111827; /* gray-900 */
+
+  --destructive: #f87171; /* red-400 */
+  --destructive-foreground: #FFFFFF;
+
+  --border: #374151; /* gray-700 */
+  --input: #374151; /* gray-700 */
+  --ring: #4D9FFF; /* Lighter Atraiva blue */
+
+  /* Chart colors - Atraiva brand for dark mode */
+  --chart-1: #4D9FFF; /* Lighter Atraiva blue */
+  --chart-2: #34d399; /* green-400 */
+  --chart-3: #fbbf24; /* amber-400 */
+  --chart-4: #FFB3D9; /* Lighter Atraiva pink */
+  --chart-5: #a78bfa; /* purple-400 */
+
+  /* Sidebar colors for dark mode - Atraiva accent */
+  --sidebar: #1f2937; /* gray-800 - Dark sidebar */
+  --sidebar-foreground: #d1d5db; /* gray-300 text */
+  --sidebar-primary: #374151; /* gray-700 for hover */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #374151; /* gray-700 */
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #374151; /* gray-700 */
+  --sidebar-ring: #4D9FFF; /* Lighter Atraiva blue */
+
+  /* Button gradient colors for dark mode - Atraiva brand */
+  --button-start: #4D9FFF; /* Lighter Atraiva blue */
+  --button-end: #237EFE; /* Original Atraiva blue */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Sidebar text handling */
+  .sidebar-menu-button-text {
+    @apply truncate;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Force avatar to be perfectly circular */
+  .avatar-circular {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .avatar-circular img,
+  .avatar-circular > * {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+  }
+
+  /* Ensure sidebar menu items have proper spacing and text handling */
+  [data-sidebar="menu-button"] {
+    @apply justify-start text-left;
+  }
+
+  [data-sidebar="menu-button"] > span {
+    @apply truncate;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Enhanced focus indicators for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Focus indicators for buttons */
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  }
+
+  /* Focus indicators for links */
+  a:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* Disable problematic animations */
+    .animate-pulse,
+    .animate-bounce,
+    .animate-spin {
+      animation: none !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Large Screen Adaptive Scaling */
+@layer utilities {
+  /* Base font scaling for large screens - disabled to prevent header issues */
+  @media (min-width: 1892px) {
+    html {
+      /* font-size: 18px; */ /* Increase base font from 16px to 18px */
+    }
+  }
+
+  @media (min-width: 2560px) {
+    html {
+      /* font-size: 20px; */ /* Further increase for QHD screens */
+    }
+  }
+
+  @media (min-width: 3840px) {
+    html {
+      /* font-size: 24px; */ /* Maximum scaling for 4K screens */
+    }
+  }
+
+  /* Large screen typography improvements */
+  @media (min-width: 1892px) {
+    .text-sm { font-size: 0.9rem; }
+    .text-base { font-size: 1.1rem; }
+    .text-lg { font-size: 1.25rem; }
+    .text-xl { font-size: 1.4rem; }
+    .text-2xl { font-size: 1.75rem; }
+    .text-3xl { font-size: 2.1rem; }
+    .text-4xl { font-size: 2.8rem; }
+    .text-5xl { font-size: 3.5rem; }
+    .text-6xl { font-size: 4.2rem; }
+    .text-7xl { font-size: 5.25rem; }
+    .text-8xl { font-size: 7rem; }
+    .text-9xl { font-size: 9rem; }
+  }
+
+  @media (min-width: 2560px) {
+    .text-sm { font-size: 1rem; }
+    .text-base { font-size: 1.2rem; }
+    .text-lg { font-size: 1.35rem; }
+    .text-xl { font-size: 1.5rem; }
+    .text-2xl { font-size: 1.875rem; }
+    .text-3xl { font-size: 2.25rem; }
+    .text-4xl { font-size: 3rem; }
+    .text-5xl { font-size: 3.75rem; }
+    .text-6xl { font-size: 4.5rem; }
+    .text-7xl { font-size: 5.625rem; }
+    .text-8xl { font-size: 7.5rem; }
+    .text-9xl { font-size: 9.6rem; }
+  }
+
+  @media (min-width: 3840px) {
+    .text-sm { font-size: 1.1rem; }
+    .text-base { font-size: 1.35rem; }
+    .text-lg { font-size: 1.5rem; }
+    .text-xl { font-size: 1.75rem; }
+    .text-2xl { font-size: 2.25rem; }
+    .text-3xl { font-size: 2.75rem; }
+    .text-4xl { font-size: 3.5rem; }
+    .text-5xl { font-size: 4.25rem; }
+    .text-6xl { font-size: 5.25rem; }
+    .text-7xl { font-size: 6.5rem; }
+    .text-8xl { font-size: 8.5rem; }
+    .text-9xl { font-size: 11rem; }
+  }
+
+  /* Logo scaling and adaptive background */
+  .logo-large-scale {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+  }
+
+  /* Logo adaptive background to blend with header */
+  .logo-adaptive-bg {
+    /* Light mode - original logo with teal background (transparent/natural) */
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.125rem;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    filter: contrast(1.2) brightness(1.1);
+    transition: all 0.3s ease;
+  }
+
+  /* Dark mode - white background behind logo for maximum visibility */
+  .dark .logo-adaptive-bg {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Ensure logo colors are visible on white background */
+    filter: contrast(1.25) brightness(1.0) saturate(1.1);
+  }
+
+  /* When header has background (scrolled state) */
+  .header-scrolled .logo-adaptive-bg {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(var(--border), 0.1);
+    padding: 0.25rem;
+  }
+
+  /* Dark mode with scrolled header - maintain black background */
+  .dark .header-scrolled .logo-adaptive-bg {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Header height scaling for large screens - disabled to prevent issues */
+  @media (min-width: 1892px) {
+    .header-large-scale {
+      /* height: 6rem; */ /* 96px - increased from default */
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .header-large-scale {
+      /* height: 7rem; */ /* 112px */
+    }
+  }
+
+  @media (min-width: 3840px) {
+    .header-large-scale {
+      /* height: 7.5rem; */ /* 120px - optimal for 4K */
+    }
+  }
+
+  /* Hero section spacing to account for fixed header - now handled in component */
+  .hero-content {
+    /* Spacing is now handled directly in the Hero component with pt-* classes */
+  }
+
+  /* Ensure header is always on top */
+  .header-fixed {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Additional spacing for hero section to prevent overlap */
+  .hero-section {
+    margin-top: 0 !important;
+    padding-top: 8rem !important; /* 128px - increased base padding */
+  }
+
+  @media (min-width: 640px) {
+    .hero-section {
+      padding-top: 9rem !important; /* 144px */
+    }
+  }
+
+  @media (min-width: 768px) {
+    .hero-section {
+      padding-top: 10rem !important; /* 160px */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-section {
+      padding-top: 11rem !important; /* 176px */
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .hero-section {
+      padding-top: 12rem !important; /* 192px */
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .hero-section {
+      padding-top: 13rem !important; /* 208px */
+    }
+  }
+
+  /* Smooth scrolling for navigation */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Offset for fixed header when scrolling to sections */
+  section[id] {
+    scroll-margin-top: 105px; /* 80px header + 25px buffer */
+  }
+
+  @media (min-width: 640px) {
+    section[id] {
+      scroll-margin-top: 105px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    section[id] {
+      scroll-margin-top: 105px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    section[id] {
+      scroll-margin-top: 105px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    section[id] {
+      scroll-margin-top: 105px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    section[id] {
+      scroll-margin-top: 105px;
+    }
+  }
+
+  /* Suppress hydration warnings for browser extension attributes */
+  [fdprocessedid] {
+    /* This attribute is added by browser extensions and should be ignored for hydration */
+  }
+
+  /* Force header to be visible and on top */
+  header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    height: 120px !important;
+  }
+
+  @media (min-width: 1024px) {
+    header {
+      height: 144px !important; /* Taller header for large screens */
+    }
+  }
+
+  /* Ensure body has proper spacing for fixed header */
+  body {
+    padding-top: 0 !important; /* Remove body padding to eliminate white gap */
+  }
+
+  /* Ensure hero section respects header space */
+  .hero-section {
+    margin-top: 0 !important;
+    padding-top: 160px !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Add gap for large screens to prevent overlap */
+  @media (min-width: 1890px) {
+    .hero-section {
+      padding-top: 180px !important; /* Increased gap for large screens */
+      margin-top: 20px !important; /* Additional margin for separation */
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .hero-section {
+      padding-top: 200px !important; /* Even more space for ultra-wide */
+      margin-top: 25px !important;
+    }
+  }
+
+  /* Force hero content to start below header */
+  .hero-section > div {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .hero-section main {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Additional spacing for the main content area */
+  .hero-section .max-w-7xl {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+/* Required field asterisk styling */
+.required-asterisk::after {
+  content: " *";
+  color: #ef4444; /* red-500 */
+  font-weight: 500;
 }
+
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+  /* Sidebar logo scaling - more conservative to avoid overlap */
+  @media (min-width: 1892px) {
+    .sidebar .logo-adaptive-bg {
+      width: 28px !important;
+      height: 28px !important;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .sidebar .logo-adaptive-bg {
+      width: 32px !important;
+      height: 32px !important;
+    }
+  }
+
+  @media (min-width: 3840px) {
+    .sidebar .logo-adaptive-bg {
+      width: 36px !important;
+      height: 36px !important;
+    }
+  }
+
+  /* Logo scaling for header only - disabled to prevent header issues */
+  @media (min-width: 1892px) {
+    .logo-large-scale:not(.sidebar .logo-adaptive-bg) {
+      /* transform: scale(1.3); */
+      /* height: 3.5rem !important; */
+      /* width: 3.5rem !important; */
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .logo-large-scale:not(.sidebar .logo-adaptive-bg) {
+      /* transform: scale(1.6); */
+      /* height: 4rem !important; */
+      /* width: 4rem !important; */
+    }
+  }
+
+  @media (min-width: 3840px) {
+    .logo-large-scale:not(.sidebar .logo-adaptive-bg) {
+      /* transform: scale(1.8); */
+      /* height: 4rem !important; */
+      /* width: 4rem !important; */
+    }
+  }
+
+  /* Button and interactive element scaling */
+  @media (min-width: 1892px) {
+    .btn-large-scale {
+      padding: 0.875rem 2rem;
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .btn-large-scale {
+      padding: 1rem 2.5rem;
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (min-width: 3840px) {
+    .btn-large-scale {
+      padding: 1.25rem 3rem;
+      font-size: 1.5rem;
+    }
+  }
+
+  /* Icon scaling */
+  @media (min-width: 1892px) {
+    .icon-large-scale {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .icon-large-scale {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  @media (min-width: 3840px) {
+    .icon-large-scale {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  /* Ultra-wide layout optimizations (3440px+) */
+  @media (min-width: 3440px) {
+    /* Asymmetric hero layout for ultra-wide */
+    .hero-ultra-wide {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    /* Enhanced grid layouts */
+    .features-ultra-wide {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3rem;
+    }
+
+    .stats-ultra-wide {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 3rem;
+    }
+
+    /* Sidebar content areas */
+    .ultra-wide-sidebar {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 300px;
+      z-index: 40;
+    }
+  }
+
+  @media (min-width: 5120px) {
+    /* 5K display optimizations */
+    .container-5k {
+      max-width: 2560px;
+      margin: 0 auto;
+    }
+  }
+
+  /* Custom gradient utilities for modern design */
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+  }
+
+  .bg-grid-white\/5 {
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  }
+}
+
+@layer base {
+  /* Set base font size to match HTML mockup */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem; /* Explicit 16px base */
+    font-weight: 400; /* Normal weight */
+    line-height: 1.5;
+    letter-spacing: normal;
+  }
+  
+  /* Enhanced typography for better readability */
+  h1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  h3 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+  
+  h4 {
+    @apply text-lg font-semibold;
+  }
+  
+  p {
+    @apply text-base leading-relaxed;
+  }
+}
+
+/* Custom styles to match HTML mockup */
+@layer components {
+  /* Sidebar link styling */
+  .sidebar-link {
+    @apply flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  .sidebar-link:hover {
+    @apply bg-primary/10 text-primary;
+  }
+  
+  .sidebar-link:hover .sidebar-icon {
+    @apply text-primary;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-primary/20 text-primary;
+  }
+  
+  .sidebar-link.active .sidebar-icon {
+    @apply text-primary;
+  }
+  
+  .sidebar-icon {
+    @apply h-5 w-5 mr-3 stroke-[1.5] transition-colors duration-200;
+  }
+  
+  /* Sidebar category header styling */
+  .sidebar-category-header {
+    font-size: 0.75rem; /* 12px */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af; /* gray-400 */
+    padding: 0.5rem 1rem 0.25rem;
+  }
+  
+  /* Sidebar divider */
+  .sidebar-divider {
+    height: 1px;
+    background-color: #374151; /* gray-700 */
+    margin: 0.5rem 0.5rem;
+  }
+  
+  /* KPI Card hover effects */
+  .kpi-card {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .kpi-card:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+  
+  /* Enhanced card styling */
+  .card-enhanced {
+    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border-0;
+  }
+  
+  /* Text size adjustments to match HTML mockup exactly */
+  .text-display {
+    font-size: 3rem; /* 48px - exactly as HTML mockup */
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .text-heading {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    line-height: 1.75rem;
+  }
+  
+  .text-subheading {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280; /* gray-500 */
+  }
+  
+  .dark .text-subheading {
+    color: #9ca3af; /* gray-400 */
+  }
+  
+  .text-body {
+    font-size: 0.875rem; /* 14px */
+    color: #4b5563; /* gray-600 */
+    line-height: 1.25rem;
+  }
+  
+  .dark .text-body {
+    color: #9ca3af; /* gray-400 */
+  }
+  
+  /* Stat card styling */
+  .stat-card {
+    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md flex items-center justify-between transition-all duration-200;
+  }
+  
+  .stat-card:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+  
+  /* Phone Input Width Alignment - Match other input fields */
+  .PhoneInput {
+    width: 100% !important;
+  }
+  
+  .PhoneInputInput {
+    width: 100% !important;
+  }
+}
+

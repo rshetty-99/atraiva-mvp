@@ -1,0 +1,3202 @@
+[
+  {
+    "element": "Full legal name",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.282Z"
+    }
+  },
+  {
+    "element": "Alias",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.286Z"
+    }
+  },
+  {
+    "element": "Preferred name",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Maiden name",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Doing-business-as name",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Signature (hand-written or digital)",
+    "category": "Core Identifiers",
+    "categorySlug": "core-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Social Security number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Individual Taxpayer ID",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Employer ID",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "TIN",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Driver's license number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "State ID card number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Real ID identifier",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Passport number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Visa number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "DoD benefits number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Tribal ID",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Service card number",
+    "category": "Government-Issued Numbers",
+    "categorySlug": "government-issued-numbers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GLBA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Bank account number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Routing number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Transit number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "MICR number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Credit card number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Debit card number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "CVV",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Electronic funds transfer credentials",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "ACH credentials",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Digital wallet tokens",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Apple Pay tokens",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Google Pay tokens",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Utility account number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Electric account ID",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Water account ID",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Mortgage account number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Insurance policy account number",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Salary data",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Tax-withholding data",
+    "category": "Financial & Payment",
+    "categorySlug": "financial-payment",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "GLBA",
+      "PCI-DSS",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Medical record number",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Medical chart number",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Health-plan beneficiary number",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Health insurance number",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Diagnoses",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Treatment data",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Prescription data",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Biometric health sensors data",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Heart-rate data",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Sleep data",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Genetic information",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "DNA sequence",
+    "category": "Health & Genetic",
+    "categorySlug": "health-genetic",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "HIPAA",
+      "GINA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Fingerprint",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.287Z"
+    }
+  },
+  {
+    "element": "Palm geometry",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Hand geometry",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Face recognition template",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Full-face photo",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Iris pattern",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Retinal pattern",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Voiceprint",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Vein signature",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Gait data",
+    "category": "Biometric Identifiers",
+    "categorySlug": "biometric-identifiers",
+    "riskLevel": "high",
+    "isRegulated": true,
+    "applicableRegulations": [
+      "BIPA",
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "IP address",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Static IP address",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Dynamic IP address",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "MAC address",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "IMEI",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "SIM",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "ICCID",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Device serial number",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Cookie",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Pixel",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Advertising IDs",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "IDFA",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "GAID",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Unique tracking identifier",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Anonymous visitor ID",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Random visitor ID",
+    "category": "Digital & Device IDs",
+    "categorySlug": "digital-device-ids",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Username",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Password",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Passphrase",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "PIN",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "OTP",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "MFA codes",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Security codes",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Security question answers",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "OAuth tokens",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "SSO tokens",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Private cryptographic keys",
+    "category": "Login & Security Credentials",
+    "categorySlug": "login-security-credentials",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "On-device location",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Live geolocation",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Historic geolocation",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Precise GPS coordinates",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "VIN",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Chassis number",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "License-plate number",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Transponder ID",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Toll card identifier",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Transit card identifier",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Vehicle ownership records",
+    "category": "Location & Vehicle",
+    "categorySlug": "location-vehicle",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Date of birth",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Age",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Place of birth",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Sex",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Gender identity",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Sexual orientation",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Race",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Ethnicity",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "National origin",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Religion",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Philosophical beliefs",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Language preference",
+    "category": "Personal Characteristics & Demographics",
+    "categorySlug": "personal-characteristics-demographics",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Political party registration",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Political affiliation",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Voting history",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Union membership",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Trade-union status",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Veteran status",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Military-service status",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Criminal record",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Arrest data",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.288Z"
+    }
+  },
+  {
+    "element": "Conviction data",
+    "category": "Civic, Political & Legal",
+    "categorySlug": "civic-political-legal",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Student ID number",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Coursework",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Grades",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Degrees",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Certifications",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Specialties",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Employment status",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Hire date",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Termination date",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Job title",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Performance reviews",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Disciplinary records",
+    "category": "Education & Employment",
+    "categorySlug": "education-employment",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "FERPA",
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Personal email address",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Work email address",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Mobile phone number",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Home phone number",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Work phone number",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "VoIP phone number",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Social-media handles",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Social-media account URLs",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Photos (identifiable)",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Videos (identifiable)",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Audio template",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Personal audio",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "CCTV footage with identifiable person",
+    "category": "Media & Communications",
+    "categorySlug": "media-communications",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "CCPA",
+      "TCPA",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Residential address",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Mailing address",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Unit number",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Lot number",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Emergency-contact names",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Emergency-contact numbers",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Smart-meter number",
+    "category": "Household & Utility",
+    "categorySlug": "household-utility",
+    "riskLevel": "medium",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Passport image",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Passport scan",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Visa image",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Visa scan",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Library-card ID",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Museum-membership ID",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Subscription ID",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Loyalty-program ID",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Purchase history",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  },
+  {
+    "element": "Asset ownership records",
+    "category": "Miscellaneous Unique Identifiers",
+    "categorySlug": "miscellaneous-unique-identifiers",
+    "riskLevel": "high",
+    "isRegulated": false,
+    "applicableRegulations": [
+      "GDPR",
+      "State Laws"
+    ],
+    "detectionPatterns": [],
+    "examples": [],
+    "metadata": {
+      "createdAt": {},
+      "updatedAt": {},
+      "source": "PII_elements.xlsx",
+      "importDate": "2025-10-19T15:38:58.289Z"
+    }
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx playwright:*)",
+      "Bash(npm search:*)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__ide__executeCode",
+      "Bash(npx @playwright/mcp:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
