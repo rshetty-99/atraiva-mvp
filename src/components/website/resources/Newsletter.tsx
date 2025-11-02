@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,6 +10,8 @@ import CustomFormField, { FormFieldType } from "@/components/CustomFormFields";
 import { NewsletterService } from "@/lib/newsletter";
 import { NewsletterFormData } from "@/types/newsletter";
 import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
+import { Loader2 } from "lucide-react";
 
 // Form schema
 const newsletterSchema = z.object({
@@ -19,7 +21,10 @@ const newsletterSchema = z.object({
 type NewsletterFormValues = z.infer<typeof newsletterSchema>;
 
 export function Newsletter() {
+  const { user, isLoaded: isUserLoaded } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
 
   const form = useForm<NewsletterFormValues>({
     resolver: zodResolver(newsletterSchema),
@@ -27,6 +32,71 @@ export function Newsletter() {
       email: "",
     },
   });
+
+  // Check subscription status on mount and when user changes
+  // First check Clerk metadata (cached), then fallback to API if needed
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!isUserLoaded) return;
+
+      // If no user, allow form submission (guest mode)
+      if (!user) {
+        setIsSubscribed(false);
+        setCheckingSubscription(false);
+        return;
+      }
+
+      // Check Clerk metadata first (cached, no API call)
+      const sessionData = user.publicMetadata?.atraiva as
+        | { preferences?: { newsletterSubscribed?: boolean } }
+        | undefined;
+      if (sessionData?.preferences?.newsletterSubscribed !== undefined) {
+        setIsSubscribed(sessionData.preferences.newsletterSubscribed);
+        setCheckingSubscription(false);
+        // Auto-fill email if user is logged in
+        if (user.primaryEmailAddress?.emailAddress) {
+          form.setValue("email", user.primaryEmailAddress.emailAddress);
+        }
+        return;
+      }
+
+      // If not in cache, check via API (will cache the result)
+      setCheckingSubscription(true);
+      try {
+        let url = "/api/newsletter/subscribe?";
+        if (user.id) {
+          url += `userId=${encodeURIComponent(user.id)}`;
+        } else if (user.primaryEmailAddress?.emailAddress) {
+          url += `email=${encodeURIComponent(
+            user.primaryEmailAddress.emailAddress
+          )}`;
+        } else {
+          setIsSubscribed(false);
+          setCheckingSubscription(false);
+          return;
+        }
+
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = await response.json();
+          setIsSubscribed(data.isSubscribed || false);
+          // Auto-fill email if user is logged in
+          if (user.primaryEmailAddress?.emailAddress) {
+            form.setValue("email", user.primaryEmailAddress.emailAddress);
+          }
+        } else {
+          setIsSubscribed(false);
+        }
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+        setIsSubscribed(false);
+      } finally {
+        setCheckingSubscription(false);
+      }
+    };
+
+    checkSubscription();
+  }, [user, isUserLoaded, form]);
 
   const onSubmit = async (data: NewsletterFormValues) => {
     try {
@@ -47,14 +117,36 @@ export function Newsletter() {
           undefined,
       };
 
-      // Subscribe to newsletter
-      const result = await NewsletterService.subscribe(data.email, metadata);
+      // Prepare subscription data
+      const userName = user?.fullName || user?.firstName || undefined;
+      const userId = user?.id || undefined;
+
+      // Subscribe via API to ensure metadata is updated
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          name: userName,
+        }),
+      });
+
+      const result = await response.json();
 
       if (result.success) {
-        toast.success(result.message);
-        form.reset(); // Clear the form
+        toast.success(result.message || "Successfully subscribed to newsletter!");
+        setIsSubscribed(true);
+        // Don't reset form if user is logged in (keep email visible)
+        if (!user) {
+          form.reset();
+        }
       } else {
-        toast.error(result.message);
+        toast.error(result.message || "Failed to subscribe. Please try again.");
+        if (result.message?.includes("already subscribed")) {
+          setIsSubscribed(true);
+        }
       }
     } catch (error) {
       console.error("Newsletter subscription error:", error);
@@ -105,49 +197,57 @@ export function Newsletter() {
                       inputType="email"
                       placeholder="Enter your email address"
                       required
+                      disabled={checkingSubscription || isSubscribed === true}
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-[48px] text-base font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <svg
-                          className="w-5 h-5 animate-spin"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
-                        Subscribing...
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 7.89a1 1 0 001.42 0L21 7M5 3l14 14"
-                          />
-                        </svg>
-                        Subscribe
-                      </>
-                    )}
-                  </Button>
+                  {checkingSubscription ? (
+                    <Button
+                      type="button"
+                      disabled
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-[48px] text-base font-medium flex items-center gap-2 opacity-50 cursor-not-allowed"
+                    >
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Checking...
+                    </Button>
+                  ) : isSubscribed === true ? (
+                    <Button
+                      type="button"
+                      disabled
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-[48px] text-base font-medium flex items-center gap-2 opacity-50 cursor-not-allowed"
+                    >
+                      Already Subscribed
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-[48px] text-base font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Subscribing...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 8l7.89 7.89a1 1 0 001.42 0L21 7M5 3l14 14"
+                            />
+                          </svg>
+                          Subscribe
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </form>
               </Form>
             </div>

@@ -1,24 +1,46 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, ThumbsUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Post } from "@/types/blog";
+import type { CategoryOption } from "./BrowseSection";
+
+// Normalize category for comparison - handle all variations consistently
+// This function must be used consistently everywhere for matching to work
+const normalizeCategoryValue = (value: string | null | undefined): string => {
+  if (!value) return "";
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ") // Normalize multiple spaces to single space
+    .replace(/[-_]/g, " "); // Normalize hyphens/underscores to spaces for comparison
+};
 
 type BlogCardData = {
   id: string;
   title: string;
   author: string;
   date: string;
-  image: string;
+  image: string | null;
   description: string;
   slug: string;
   tags: string[];
   readTime: number;
+  category?: string | null;
+  likes?: number;
+  views?: number;
+};
+
+type BlogGridProps = {
+  activeCategories: string[]; // Array of active category values
+  searchQuery: string;
+  onCategoriesChange?: (categories: CategoryOption[]) => void;
 };
 
 // Sample test data for blog posts
@@ -34,6 +56,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "ai-powered-threat-detection",
     tags: ["AI Security", "Threat Detection", "Machine Learning"],
     readTime: 5,
+    category: "AI Security",
+    likes: 42,
+    views: 1250,
   },
   {
     id: "2",
@@ -46,6 +71,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "gdpr-compliance-guide-2024",
     tags: ["Compliance", "GDPR", "Data Protection"],
     readTime: 8,
+    category: "Compliance",
+    likes: 38,
+    views: 980,
   },
   {
     id: "3",
@@ -58,6 +86,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "zero-trust-architecture-best-practices",
     tags: ["Zero Trust", "Security", "Architecture"],
     readTime: 6,
+    category: "Zero Trust",
+    likes: 56,
+    views: 1520,
   },
   {
     id: "4",
@@ -70,6 +101,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "ransomware-defense-strategies",
     tags: ["Ransomware", "Incident Response", "Enterprise Security"],
     readTime: 7,
+    category: "Ransomware",
+    likes: 71,
+    views: 2100,
   },
   {
     id: "5",
@@ -82,6 +116,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "cloud-security-multi-cloud",
     tags: ["Cloud Protection", "Multi-Cloud", "Data Security"],
     readTime: 6,
+    category: "Cloud Protection",
+    likes: 49,
+    views: 1350,
   },
   {
     id: "6",
@@ -94,6 +131,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "threat-hunting-proactive-security",
     tags: ["Threat Hunting", "Proactive Security", "SOC"],
     readTime: 5,
+    category: "Threat Hunting",
+    likes: 33,
+    views: 890,
   },
   {
     id: "7",
@@ -106,6 +146,9 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "incident-response-planning-guide",
     tags: ["Incident Response", "Planning", "Security Operations"],
     readTime: 9,
+    category: "Incident Response",
+    likes: 64,
+    views: 1780,
   },
   {
     id: "8",
@@ -118,12 +161,20 @@ const sampleBlogPosts: BlogCardData[] = [
     slug: "cybersecurity-trends-2024",
     tags: ["Trends", "Future Tech", "Cybersecurity"],
     readTime: 7,
+    category: "Trends",
+    likes: 87,
+    views: 2450,
   },
 ];
 
 // Blog Card Component with Aceternity-style design
 const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Use existing thumbnail as fallback, or use first available thumbnail
+  const defaultImage = "/images/website/resources/blog-thumbnail-1.jpg";
+  const imageSrc = post.image && !imageError ? post.image : defaultImage;
 
   return (
     <Link href={`/resources/${post.slug}`}>
@@ -160,13 +211,20 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
           )}
         >
           {/* Blog Image */}
-          <div className="h-[240px] relative overflow-hidden rounded-t-2xl">
-            <Image
-              src={post.image || "/images/website/resources/blog-default.jpg"}
-              alt={post.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+          <div className="h-[240px] relative overflow-hidden rounded-t-2xl bg-muted">
+            {imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt={post.title}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">No image</span>
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
 
@@ -200,6 +258,18 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
               {post.description}
             </p>
 
+            {/* Engagement Metrics */}
+            <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5" />
+                <span>{post.views || 0}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <ThumbsUp className="w-3.5 h-3.5" />
+                <span>{post.likes || 0}</span>
+              </div>
+            </div>
+
             {/* Tags */}
             {post.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap">
@@ -220,85 +290,201 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
   );
 };
 
-export function BlogGrid() {
+export function BlogGrid({
+  activeCategories,
+  searchQuery,
+  onCategoriesChange,
+}: BlogGridProps) {
   const [blogPosts, setBlogPosts] = useState<BlogCardData[]>(sampleBlogPosts);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPosts, setTotalPosts] = useState(sampleBlogPosts.length);
   const postsPerPage = 8;
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/blog?published=true&limit=100");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+
+        const data = await response.json();
+        const posts: Post[] = data.posts || [];
+
+        // Transform posts to BlogCardData format
+        const transformedPosts: BlogCardData[] = posts.map((post) => ({
+          id: post.id,
+          title: post.title,
+          author: "Atraiva Team", // Default author - can be fetched from user data
+          date: new Date(post.publishedAt || post.createdAt).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
+          image: post.featuredImage || null, // Let BlogCard handle fallback
+          description: post.excerpt || "",
+          slug: post.slug,
+          tags: post.tags || [],
+          readTime: post.readTimeMinutes || 5,
+          category: post.category || null,
+          likes: post.likes || 0,
+          views: post.views || 0,
+        }));
+
+        // Use transformed posts if available, otherwise fall back to sample data
+        if (transformedPosts.length > 0) {
+          setBlogPosts(transformedPosts);
+        } else {
+          setBlogPosts(sampleBlogPosts);
+        }
+      } catch (error) {
+        console.error("Error fetching blog posts:", error);
+        // Fall back to sample data on error
+        setBlogPosts(sampleBlogPosts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPosts();
   }, []);
 
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/blog?published=true&limit=100");
+  const derivedCategories = useMemo(() => {
+    // Use normalized keys to dedupe, but keep original values for matching
+    const categoryMap = new Map<string, string>();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch posts");
-      }
+    const addCategory = (value?: string | null) => {
+      if (!value) return;
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      // Use normalized value as key for deduplication
+      const normalizedKey = normalizeCategoryValue(trimmed);
+      if (categoryMap.has(normalizedKey)) return;
+      // Store original value for matching (will be normalized during comparison)
+      categoryMap.set(normalizedKey, trimmed);
+    };
 
-      const data = await response.json();
-      const posts: Post[] = data.posts || [];
+    blogPosts.forEach((post) => {
+      addCategory(post.category ?? null);
+      post.tags.forEach((tag) => addCategory(tag));
+    });
 
-      // Transform posts to BlogCardData format
-      const transformedPosts: BlogCardData[] = posts.map((post) => ({
-        id: post.id,
-        title: post.title,
-        author: "Atraiva Team", // Default author - can be fetched from user data
-        date: new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-          "en-US",
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        ),
-        image:
-          post.featuredImage || "/images/website/resources/blog-default.jpg",
-        description: post.excerpt || "",
-        slug: post.slug,
-        tags: post.tags,
-        readTime: post.readTimeMinutes || 5,
-      }));
+    const formatLabel = (value: string) =>
+      value
+        .replace(/[-_]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
 
-      // Use transformed posts if available, otherwise fall back to sample data
-      if (transformedPosts.length > 0) {
-        setBlogPosts(transformedPosts);
-        setTotalPosts(transformedPosts.length);
-      } else {
-        // Keep using sample data if no posts from API
-        setBlogPosts(sampleBlogPosts);
-        setTotalPosts(sampleBlogPosts.length);
-      }
-    } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      // Fall back to sample data on error
-      setBlogPosts(sampleBlogPosts);
-      setTotalPosts(sampleBlogPosts.length);
-    } finally {
-      setLoading(false);
+    return Array.from(categoryMap.values())
+      .map((value) => ({
+        value, // Keep original value - will be normalized during comparison
+        label: formatLabel(value),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [blogPosts]);
+
+  useEffect(() => {
+    if (onCategoriesChange) {
+      onCategoriesChange(derivedCategories);
     }
-  };
+  }, [derivedCategories, onCategoriesChange]);
 
-  // Pagination logic
-  const totalPages = Math.ceil(totalPosts / postsPerPage);
+  // Normalize all active categories
+  const normalizedActiveCategories = useMemo(() => {
+    if (!activeCategories || activeCategories.length === 0) {
+      return ["all"];
+    }
+    return activeCategories.map((cat) => normalizeCategoryValue(cat));
+  }, [activeCategories]);
+
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [normalizedActiveCategories, normalizedSearch]);
+
+  const filteredPosts = useMemo(() => {
+    // If "all" is selected and no search, return all posts
+    if (
+      normalizedActiveCategories.includes("all") &&
+      !normalizedSearch
+    ) {
+      return blogPosts;
+    }
+
+    return blogPosts.filter((post) => {
+      // Normalize all possible category/tag values for comparison
+      const postCategoryValues = [
+        post.category ?? undefined,
+        ...post.tags,
+      ]
+        .filter(Boolean)
+        .map((value) => normalizeCategoryValue(value));
+
+      // Check category match - post must match ANY of the selected categories
+      let matchesCategory = false;
+      
+      if (normalizedActiveCategories.includes("all")) {
+        matchesCategory = true; // "all" means show everything
+      } else {
+        // Check if post matches any of the selected categories
+        matchesCategory = normalizedActiveCategories.some((activeCat) =>
+          postCategoryValues.includes(activeCat)
+        );
+      }
+
+      if (!matchesCategory) {
+        return false;
+      }
+
+      // Check search match
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      const searchableFields = [
+        post.title,
+        post.description,
+        post.author,
+        ...post.tags,
+        post.category,
+      ]
+        .filter(Boolean)
+        .map((value) => value.toString().toLowerCase());
+
+      return searchableFields.some((field) =>
+        field.includes(normalizedSearch)
+      );
+    });
+  }, [blogPosts, normalizedActiveCategories, normalizedSearch]);
+
+  const totalPosts = filteredPosts.length;
+  const totalPages = Math.max(1, Math.ceil(totalPosts / postsPerPage));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   const startIndex = (currentPage - 1) * postsPerPage;
-  const endIndex = startIndex + postsPerPage;
-  const currentPosts = blogPosts.slice(startIndex, endIndex);
+  const currentPosts = filteredPosts.slice(
+    startIndex,
+    startIndex + postsPerPage
+  );
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    setCurrentPage((prev) => Math.max(1, prev - 1));
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
   };
 
   if (loading) {
@@ -329,9 +515,10 @@ export function BlogGrid() {
           </div>
 
           {/* Blog Grid */}
-          {currentPosts.length === 0 ? (
+          {totalPosts === 0 ? (
             <div className="text-center text-muted-foreground py-12">
-              No blog posts available yet. Check back soon!
+              No resources match your filters yet. Try adjusting your search or
+              browsing all categories.
             </div>
           ) : (
             <>
