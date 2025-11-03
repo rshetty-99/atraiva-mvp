@@ -5,6 +5,33 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { ActivityLogService } from "@/lib/activity-log-service";
 
+// Type for Clerk metadata
+type ClerkOrgMeta = { primaryOrganization?: { role?: string } };
+type ClerkPublicMetadata = {
+  industry?: string;
+  size?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  zipCode?: string;
+  website?: string;
+  phone?: string;
+  description?: string;
+  subscriptionPlan?: string;
+  subscriptionStatus?: string;
+  applicableRegulations?: string[];
+  settings?: {
+    timezone?: string;
+    locale?: string;
+    notifications?: {
+      email?: boolean;
+      sms?: boolean;
+      push?: boolean;
+    };
+  };
+};
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -23,8 +50,8 @@ export async function GET(
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can access this
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -93,7 +120,8 @@ export async function GET(
     const accountOwner = validMembers.find((m) => m?.role === "org:admin");
 
     // Get public metadata from Clerk (if available)
-    const clerkPublicMetadata = (clerkOrg.publicMetadata as any) || {};
+    const clerkPublicMetadata = (clerkOrg.publicMetadata ??
+      {}) as ClerkPublicMetadata;
 
     // Combine organization data - prioritize Clerk publicMetadata over Firestore
     const organization = {
@@ -150,10 +178,12 @@ export async function GET(
       organization,
       members: validMembers,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching organization details:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: errorMessage },
       { status: 500 }
     );
   }
@@ -186,8 +216,8 @@ export async function PUT(
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can update organizations
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -222,12 +252,11 @@ export async function PUT(
         organizationId,
       });
       console.log(`Organization found in Clerk:`, existingOrg.name);
-    } catch (getError: any) {
-      console.error(
-        `Error fetching organization from Clerk:`,
-        getError.message
-      );
-      throw new Error(`Organization not found in Clerk: ${getError.message}`);
+    } catch (getError: unknown) {
+      const errorMessage =
+        getError instanceof Error ? getError.message : "Unknown error";
+      console.error(`Error fetching organization from Clerk:`, errorMessage);
+      throw new Error(`Organization not found in Clerk: ${errorMessage}`);
     }
 
     // Update organization in Clerk using Backend API
@@ -259,10 +288,12 @@ export async function PUT(
         `Successfully updated organization in Clerk: ${organizationId}`,
         updateResult
       );
-    } catch (clerkError: any) {
+    } catch (clerkError: unknown) {
+      const errorMessage =
+        clerkError instanceof Error ? clerkError.message : "Unknown error";
       console.error(
         `Error updating organization in Clerk:`,
-        clerkError.message,
+        errorMessage,
         clerkError
       );
       // Continue with Firestore update even if Clerk fails
@@ -299,7 +330,8 @@ export async function PUT(
     });
 
     // Track changes and log activity
-    const changes: { field: string; oldValue?: any; newValue?: any }[] = [];
+    const changes: { field: string; oldValue?: unknown; newValue?: unknown }[] =
+      [];
 
     if (oldOrgData) {
       if (oldOrgData.name !== updateData.name) {
@@ -379,10 +411,12 @@ export async function PUT(
       success: true,
       message: "Organization updated successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating organization:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: errorMessage },
       { status: 500 }
     );
   }

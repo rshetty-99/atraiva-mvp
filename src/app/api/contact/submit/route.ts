@@ -86,13 +86,14 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Contact form submission error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
         success: false,
         error: "Failed to submit contact form",
-        message: error.message,
+        message: errorMessage,
       },
       { status: 500 }
     );

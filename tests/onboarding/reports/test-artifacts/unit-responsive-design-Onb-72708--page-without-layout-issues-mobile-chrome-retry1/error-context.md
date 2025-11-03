@@ -1,0 +1,177 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img [ref=e8]
+        - generic [ref=e10]:
+          - heading "Atraiva" [level=1] [ref=e11]
+          - paragraph [ref=e12]: Compliance Platform
+      - generic [ref=e13]:
+        - button "Toggle theme" [ref=e14]:
+          - img
+          - generic [ref=e15]: Toggle theme
+        - generic [ref=e16]: Step 1 of 6
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: Welcome to Atraiva
+        - generic [ref=e21]: 17% Complete
+      - progressbar [ref=e22]
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - img [ref=e30]
+        - generic [ref=e32]: Welcome to Atraiva
+        - generic [ref=e33]: Let's get you set up with your personalized compliance platform
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - img [ref=e40]
+              - generic [ref=e43]: Enterprise Security Platform
+            - heading "Welcome to the Future of Compliance Management" [level=2] [ref=e44]:
+              - text: Welcome to the Future of
+              - generic [ref=e45]: Compliance Management
+            - paragraph [ref=e46]: Atraiva empowers cybersecurity law firms and enterprises to manage breach notification compliance with automated regulatory mapping, real-time monitoring, and intelligent incident response.
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - img [ref=e50]
+              - generic [ref=e53]: 500+
+              - generic [ref=e54]: Organizations
+            - generic [ref=e55]:
+              - img [ref=e57]
+              - generic [ref=e60]: 99.9%
+              - generic [ref=e61]: Compliance Rate
+            - generic [ref=e62]:
+              - img [ref=e64]
+              - generic [ref=e67]: <2 min
+              - generic [ref=e68]: Response Time
+            - generic [ref=e69]:
+              - img [ref=e71]
+              - generic [ref=e73]: 99.9%
+              - generic [ref=e74]: Uptime
+        - generic [ref=e75]:
+          - generic [ref=e78]:
+            - img [ref=e80]
+            - heading "HIPAA Compliant" [level=3] [ref=e82]
+            - paragraph [ref=e83]: Enterprise-grade security with full HIPAA compliance
+          - generic [ref=e86]:
+            - img [ref=e88]
+            - heading "Multi-Tenant" [level=3] [ref=e93]
+            - paragraph [ref=e94]: Support for law firms, enterprises, and channel partners
+          - generic [ref=e97]:
+            - img [ref=e99]
+            - heading "Real-Time Analytics" [level=3] [ref=e101]
+            - paragraph [ref=e102]: Live compliance monitoring and breach notification tracking
+          - generic [ref=e105]:
+            - img [ref=e107]
+            - heading "Automated Workflows" [level=3] [ref=e110]
+            - paragraph [ref=e111]: Streamlined incident response and regulatory compliance
+          - generic [ref=e114]:
+            - img [ref=e116]
+            - heading "50-State Coverage" [level=3] [ref=e119]
+            - paragraph [ref=e120]: Complete regulatory coverage across all US jurisdictions
+          - generic [ref=e123]:
+            - img [ref=e125]
+            - heading "AI-Powered" [level=3] [ref=e127]
+            - paragraph [ref=e128]: Intelligent PII detection and compliance assessment
+        - generic [ref=e130]:
+          - heading "Why Choose Atraiva?" [level=3] [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - generic [ref=e134]: 5 min
+              - generic [ref=e135]: Average onboarding time
+            - generic [ref=e136]:
+              - generic [ref=e137]: 50%
+              - generic [ref=e138]: Reduction in compliance costs
+            - generic [ref=e139]:
+              - generic [ref=e140]: 100%
+              - generic [ref=e141]: Regulatory compliance accuracy
+        - generic [ref=e142]:
+          - button "Get Started" [ref=e143]:
+            - text: Get Started
+            - img
+          - paragraph [ref=e144]: Setup takes less than 5 minutes • No credit card required
+    - generic [ref=e147]:
+      - generic [ref=e148]:
+        - generic [ref=e149]: © 2024 Atraiva. All rights reserved.
+        - generic [ref=e150]: •
+        - generic [ref=e151]: HIPAA Compliant
+        - generic [ref=e152]: •
+        - generic [ref=e153]: SOC 2 Type II
+      - generic [ref=e154]:
+        - img [ref=e155]
+        - generic [ref=e157]: Enterprise Security
+  - region "Notifications alt+T"
+  - generic [active]:
+    - generic [ref=e162] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e163]:
+        - img [ref=e164]
+      - button "Open issues overlay" [ref=e168]:
+        - generic [ref=e169]:
+          - generic [ref=e170]: "0"
+          - generic [ref=e171]: "1"
+        - generic [ref=e172]: Issue
+    - generic [ref=e175]:
+      - generic [ref=e176]:
+        - navigation [ref=e178]:
+          - button "previous" [disabled] [ref=e179]:
+            - img "previous" [ref=e180]
+          - generic [ref=e182]:
+            - generic [ref=e183]: 1/
+            - text: "1"
+          - button "next" [disabled] [ref=e184]:
+            - img "next" [ref=e185]
+        - link "Next.js 15.4.7 (outdated) Turbopack" [ref=e188] [cursor=pointer]:
+          - /url: https://nextjs.org/docs/messages/version-staleness
+          - img [ref=e189]
+          - generic "An outdated version detected (latest is 16.0.1), upgrade is highly recommended!" [ref=e191]: Next.js 15.4.7 (outdated)
+          - generic [ref=e192]: Turbopack
+      - dialog "Build Error" [ref=e194]:
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - generic [ref=e199]:
+              - generic [ref=e201]: Build Error
+              - generic [ref=e202]:
+                - button "Copy Stack Trace" [ref=e203] [cursor=pointer]:
+                  - img [ref=e204]
+                - button "No related documentation found" [disabled] [ref=e206]:
+                  - img [ref=e207]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e209] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e210]
+            - paragraph [ref=e219]: Error parsing package.json file
+          - generic [ref=e221]:
+            - generic [ref=e223]:
+              - img [ref=e225]
+              - generic [ref=e227]: ./package.json (84:23)
+              - button "Open in editor" [ref=e228] [cursor=pointer]:
+                - img [ref=e230]
+            - generic [ref=e233]:
+              - generic [ref=e234]: Error parsing package.json file
+              - generic [ref=e235]: 82 |
+              - text: "\"tsx\": \"^4.20.6\","
+              - generic [ref=e236]: 83 |
+              - text: "\"tw-animate-css\": \"^1.3.7\", >"
+              - generic [ref=e237]: 84 |
+              - text: "\"typescript\": \"^5\"\"test:onboarding\":"
+              - generic [ref=e238]: "\"playwright test --config=tests/onboarding/playwright.config.ts\""
+              - text: ","
+              - generic [ref=e239]: "|"
+              - text: ^
+              - generic [ref=e240]: 85 |
+              - text: "\"test:onboarding:ui\":"
+              - generic [ref=e241]: "\"playwright test --config=tests/onboarding/playwright.config.ts --ui\""
+              - text: ","
+              - generic [ref=e242]: 86 |
+              - text: "\"test:onboarding:headed\":"
+              - generic [ref=e243]: "\"playwright test --config=tests/onboarding/playwright.config.ts --headed\""
+              - generic [ref=e244]: 87 |
+              - generic [ref=e245]: "}"
+              - generic [ref=e246]: "package.json is not parseable: invalid JSON: expected `,` or `}` at line 84 column 23"
+        - generic [ref=e247]:
+          - generic [ref=e248]: "1"
+          - generic [ref=e249]: "2"
+  - alert [ref=e250]
+```

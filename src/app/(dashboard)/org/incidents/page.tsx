@@ -36,7 +36,7 @@ const incidentSteps = [
   {
     id: "incident-type",
     title: "Incident Type",
-    description: "Select the type of security incident you're reporting",
+    description: "Select the type of security incident you&apos;re reporting",
     component: Step1,
     icon: AlertTriangle,
   },

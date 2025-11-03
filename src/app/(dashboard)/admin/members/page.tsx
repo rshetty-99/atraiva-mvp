@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -86,9 +86,40 @@ export default function MembersPage() {
     fetchMembers();
   }, []);
 
+  const filterMembers = useCallback(() => {
+    let filtered = [...members];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (member) =>
+          member.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.organizationName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Organization filter
+    if (filterOrg && filterOrg !== "all") {
+      filtered = filtered.filter(
+        (member) => member.organizationId === filterOrg
+      );
+    }
+
+    // Role filter
+    if (filterRole && filterRole !== "all") {
+      filtered = filtered.filter((member) => member.role === filterRole);
+    }
+
+    setFilteredMembers(filtered);
+  }, [searchTerm, filterOrg, filterRole, members]);
+
   useEffect(() => {
     filterMembers();
-  }, [searchTerm, filterOrg, filterRole, members]);
+  }, [filterMembers]);
 
   const fetchOrganizations = async () => {
     try {
@@ -126,9 +157,10 @@ export default function MembersPage() {
           noOrg: 0,
         }
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching members:", error);
-      toast.error(error.message || "Failed to load members");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load members";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

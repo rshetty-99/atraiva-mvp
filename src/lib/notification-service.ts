@@ -32,14 +32,14 @@ export class NotificationService {
     resourceType?: string;
     resourceId?: string;
     resourceName?: string;
-    changes?: { field: string; oldValue?: any; newValue?: any }[];
+    changes?: { field: string; oldValue?: unknown; newValue?: unknown }[];
     actionUrl?: string;
     expiresAt?: Date;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<string> {
     try {
       const notification: Omit<Notification, "id" | "createdAt"> & {
-        createdAt: any;
+        createdAt: ReturnType<typeof serverTimestamp>;
       } = {
         userId: params.userId,
         organizationId: params.organizationId,
@@ -87,7 +87,7 @@ export class NotificationService {
     actionBy?: string;
     actionByName?: string;
     actionByEmail?: string;
-    changes?: { field: string; oldValue?: any; newValue?: any }[];
+    changes?: { field: string; oldValue?: unknown; newValue?: unknown }[];
     actionUrl?: string;
     memberIds: string[];
   }): Promise<string[]> {
@@ -141,7 +141,7 @@ export class NotificationService {
     actionBy: string;
     actionByName: string;
     actionByEmail: string;
-    changes: { field: string; oldValue?: any; newValue?: any }[];
+    changes: { field: string; oldValue?: unknown; newValue?: unknown }[];
   }): Promise<string> {
     const changesList = params.changes
       .map((c) => c.field.replace(/_/g, " "))

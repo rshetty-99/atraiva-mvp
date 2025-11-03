@@ -6,17 +6,17 @@ export interface StateRegulation {
   source_id: string; // URL to the source document
   url: string; // URL to the regulation
   fetched_at: string | Date; // ISO timestamp when data was fetched
-  metadata: Record<string, any>; // Additional metadata
+  metadata: Record<string, unknown>; // Additional metadata
   parsed: {
-    breach_notification: Record<string, any>; // Breach notification details
-    requirements: Record<string, any>; // Compliance requirements
-    timelines: any[]; // Timeline information
-    penalties: Record<string, any>; // Penalty information
-    exemptions: any[]; // Exemptions list
-    definitions: Record<string, any>; // Key definitions
+    breach_notification: Record<string, unknown>; // Breach notification details
+    requirements: Record<string, unknown>; // Compliance requirements
+    timelines: unknown[]; // Timeline information
+    penalties: Record<string, unknown>; // Penalty information
+    exemptions: unknown[]; // Exemptions list
+    definitions: Record<string, unknown>; // Key definitions
     state: string; // State code (duplicate)
     url: string; // URL (duplicate)
-    metadata: Record<string, any>; // Metadata (duplicate)
+    metadata: Record<string, unknown>; // Metadata (duplicate)
     parsed_at: string | Date; // ISO timestamp when parsed
     extractor: string; // Extractor type (e.g., "ai_extractor")
     law_type: string; // Type of law (e.g., "general_privacy", "data_breach")

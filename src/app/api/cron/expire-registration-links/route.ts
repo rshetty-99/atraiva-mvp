@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       try {
         await registrationLinkService.update(link.id, {
           status: "expired",
-        } as any);
+        } as Record<string, unknown>);
 
         successCount++;
         console.log(

@@ -312,9 +312,10 @@ export default function CreateRegistrationLinkPage() {
 
       // Redirect back to list
       router.push("/admin/registration-management");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating registration link:", error);
-      toast.error(error.message || "Failed to create registration link");
+      const errorMessage = error instanceof Error ? error.message : "Failed to create registration link";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

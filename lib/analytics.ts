@@ -4,7 +4,7 @@ import { logEvent } from "firebase/analytics";
 // Google Analytics 4 Event Tracking for Atraiva
 export const trackEvent = (
   eventName: string,
-  parameters?: Record<string, any>
+  parameters?: Record<string, unknown>
 ) => {
   if (analytics && typeof window !== "undefined") {
     logEvent(analytics, eventName, parameters);
@@ -69,7 +69,9 @@ export const trackPageView = (pageName: string, pageTitle?: string) => {
 };
 
 // User properties for segmentation
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (
+  properties: Record<string, string | number | boolean | null | undefined>
+) => {
   if (analytics && typeof window !== "undefined") {
     // Set user properties for better segmentation
     const analyticsInstance = analytics; // Store to avoid null type narrowing issue in forEach
@@ -86,7 +88,13 @@ export const setUserProperties = (properties: Record<string, any>) => {
 export const trackPurchase = (
   transactionId: string,
   value: number,
-  items: any[]
+  items: Array<{
+    item_id?: string;
+    item_name?: string;
+    price?: number;
+    quantity?: number;
+    [key: string]: unknown;
+  }>
 ) => {
   if (analytics && typeof window !== "undefined") {
     logEvent(analytics, "purchase", {

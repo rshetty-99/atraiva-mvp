@@ -4,15 +4,21 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Play, Shield, Clock } from "lucide-react";
+import { BreachMap } from "./BreachMap";
+import type { StateBreachData } from "@/lib/breach/server-fetch";
 
-export function Hero() {
+type HeroProps = {
+  breachCountsByState?: Record<string, StateBreachData>;
+};
+
+export function Hero({ breachCountsByState }: HeroProps) {
   return (
-    <section className="relative bg-background min-h-[calc(100vh-120px)] lg:min-h-[calc(100vh-220px)] flex items-center">
+    <section className="relative bg-background min-h-[calc(100vh-439px)] pt-[164px] pb-[150px] lg:min-h-[calc(100vh-439px)] flex items-start">
       {/* Background Blur Element */}
       <div className="absolute top-16 left-[702px] w-[770px] h-[765px] rounded-full bg-primary/20 blur-[250px] hidden lg:block"></div>
 
-      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-8 w-full">
-        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-[150px] max-w-[1600px] mx-auto">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 pt-8 pb-0 w-full">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-[150px] max-w-[1600px] mx-auto">
           {/* Left Content */}
           <div className="flex flex-col justify-center gap-6 lg:gap-10 w-full lg:w-auto lg:flex-1">
             <div className="flex flex-col gap-6 lg:gap-10">
@@ -68,43 +74,23 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right Content - Chart */}
+          {/* Right Content - Map */}
           <div className="flex flex-col justify-center items-center gap-8 lg:gap-12 w-full lg:w-auto lg:flex-1">
-            <div className="w-full max-w-[650px] lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
-              <Image
-                src="/images/website/features/legal-updates-chart-47bf32.jpg"
-                alt="Legal Updates Chart"
-                width={1400}
-                height={886}
-                className="rounded-lg w-full h-auto"
-              />
-            </div>
-
-            {/* Timeline */}
-            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 xl:gap-8 2xl:gap-10 overflow-x-auto w-full justify-center">
-              {[
-                { value: "0", color: "#BF9100" },
-                { value: "15", color: "#D3B145" },
-                { value: "30", color: "#E9D189" },
-                { value: "45", color: "#FBE9BC" },
-                { value: "60", color: "#F5E1AA" },
-                { value: "75", color: "#FBE9BC" },
-                { value: "90 days", color: "#D3B145" },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center gap-3 lg:gap-4 xl:gap-5 2xl:gap-6 min-w-[80px] lg:min-w-[100px] xl:min-w-[120px] 2xl:min-w-[140px]"
-                >
-                  <div
-                    className="w-[60px] sm:w-[80px] lg:w-[100px] xl:w-[120px] 2xl:w-[140px] h-6 sm:h-8 lg:h-10 xl:h-12 2xl:h-14 rounded"
-                    style={{ backgroundColor: item.color }}
-                  ></div>
-                  <span className="font-lato text-sm sm:text-base lg:text-lg xl:text-xl 2xl:text-2xl font-bold leading-[1.2] text-center text-foreground whitespace-nowrap">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {breachCountsByState ? (
+              <div className="w-full max-w-[650px] lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
+                <BreachMap breachCountsByState={breachCountsByState} />
+              </div>
+            ) : (
+              <div className="w-full max-w-[650px] lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
+                <Image
+                  src="/images/website/features/legal-updates-chart-47bf32.jpg"
+                  alt="Legal Updates Chart"
+                  width={1400}
+                  height={886}
+                  className="rounded-lg w-full h-auto"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

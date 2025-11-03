@@ -6,6 +6,10 @@ import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { ActivityLogService } from "@/lib/activity-log-service";
 import { NotificationService } from "@/lib/notification-service";
 
+// Type for Clerk metadata
+type ClerkOrgMeta = { primaryOrganization?: { role?: string; id?: string; name?: string } };
+type ClerkPrivateMetadata = { primaryOrganizationId?: string; organizationId?: string; primaryRole?: string };
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -25,8 +29,8 @@ export async function GET(
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can view member details
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -58,8 +62,8 @@ export async function GET(
     let role = "org_viewer";
 
     // Check multiple sources for organization data
-    const primaryOrg = (clerkUser.publicMetadata as any)?.atraiva
-      ?.primaryOrganization;
+    const primaryOrg = ((clerkUser.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta)
+      .primaryOrganization;
     if (primaryOrg?.id && primaryOrg.id !== "temp") {
       organizationId = primaryOrg.id;
       organizationName = primaryOrg.name || "Unknown Org";
@@ -88,7 +92,8 @@ export async function GET(
     }
 
     // Get role from private metadata or fallback to firestore
-    const primaryRole = (clerkUser.privateMetadata as any)?.primaryRole;
+    const privateMetadata = (clerkUser.privateMetadata ?? {}) as ClerkPrivateMetadata;
+    const primaryRole = privateMetadata.primaryRole;
     if (typeof primaryRole === "string") {
       role = primaryRole;
     } else if (firestoreData.role) {
@@ -195,8 +200,8 @@ export async function PUT(
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can update members
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -232,15 +237,16 @@ export async function PUT(
         `Member found in Clerk:`,
         existingMember.emailAddresses[0]?.emailAddress
       );
-    } catch (getError: any) {
-      console.error(`Error fetching member from Clerk:`, getError.message);
-      throw new Error(`Member not found in Clerk: ${getError.message}`);
+    } catch (getError: unknown) {
+      const errorMessage = getError instanceof Error ? getError.message : "Unknown error";
+      console.error(`Error fetching member from Clerk:`, errorMessage);
+      throw new Error(`Member not found in Clerk: ${errorMessage}`);
     }
 
     // Update member in Clerk using Backend API
     try {
       // Prepare the update data for Clerk
-      const clerkUpdateData: any = {
+      const clerkUpdateData: { firstName: string; lastName: string; phoneNumber?: string } = {
         firstName: updateData.firstName,
         lastName: updateData.lastName,
       };
@@ -267,15 +273,13 @@ export async function PUT(
           const currentMember = await client.users.getUser(memberId);
 
           // Remove from old organization if exists
-          const memberWithOrgs = currentMember as any;
-          if (
-            memberWithOrgs.organizationMemberships &&
-            memberWithOrgs.organizationMemberships.length > 0
-          ) {
-            for (const membership of memberWithOrgs.organizationMemberships) {
+          // Note: organizationMemberships may not be directly accessible, using API method instead
+          const memberships = await client.users.getOrganizationMembershipList({ userId: memberId });
+          if (memberships.data && memberships.data.length > 0) {
+            for (const membership of memberships.data) {
               try {
-                // Type cast for legacy Clerk API method
-                await (client.organizations as any).deleteMembership({
+                // Use the correct Clerk API method to remove membership
+                await client.organizations.deleteOrganizationMembership({
                   organizationId: membership.organization.id,
                   userId: memberId,
                 });
@@ -291,8 +295,8 @@ export async function PUT(
           // Add to new organization
           const clerkRole =
             updateData.role === "org_admin" ? "org:admin" : "org:member";
-          // Type cast for legacy Clerk API method
-          await (client.organizations as any).createMembership({
+          // Use the correct Clerk API method to create membership
+          await client.organizations.createOrganizationMembership({
             organizationId: updateData.organizationId,
             userId: memberId,
             role: clerkRole,
@@ -313,18 +317,20 @@ export async function PUT(
             },
           });
           console.log(`Updated member metadata with organization info`);
-        } catch (orgError: any) {
+        } catch (orgError: unknown) {
+          const errorMessage = orgError instanceof Error ? orgError.message : "Unknown error";
           console.error(
             `Error updating organization membership:`,
-            orgError.message
+            errorMessage
           );
           // Continue with other updates even if organization update fails
         }
       }
-    } catch (clerkError: any) {
+    } catch (clerkError: unknown) {
+      const errorMessage = clerkError instanceof Error ? clerkError.message : "Unknown error";
       console.error(
         `Error updating member in Clerk:`,
-        clerkError.message,
+        errorMessage,
         clerkError
       );
       // Continue with Firestore update even if Clerk fails
@@ -355,7 +361,7 @@ export async function PUT(
     console.log(`Successfully updated member in Firestore: ${memberId}`);
 
     // Track changes and log activity
-    const changes: { field: string; oldValue?: any; newValue?: any }[] = [];
+    const changes: { field: string; oldValue?: unknown; newValue?: unknown }[] = [];
 
     if (oldMemberData) {
       if (oldMemberData.firstName !== updateData.firstName) {

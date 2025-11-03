@@ -164,6 +164,12 @@ export interface UserSessionData {
     canCreateReports: boolean;
   };
 
+  // User preferences and subscriptions
+  preferences?: {
+    newsletterSubscribed?: boolean;
+    newsletterSubscribedAt?: string; // ISO timestamp
+  };
+
   // Cache metadata
   cache: {
     lastUpdated: string; // ISO timestamp

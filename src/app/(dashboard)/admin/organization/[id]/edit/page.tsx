@@ -240,13 +240,7 @@ export default function EditOrganizationPage() {
     getOrganizationId();
   }, [params]);
 
-  useEffect(() => {
-    if (organizationId) {
-      fetchOrganization();
-    }
-  }, [organizationId]);
-
-  const fetchOrganization = async () => {
+  const fetchOrganization = useCallback(async () => {
     if (!organizationId) return;
 
     try {
@@ -292,13 +286,20 @@ export default function EditOrganizationPage() {
 
       form.reset(formData);
       setHasUnsavedChanges(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching organization:", error);
-      toast.error(error.message || "Failed to load organization details");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load organization details";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (organizationId) {
+      fetchOrganization();
+    }
+  }, [organizationId, fetchOrganization]);
 
   // Track form changes
   useEffect(() => {
@@ -331,13 +332,7 @@ export default function EditOrganizationPage() {
   }, [pendingNavigation, router]);
 
   // Handle save and exit
-  const handleSaveAndExit = useCallback(async () => {
-    setShowExitDialog(false);
-    const formData = form.getValues();
-    await onSubmit(formData);
-  }, [form]);
-
-  const onSubmit = async (data: OrganizationFormData) => {
+  const onSubmit = useCallback(async (data: OrganizationFormData) => {
     if (!organizationId) return;
 
     try {
@@ -361,13 +356,20 @@ export default function EditOrganizationPage() {
       toast.success("Organization updated successfully");
       setHasUnsavedChanges(false);
       router.push("/admin/organization");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating organization:", error);
-      toast.error(error.message || "Failed to update organization");
+      const errorMessage = error instanceof Error ? error.message : "Failed to update organization";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [organizationId, router]);
+
+  const handleSaveAndExit = useCallback(async () => {
+    setShowExitDialog(false);
+    const formData = form.getValues();
+    await onSubmit(formData);
+  }, [form, onSubmit]);
 
   // Warn on browser refresh/close
   useEffect(() => {

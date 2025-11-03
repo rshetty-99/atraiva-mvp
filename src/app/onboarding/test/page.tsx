@@ -48,7 +48,7 @@ export default function OnboardingTestPage() {
     }
   };
 
-  const handleDataUpdate = (data: any) => {
+  const handleDataUpdate = (data: Record<string, unknown>) => {
     setTestData((prev) => ({ ...prev, ...data }));
   };
 

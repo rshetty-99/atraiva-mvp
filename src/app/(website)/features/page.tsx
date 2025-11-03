@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import {
   Header,
@@ -10,12 +8,19 @@ import {
   CTA,
   Footer,
 } from "@/components/website/features";
+import { getBreachesByState } from "@/lib/breach/server-fetch";
 
-export default function FeaturesPage() {
+// ISR Configuration: Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
+
+export default async function FeaturesPage() {
+  // Fetch breach counts by state
+  const breachCountsByState = await getBreachesByState();
+
   return (
     <div className="min-h-screen bg-[#0F0C0B] text-gray-200">
       <Header />
-      <Hero />
+      <Hero breachCountsByState={breachCountsByState} />
       <ProductFeatures />
       <Stats />
       <WhyChooseUs />

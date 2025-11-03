@@ -3,7 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, serverTimestamp, getDoc } from "firebase/firestore";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const authData = await auth();
     if (!authData.userId || !authData.orgId) {
@@ -30,12 +30,13 @@ export async function GET(request: NextRequest) {
         settings: orgData.settings || {},
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching organization profile:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
         error: "Failed to fetch organization profile",
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );
@@ -63,7 +64,7 @@ export async function PATCH(request: NextRequest) {
 
     // Update Firestore organization data
     const orgRef = doc(db, "organizations", authData.orgId);
-    const updateFields: any = {
+    const updateFields: Record<string, unknown> = {
       updatedAt: serverTimestamp(),
     };
 
@@ -89,12 +90,13 @@ export async function PATCH(request: NextRequest) {
       success: true,
       message: "Organization profile updated successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating organization profile:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
         error: "Failed to update organization profile",
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

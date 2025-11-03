@@ -28,18 +28,18 @@ export class ActivityLogService {
     resourceId: string;
     resourceName?: string;
     description: string;
-    changes?: { field: string; oldValue?: any; newValue?: any }[];
+    changes?: { field: string; oldValue?: unknown; newValue?: unknown }[];
     severity?: AuditLog["severity"];
     ipAddress?: string;
     userAgent?: string;
     location?: string;
     success?: boolean;
     errorMessage?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<string> {
     try {
       const auditLog: Omit<AuditLog, "id" | "timestamp"> & {
-        timestamp: any;
+        timestamp: ReturnType<typeof serverTimestamp>;
       } = {
         organizationId: params.organizationId,
         userId: params.userId,
@@ -230,7 +230,7 @@ export class ActivityLogService {
     userId: string;
     userName: string;
     userEmail: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }) {
     return this.logActivity({
       organizationId: params.organizationId,
@@ -257,7 +257,7 @@ export class ActivityLogService {
     userId: string;
     userName: string;
     userEmail: string;
-    changes: { field: string; oldValue?: any; newValue?: any }[];
+    changes: { field: string; oldValue?: unknown; newValue?: unknown }[];
     memberIds?: string[]; // Organization members to notify
   }) {
     // Log the activity
@@ -438,7 +438,7 @@ export class ActivityLogService {
     action: string;
     description: string;
     severity?: AuditLog["severity"];
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }) {
     return this.logActivity({
       organizationId: params.organizationId,

@@ -175,7 +175,7 @@ export interface AuditLog {
   action: string;
   resourceType: string;
   resourceId: string;
-  changes?: Record<string, any>;
+  changes?: Record<string, unknown>;
   ipAddress: string;
   userAgent: string;
   timestamp: Date;

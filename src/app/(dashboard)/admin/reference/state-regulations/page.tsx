@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { collection, query, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -83,8 +83,60 @@ export default function StateRegulationsPage() {
     fetchRegulations();
   }, []);
 
-  useEffect(() => {
-    filterAndSortRegulations();
+  const filterAndSortRegulations = useCallback(() => {
+    let filtered = [...regulations];
+
+    // Apply search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (reg) =>
+          reg.state.toLowerCase().includes(search) ||
+          US_STATES_MAP[reg.state]?.toLowerCase().includes(search) ||
+          reg.parsed.law_type?.toLowerCase().includes(search) ||
+          reg.keywords.some((kw) => kw.toLowerCase().includes(search))
+      );
+    }
+
+    // Apply state filter
+    if (filterState !== "all") {
+      filtered = filtered.filter((reg) => reg.state === filterState);
+    }
+
+    // Apply law type filter
+    if (filterLawType !== "all") {
+      filtered = filtered.filter(
+        (reg) => reg.parsed.law_type === filterLawType
+      );
+    }
+
+    // Apply industry filter
+    if (filterIndustry !== "all") {
+      filtered = filtered.filter((reg) => reg.industry === filterIndustry);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "state":
+          comparison = a.state.localeCompare(b.state);
+          break;
+        case "updated_at":
+          comparison =
+            new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+          break;
+        case "fetched_at":
+          comparison =
+            new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime();
+          break;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    setFilteredRegulations(filtered);
   }, [
     regulations,
     searchTerm,
@@ -94,6 +146,10 @@ export default function StateRegulationsPage() {
     sortBy,
     sortOrder,
   ]);
+
+  useEffect(() => {
+    filterAndSortRegulations();
+  }, [filterAndSortRegulations]);
 
   const fetchRegulations = async () => {
     try {
@@ -161,12 +217,20 @@ export default function StateRegulationsPage() {
         byLawType: lawTypeStats,
         byIndustry: industryStats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching regulations:", error);
+      const err =
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        "message" in error
+          ? (error as { code?: unknown; message?: unknown })
+          : null;
 
       if (
-        error.code === "installations/request-failed" ||
-        error.message?.includes("API key not valid")
+        err?.code === "installations/request-failed" ||
+        (typeof err?.message === "string" &&
+          err.message.includes("API key not valid"))
       ) {
         setHasFirebaseError(true);
         toast.error("Firebase Configuration Error", {
@@ -181,62 +245,6 @@ export default function StateRegulationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filterAndSortRegulations = () => {
-    let filtered = [...regulations];
-
-    // Apply search filter
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (reg) =>
-          reg.state.toLowerCase().includes(search) ||
-          US_STATES_MAP[reg.state]?.toLowerCase().includes(search) ||
-          reg.parsed.law_type?.toLowerCase().includes(search) ||
-          reg.keywords.some((kw) => kw.toLowerCase().includes(search))
-      );
-    }
-
-    // Apply state filter
-    if (filterState !== "all") {
-      filtered = filtered.filter((reg) => reg.state === filterState);
-    }
-
-    // Apply law type filter
-    if (filterLawType !== "all") {
-      filtered = filtered.filter(
-        (reg) => reg.parsed.law_type === filterLawType
-      );
-    }
-
-    // Apply industry filter
-    if (filterIndustry !== "all") {
-      filtered = filtered.filter((reg) => reg.industry === filterIndustry);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortBy) {
-        case "state":
-          comparison = a.state.localeCompare(b.state);
-          break;
-        case "updated_at":
-          comparison =
-            new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
-          break;
-        case "fetched_at":
-          comparison =
-            new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime();
-          break;
-      }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-
-    setFilteredRegulations(filtered);
   };
 
   const toggleSort = (column: "state" | "updated_at" | "fetched_at") => {

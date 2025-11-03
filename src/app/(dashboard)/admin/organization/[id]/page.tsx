@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -106,11 +106,7 @@ export default function OrganizationDetailsPage() {
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchOrganizationDetails();
-  }, [organizationId]);
-
-  const fetchOrganizationDetails = async () => {
+  const fetchOrganizationDetails = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await fetch(
@@ -125,15 +121,20 @@ export default function OrganizationDetailsPage() {
       const data = await response.json();
       setOrganization(data.organization);
       setMembers(data.members || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching organization:", error);
-      toast.error(error.message || "Failed to load organization details");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load organization details";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [organizationId]);
 
-  const fetchActivityLogs = async () => {
+  useEffect(() => {
+    fetchOrganizationDetails();
+  }, [fetchOrganizationDetails]);
+
+  const fetchActivityLogs = useCallback(async () => {
     try {
       setActivityLoading(true);
       setActivityError(null);
@@ -148,20 +149,21 @@ export default function OrganizationDetailsPage() {
 
       const data = await response.json();
       setActivityLogs(data.activityLogs || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching activity logs:", error);
-      setActivityError(error.message || "Failed to load activity logs");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load activity logs";
+      setActivityError(errorMessage);
     } finally {
       setActivityLoading(false);
     }
-  };
+  }, [organizationId]);
 
   // Fetch activity logs when the activity tab is selected
   useEffect(() => {
     if (activeTab === "activity" && organizationId) {
       fetchActivityLogs();
     }
-  }, [activeTab, organizationId]);
+  }, [activeTab, organizationId, fetchActivityLogs]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

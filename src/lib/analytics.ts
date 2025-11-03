@@ -2,7 +2,7 @@ import { analytics } from './firebase';
 import { logEvent } from 'firebase/analytics';
 
 // Google Analytics 4 Event Tracking for Atraiva
-export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+export const trackEvent = (eventName: string, parameters?: Record<string, unknown>) => {
   if (analytics && typeof window !== 'undefined') {
     logEvent(analytics, eventName, parameters);
   }
@@ -57,7 +57,7 @@ export const trackPageView = (pageName: string, pageTitle?: string) => {
 };
 
 // User properties for segmentation
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (properties: Record<string, string | number | boolean | null | undefined>) => {
   if (analytics && typeof window !== 'undefined') {
     // Set user properties for better segmentation
     Object.entries(properties).forEach(([key, value]) => {
@@ -70,7 +70,7 @@ export const setUserProperties = (properties: Record<string, any>) => {
 };
 
 // E-commerce tracking for subscription plans
-export const trackPurchase = (transactionId: string, value: number, items: any[]) => {
+export const trackPurchase = (transactionId: string, value: number, items: Array<{ item_id: string; item_name: string; currency: string; price: number; quantity: number }>) => {
   if (analytics && typeof window !== 'undefined') {
     logEvent(analytics, 'purchase', {
       transaction_id: transactionId,

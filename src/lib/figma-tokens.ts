@@ -148,7 +148,7 @@ export const figmaTokens = {
  */
 export function getColor(colorPath: string): string {
   const paths = colorPath.split('.');
-  let value: any = figmaTokens.colors;
+  let value: unknown = figmaTokens.colors;
 
   for (const path of paths) {
     value = value?.[path];

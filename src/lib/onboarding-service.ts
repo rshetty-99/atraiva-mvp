@@ -145,24 +145,31 @@ export class OnboardingService {
       });
 
       return user;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create Clerk user:", error);
 
       // Log detailed Clerk errors if available
-      if (error.clerkError && error.errors) {
+      const clerkError = error && typeof error === "object" && "clerkError" in error && "errors" in error
+        ? error as { clerkError: unknown; errors: unknown[] }
+        : null;
+
+      if (clerkError?.errors) {
         console.error(
           "Clerk validation errors:",
-          JSON.stringify(error.errors, null, 2)
+          JSON.stringify(clerkError.errors, null, 2)
         );
 
         // Create a more readable error message
-        const errorMessages = error.errors
-          .map(
-            (e: any) =>
-              `${e.code}: ${e.message} (${
-                e.meta?.paramName || "unknown field"
-              })`
-          )
+        const errorMessages = clerkError.errors
+          .map((e: unknown) => {
+            if (e && typeof e === "object" && "code" in e && "message" in e) {
+              const errObj = e as { code: unknown; message: unknown; meta?: { paramName?: unknown } };
+              return `${String(errObj.code)}: ${String(errObj.message)} (${
+                errObj.meta?.paramName || "unknown field"
+              })`;
+            }
+            return String(e);
+          })
           .join(", ");
 
         throw new Error(`Clerk validation failed: ${errorMessages}`);
@@ -214,23 +221,30 @@ export class OnboardingService {
       });
 
       return organization;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create Clerk organization:", error);
 
       // Log detailed Clerk errors if available
-      if (error.clerkError && error.errors) {
+      const clerkError = error && typeof error === "object" && "clerkError" in error && "errors" in error
+        ? error as { clerkError: unknown; errors: unknown[] }
+        : null;
+
+      if (clerkError?.errors) {
         console.error(
           "Clerk organization validation errors:",
-          JSON.stringify(error.errors, null, 2)
+          JSON.stringify(clerkError.errors, null, 2)
         );
 
-        const errorMessages = error.errors
-          .map(
-            (e: any) =>
-              `${e.code}: ${e.message} (${
-                e.meta?.paramName || "unknown field"
-              })`
-          )
+        const errorMessages = clerkError.errors
+          .map((e: unknown) => {
+            if (e && typeof e === "object" && "code" in e && "message" in e) {
+              const errObj = e as { code: unknown; message: unknown; meta?: { paramName?: unknown } };
+              return `${String(errObj.code)}: ${String(errObj.message)} (${
+                errObj.meta?.paramName || "unknown field"
+              })`;
+            }
+            return String(e);
+          })
           .join(", ");
 
         throw new Error(`Clerk organization creation failed: ${errorMessages}`);
@@ -280,23 +294,30 @@ export class OnboardingService {
       });
 
       console.log("User metadata updated with organization info");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to add user to organization:", error);
 
       // Log detailed Clerk errors if available
-      if (error.clerkError && error.errors) {
+      const clerkError = error && typeof error === "object" && "clerkError" in error && "errors" in error
+        ? error as { clerkError: unknown; errors: unknown[] }
+        : null;
+
+      if (clerkError?.errors) {
         console.error(
           "Clerk membership errors:",
-          JSON.stringify(error.errors, null, 2)
+          JSON.stringify(clerkError.errors, null, 2)
         );
 
-        const errorMessages = error.errors
-          .map(
-            (e: any) =>
-              `${e.code}: ${e.message} (${
-                e.meta?.paramName || "unknown field"
-              })`
-          )
+        const errorMessages = clerkError.errors
+          .map((e: unknown) => {
+            if (e && typeof e === "object" && "code" in e && "message" in e) {
+              const errObj = e as { code: unknown; message: unknown; meta?: { paramName?: unknown } };
+              return `${String(errObj.code)}: ${String(errObj.message)} (${
+                errObj.meta?.paramName || "unknown field"
+              })`;
+            }
+            return String(e);
+          })
           .join(", ");
 
         throw new Error(`Failed to add user to organization: ${errorMessages}`);
@@ -514,7 +535,7 @@ export class OnboardingService {
   /**
    * Remove undefined fields from an object (recursively)
    */
-  private static removeUndefinedFields(obj: any): any {
+  private static removeUndefinedFields(obj: unknown): unknown {
     if (obj === null || obj === undefined) {
       return obj;
     }
@@ -524,7 +545,7 @@ export class OnboardingService {
     }
 
     if (typeof obj === "object") {
-      const cleaned: any = {};
+      const cleaned: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(obj)) {
         if (value !== undefined) {
           cleaned[key] = this.removeUndefinedFields(value);

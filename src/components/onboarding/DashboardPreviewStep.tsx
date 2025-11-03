@@ -30,10 +30,11 @@ import {
   Download,
   RefreshCw,
 } from "lucide-react";
+import { OnboardingData } from "@/lib/firestore/types";
 
 interface DashboardPreviewStepProps {
-  data: any;
-  onDataUpdate: (data: any) => void;
+  data: Partial<OnboardingData>;
+  onDataUpdate: (data: Partial<OnboardingData>) => void;
   onNext: () => void;
   onPrevious: () => void;
   isFirstStep: boolean;
@@ -310,7 +311,7 @@ export default function DashboardPreviewStep({
     });
   };
 
-  const renderWidget = (widget: any) => {
+  const renderWidget = (widget: { id: string; title: string; type: string }) => {
     const mockWidgetData = mockData[widget.id as keyof typeof mockData];
 
     return (
@@ -333,7 +334,7 @@ export default function DashboardPreviewStep({
                 <div className="space-y-1">
                   {mockWidgetData.data
                     .slice(0, 3)
-                    .map((item: any, index: number) => (
+                    .map((item: Record<string, unknown>, index: number) => (
                       <div
                         key={index}
                         className="flex items-center justify-between"
@@ -435,7 +436,7 @@ export default function DashboardPreviewStep({
               {mockWidgetData?.data && Array.isArray(mockWidgetData.data)
                 ? mockWidgetData.data
                     .slice(0, 2)
-                    .map((item: any, index: number) => (
+                    .map((item: Record<string, unknown>, index: number) => (
                       <div
                         key={index}
                         className="grid grid-cols-3 gap-1 text-xs"

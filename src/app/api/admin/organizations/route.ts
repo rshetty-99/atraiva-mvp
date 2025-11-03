@@ -12,7 +12,10 @@ import {
 } from "firebase/firestore";
 import { ActivityLogService } from "@/lib/activity-log-service";
 
-export async function GET(request: NextRequest) {
+// Type for Clerk metadata
+type ClerkOrgMeta = { primaryOrganization?: { role?: string } };
+
+export async function GET() {
   try {
     const authData = await auth();
 
@@ -25,8 +28,8 @@ export async function GET(request: NextRequest) {
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can access this
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -109,10 +112,10 @@ export async function GET(request: NextRequest) {
       stats,
       total: enrichedOrgs.length,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching organizations:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: (error as Error).message },
       { status: 500 }
     );
   }
@@ -131,8 +134,8 @@ export async function POST(request: NextRequest) {
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can create organizations
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -194,10 +197,10 @@ export async function POST(request: NextRequest) {
       success: true,
       organizationId: clerkOrg.id,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating organization:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: (error as Error).message },
       { status: 500 }
     );
   }

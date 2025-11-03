@@ -17,7 +17,9 @@ export class NewsletterService {
    */
   static async subscribe(
     email: string,
-    metadata?: Partial<NewsletterSubscription["metadata"]>
+    metadata?: Partial<NewsletterSubscription["metadata"]>,
+    name?: string,
+    userId?: string
   ): Promise<NewsletterResponse> {
     try {
       // Check if email already exists
@@ -34,9 +36,11 @@ export class NewsletterService {
       // Create new subscription
       const subscriptionData: Omit<NewsletterSubscription, "id"> = {
         email: email.toLowerCase().trim(),
+        name: name?.trim(),
+        userId: userId,
         subscribedAt: new Date(),
         isActive: true,
-        source: "website",
+        source: userId ? "hero-button-logged-in" : "hero-button-guest",
         metadata: {
           ...metadata,
           subscribedAt: new Date().toISOString(),
@@ -94,6 +98,36 @@ export class NewsletterService {
       } as NewsletterSubscription;
     } catch (error) {
       console.error("Error checking existing subscription:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if user is already subscribed by userId
+   */
+  static async checkSubscriptionByUserId(
+    userId: string
+  ): Promise<NewsletterSubscription | null> {
+    try {
+      const q = query(
+        collection(db, NEWSLETTER_COLLECTION),
+        where("userId", "==", userId),
+        where("isActive", "==", true)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return null;
+      }
+
+      const doc = querySnapshot.docs[0];
+      return {
+        id: doc.id,
+        ...doc.data(),
+      } as NewsletterSubscription;
+    } catch (error) {
+      console.error("Error checking subscription by userId:", error);
       return null;
     }
   }

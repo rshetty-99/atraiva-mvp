@@ -111,7 +111,7 @@ export async function PUT(
       status === "published" && existingData.status !== "published";
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       title,
       slug,
       excerpt: excerpt || null,
@@ -164,6 +164,23 @@ export async function PUT(
     } catch (cleanupError) {
       console.error("Error cleaning up images:", cleanupError);
       // Don't fail the update if cleanup fails
+    }
+
+    // Revalidate ISR cache if post is published or was already published
+    const isPublished = status === "published" || existingData.status === "published";
+    if (isPublished) {
+      try {
+        const { revalidatePath } = await import("next/cache");
+        // Revalidate listing page
+        revalidatePath("/resources");
+        // Revalidate specific post page if slug is available
+        if (slug) {
+          revalidatePath(`/resources/${slug}`);
+        }
+      } catch (revalidateError) {
+        console.error("Error revalidating cache:", revalidateError);
+        // Don't fail the update if revalidation fails
+      }
     }
 
     return NextResponse.json({

@@ -9,6 +9,25 @@ import { UserSessionData, OrganizationQuickData } from "@/types/session";
  */
 export class SessionService {
   /**
+   * Map Firestore role to Session role
+   */
+  private static mapRoleToSession(
+    role: User["organizations"][0]["role"]
+  ): UserSessionData["organizations"][0]["role"] {
+    const roleMap: Record<
+      User["organizations"][0]["role"],
+      UserSessionData["organizations"][0]["role"]
+    > = {
+      super_admin: "super_admin",
+      admin: "org_admin",
+      manager: "org_manager",
+      analyst: "org_analyst",
+      viewer: "org_viewer",
+    };
+    return roleMap[role] || "org_viewer";
+  }
+
+  /**
    * Build complete session data from user and organization data
    */
   static async buildSessionData(user: User): Promise<UserSessionData> {
@@ -22,7 +41,7 @@ export class SessionService {
           id: org.id,
           name: org.profile.name,
           type: org.profile.type,
-          role: orgMembership.role as any, // Type conversion needed
+          role: this.mapRoleToSession(orgMembership.role),
           permissions: orgMembership.permissions,
           isPrimary: orgMembership.isPrimary,
           industry: org.profile.industry,
@@ -39,7 +58,7 @@ export class SessionService {
       id: string;
       name: string;
       type: "law_firm" | "enterprise" | "channel_partner" | "platform";
-      role: any;
+      role: UserSessionData["organizations"][0]["role"];
       permissions: string[];
       isPrimary: boolean;
       industry?: string;
@@ -63,7 +82,7 @@ export class SessionService {
           id: primaryOrg.id,
           name: primaryOrg.profile.name,
           type: primaryOrg.profile.type,
-          role: (user.role || primaryOrgMembership.role) as any, // Use user.role first, fallback to membership role
+          role: this.mapRoleToSession(primaryOrgMembership.role),
           permissions: primaryOrgMembership.permissions,
           plan: primaryOrg.subscription.plan,
           status: primaryOrg.subscription.status,
@@ -78,9 +97,10 @@ export class SessionService {
     }
 
     // Get role-specific capabilities
-    const capabilities = this.getRoleCapabilities(
-      user.role || primaryOrgMembership?.role || "org_viewer"
-    );
+    const sessionRole = primaryOrgMembership
+      ? this.mapRoleToSession(primaryOrgMembership.role)
+      : "org_viewer";
+    const capabilities = this.getRoleCapabilities(sessionRole);
 
     // Get client information for channel partners and law firms
     const clients = await this.getUserClients(
@@ -157,9 +177,13 @@ export class SessionService {
           atraiva: sessionData,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle rate limiting gracefully
-      if (error?.status === 429) {
+      const err =
+        error && typeof error === "object" && "status" in error
+          ? (error as { status?: number })
+          : null;
+      if (err?.status === 429) {
         console.warn("Rate limited by Clerk API, skipping metadata update");
         return;
       }
@@ -251,9 +275,13 @@ export class SessionService {
         currentMetadata.cache.lastUpdated = new Date(0).toISOString(); // Force refresh
         await this.updateClerkMetadata(clerkId, currentMetadata);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle rate limiting gracefully
-      if (error?.status === 429) {
+      const err =
+        error && typeof error === "object" && "status" in error
+          ? (error as { status?: number })
+          : null;
+      if (err?.status === 429) {
         console.warn("Rate limited by Clerk API, skipping cache invalidation");
         return;
       }

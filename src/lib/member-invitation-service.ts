@@ -72,8 +72,8 @@ export class MemberInvitationService {
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
 
       const invitation: Omit<MemberInvitation, "createdAt" | "expiresAt"> & {
-        createdAt: any;
-        expiresAt: any;
+        createdAt: ReturnType<typeof serverTimestamp> | Date;
+        expiresAt: Date;
       } = {
         id: invitationId,
         token,

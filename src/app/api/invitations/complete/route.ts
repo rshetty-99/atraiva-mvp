@@ -102,14 +102,20 @@ export async function POST(request: NextRequest) {
             onboardingCompleted: true,
           },
         });
-      } catch (clerkError: any) {
+      } catch (clerkError: unknown) {
         console.error("Clerk user creation error:", clerkError);
-        console.error("Clerk error details:", clerkError.errors);
+        const errorDetails = clerkError && typeof clerkError === "object" && "errors" in clerkError ? clerkError.errors : undefined;
+        console.error("Clerk error details:", errorDetails);
 
         let errorMessage = "Failed to create user account";
-        if (clerkError.errors && clerkError.errors.length > 0) {
-          errorMessage = clerkError.errors
-            .map((e: any) => e.message)
+        if (Array.isArray(errorDetails) && errorDetails.length > 0) {
+          errorMessage = errorDetails
+            .map((e: unknown) => {
+              if (e && typeof e === "object" && "message" in e && typeof e.message === "string") {
+                return e.message;
+              }
+              return String(e);
+            })
             .join(", ");
         }
 
@@ -147,12 +153,13 @@ export async function POST(request: NextRequest) {
           "Membership details:",
           JSON.stringify(clerkMembership, null, 2)
         );
-      } catch (membershipError: any) {
+      } catch (membershipError: unknown) {
         console.error(
           "Error creating organization membership:",
           membershipError
         );
-        console.error("Membership error details:", membershipError.errors);
+        const errorDetails = membershipError && typeof membershipError === "object" && "errors" in membershipError ? membershipError.errors : undefined;
+        console.error("Membership error details:", errorDetails);
 
         // If membership fails, delete the user we just created
         try {
@@ -344,12 +351,13 @@ export async function POST(request: NextRequest) {
         userId: clerkUser.id,
         organizationId: invitation.organizationId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error completing member invitation:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       return NextResponse.json(
         {
           error: "Failed to create account",
-          details: error.message || "Please try again",
+          details: errorMessage || "Please try again",
         },
         { status: 500 }
       );

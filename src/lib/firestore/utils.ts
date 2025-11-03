@@ -26,18 +26,23 @@ import {
 } from '@/types/firestore';
 
 // Helper function to convert Firestore timestamps to Date objects
-export const convertTimestampsToDate = <T extends Record<string, any>>(data: T): T => {
+export const convertTimestampsToDate = <T extends Record<string, unknown>>(data: T): T => {
   const converted = { ...data };
   
   for (const key in converted) {
-    const value = converted[key];
+    const value = converted[key as keyof T] as unknown;
     if (value instanceof Timestamp) {
-      (converted as any)[key] = value.toDate();
+      (converted as Record<string, unknown>)[key] = value.toDate();
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-      converted[key] = convertTimestampsToDate(value);
+      (converted as Record<string, unknown>)[key] = convertTimestampsToDate(
+        value as Record<string, unknown>
+      );
     } else if (Array.isArray(value)) {
-      converted[key] = value.map(item => 
-        item && typeof item === 'object' ? convertTimestampsToDate(item) : item
+      (converted as Record<string, unknown>)[key] = (value as unknown[]).map(
+        (item) =>
+          item && typeof item === 'object'
+            ? convertTimestampsToDate(item as Record<string, unknown>)
+            : item
       );
     }
   }
@@ -46,18 +51,23 @@ export const convertTimestampsToDate = <T extends Record<string, any>>(data: T):
 };
 
 // Helper function to convert Date objects to Firestore timestamps
-export const convertDatesToTimestamp = <T extends Record<string, any>>(data: T): T => {
+export const convertDatesToTimestamp = <T extends Record<string, unknown>>(data: T): T => {
   const converted = { ...data };
   
   for (const key in converted) {
-    const value = converted[key];
+    const value = converted[key as keyof T] as unknown;
     if (value instanceof Date) {
-      (converted as any)[key] = Timestamp.fromDate(value);
+      (converted as Record<string, unknown>)[key] = Timestamp.fromDate(value);
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-      converted[key] = convertDatesToTimestamp(value);
+      (converted as Record<string, unknown>)[key] = convertDatesToTimestamp(
+        value as Record<string, unknown>
+      );
     } else if (Array.isArray(value)) {
-      converted[key] = value.map(item => 
-        item && typeof item === 'object' ? convertDatesToTimestamp(item) : item
+      (converted as Record<string, unknown>)[key] = (value as unknown[]).map(
+        (item) =>
+          item && typeof item === 'object'
+            ? convertDatesToTimestamp(item as Record<string, unknown>)
+            : item
       );
     }
   }
@@ -214,7 +224,7 @@ export class UserService {
   }
 
   static async updateLastActivity(id: string, ipAddress?: string, userAgent?: string): Promise<void> {
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       'activity.lastActiveAt': Timestamp.now()
     };
     

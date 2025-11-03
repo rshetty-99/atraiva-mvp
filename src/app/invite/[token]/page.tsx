@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -58,11 +58,7 @@ export default function MemberInvitationPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    validateToken();
-  }, [token]);
-
-  const validateToken = async () => {
+  const validateToken = useCallback(async () => {
     try {
       setIsValidating(true);
       const response = await fetch("/api/invitations/validate", {
@@ -86,13 +82,17 @@ export default function MemberInvitationPage() {
           .replace(/[^a-z0-9]/g, "");
         setUsername(defaultUsername);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsValid(false);
       setError("Failed to validate invitation");
     } finally {
       setIsValidating(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    validateToken();
+  }, [validateToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,7 +145,7 @@ export default function MemberInvitationPage() {
       setTimeout(() => {
         router.push("/sign-in");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup error:", error);
       // Error already shown via toast above
     } finally {
@@ -210,7 +210,7 @@ export default function MemberInvitationPage() {
               Join {invitation.organizationName}
             </CardTitle>
             <CardDescription className="text-base">
-              You've been invited by {invitation.invitedByName} to join as{" "}
+              You&apos;ve been invited by {invitation.invitedByName} to join as{" "}
               <span className="font-semibold text-primary">
                 {invitation.memberData.role.replace(/_/g, " ")}
               </span>

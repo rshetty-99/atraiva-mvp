@@ -53,12 +53,13 @@ export async function POST(request: NextRequest) {
             message: "Email verification sent to new address",
             requiresVerification: true,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error("Error updating email:", error);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           return NextResponse.json(
             {
               error: "Failed to update email",
-              details: error.message,
+              details: errorMessage,
             },
             { status: 400 }
           );
@@ -84,10 +85,11 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in security update:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to process security update", details: error.message },
+      { error: "Failed to process security update", details: errorMessage },
       { status: 500 }
     );
   }
@@ -113,10 +115,11 @@ export async function GET() {
           user.phoneNumbers[0]?.verification?.status === "verified",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching security settings:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to fetch security settings", details: error.message },
+      { error: "Failed to fetch security settings", details: errorMessage },
       { status: 500 }
     );
   }

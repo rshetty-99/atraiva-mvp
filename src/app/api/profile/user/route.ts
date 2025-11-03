@@ -33,10 +33,11 @@ export async function GET() {
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching user profile:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to fetch user profile", details: error.message },
+      { error: "Failed to fetch user profile", details: errorMessage },
       { status: 500 }
     );
   }
@@ -55,7 +56,7 @@ export async function PATCH(request: NextRequest) {
     const client = await clerkClient();
 
     // Update Clerk user
-    const updateData: any = {};
+    const updateData: { firstName?: string; lastName?: string } = {};
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
 
@@ -89,7 +90,7 @@ export async function PATCH(request: NextRequest) {
 
     // Update Firestore user data
     const userRef = doc(db, "users", authData.userId);
-    const updateFields: any = {
+    const updateFields: Record<string, unknown> = {
       updatedAt: serverTimestamp(),
     };
 
@@ -114,10 +115,11 @@ export async function PATCH(request: NextRequest) {
       success: true,
       message: "Profile updated successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating user profile:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to update user profile", details: error.message },
+      { error: "Failed to update user profile", details: errorMessage },
       { status: 500 }
     );
   }

@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get("status") as any;
+    const status = searchParams.get("status");
     const email = searchParams.get("email");
     const createdBy = searchParams.get("createdBy");
 

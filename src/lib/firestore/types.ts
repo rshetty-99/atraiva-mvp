@@ -278,8 +278,8 @@ export interface AuditLog {
   // Change tracking
   changes?: {
     field: string;
-    oldValue?: any;
-    newValue?: any;
+    oldValue?: unknown;
+    newValue?: unknown;
   }[];
 
   // Event details
@@ -297,7 +297,7 @@ export interface AuditLog {
   errorMessage?: string;
 
   // Additional metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Permission {
@@ -345,8 +345,8 @@ export interface Notification {
   // Change tracking (for updates)
   changes?: {
     field: string;
-    oldValue?: any;
-    newValue?: any;
+    oldValue?: unknown;
+    newValue?: unknown;
   }[];
 
   // Status
@@ -362,7 +362,7 @@ export interface Notification {
   expiresAt?: Date; // Optional expiration for temporary notifications
 
   // Additional metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Member Invitation for adding users to existing organizations

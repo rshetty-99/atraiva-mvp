@@ -16,6 +16,7 @@ import {
   serverTimestamp,
   QueryDocumentSnapshot,
   DocumentData,
+  WhereFilterOp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
@@ -91,7 +92,7 @@ export class FirestoreService<T> {
     })) as T[];
   }
 
-  async getWhere(field: string, operator: any, value: any): Promise<T[]> {
+  async getWhere(field: string, operator: WhereFilterOp, value: unknown): Promise<T[]> {
     const q = query(
       collection(db, this.collectionName),
       where(field, operator, value)
@@ -282,7 +283,7 @@ export const registrationEmailService = new FirestoreService<RegistrationEmail>(
 );
 
 // Helper function to convert Firestore Timestamps to Dates for RegistrationLink
-function convertRegistrationLinkDates(data: any): RegistrationLink {
+function convertRegistrationLinkDates(data: Record<string, unknown>): RegistrationLink {
   return {
     ...data,
     createdAt: data.createdAt?.toDate?.() || data.createdAt,

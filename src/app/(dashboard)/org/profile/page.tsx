@@ -63,7 +63,7 @@ const passwordSchema = z
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Passwords don&apos;t match",
     path: ["confirmPassword"],
   });
 
@@ -169,7 +169,7 @@ export default function ProfilePage() {
     if (isLoaded && clerkUser) {
       fetchProfile();
     }
-  }, [isLoaded, clerkUser]);
+  }, [isLoaded, clerkUser, notificationForm, personalInfoForm]);
 
   // Handle Personal Info Submit
   const onPersonalInfoSubmit = async (data: PersonalInfoFormValues) => {

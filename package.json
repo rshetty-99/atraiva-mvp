@@ -11,7 +11,12 @@
     "sync-data": "node -e \"require('./src/lib/clerk-firestore-integration').ClerkFirestoreIntegration.syncAllData().then(() => console.log('Sync completed')).catch(console.error)\"",
     "create-blog-post": "ts-node --project tsconfig.scripts.json scripts/create-wojeski-blog-post.ts",
     "create-blog-direct": "ts-node --project tsconfig.scripts.json scripts/create-wojeski-blog-direct.ts",
-    "test:e2e": "playwright test"
+    "create-mock-blogs": "ts-node --project tsconfig.scripts.json scripts/create-mock-blog-posts.ts",
+    "create-mock-breaches": "ts-node --project tsconfig.scripts.json scripts/create-mock-breach-data.ts",
+    "test:e2e": "playwright test",
+    "test:onboarding": "playwright test --config=tests/onboarding/playwright.config.ts",
+    "test:onboarding:ui": "playwright test --config=tests/onboarding/playwright.config.ts --ui",
+    "test:onboarding:headed": "playwright test --config=tests/onboarding/playwright.config.ts --headed"
   },
   "dependencies": {
     "@clerk/agent-toolkit": "^0.1.32",
@@ -59,6 +64,7 @@
     "react-hook-form": "^7.62.0",
     "react-phone-number-input": "^3.4.12",
     "react-quill-new": "^3.6.0",
+    "react-simple-maps": "^3.0.0",
     "recharts": "^3.2.1",
     "sonner": "^2.0.7",
     "svix": "^1.73.0",
@@ -73,6 +79,7 @@
     "@types/node": "^20.19.23",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "docx": "^9.5.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.7",
     "playwright": "^1.56.1",

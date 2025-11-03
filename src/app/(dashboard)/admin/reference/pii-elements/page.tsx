@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   collection,
@@ -174,8 +174,81 @@ export default function PIIElementsPage() {
     fetchPIIElements();
   }, []);
 
-  useEffect(() => {
-    filterAndSortElements();
+  const filterAndSortElements = useCallback(() => {
+    let filtered = [...piiElements];
+
+    // Apply search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (element) =>
+          element.element.toLowerCase().includes(search) ||
+          element.category.toLowerCase().includes(search) ||
+          element.categorySlug.toLowerCase().includes(search) ||
+          element.applicableRegulations.some((reg) =>
+            reg.toLowerCase().includes(search)
+          )
+      );
+    }
+
+    // Apply category filter
+    if (filterCategory !== "all") {
+      filtered = filtered.filter(
+        (element) => element.category === filterCategory
+      );
+    }
+
+    // Apply risk level filter
+    if (filterRiskLevel !== "all") {
+      filtered = filtered.filter(
+        (element) => element.riskLevel === filterRiskLevel
+      );
+    }
+
+    // Apply regulated filter
+    if (filterRegulated !== "all") {
+      const isRegulated = filterRegulated === "true";
+      filtered = filtered.filter(
+        (element) => element.isRegulated === isRegulated
+      );
+    }
+
+    // Apply regulation filter
+    if (filterRegulation !== "all") {
+      filtered = filtered.filter((element) =>
+        element.applicableRegulations.includes(filterRegulation as Regulation)
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "element":
+          comparison = a.element.localeCompare(b.element);
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);
+          break;
+        case "riskLevel":
+          const riskOrder: Record<RiskLevel, number> = {
+            low: 1,
+            medium: 2,
+            high: 3,
+            critical: 4,
+          };
+          comparison = riskOrder[a.riskLevel] - riskOrder[b.riskLevel];
+          break;
+        case "regulated":
+          comparison = a.isRegulated === b.isRegulated ? 0 : a.isRegulated ? 1 : -1;
+          break;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    setFilteredElements(filtered);
   }, [
     piiElements,
     searchTerm,
@@ -186,6 +259,10 @@ export default function PIIElementsPage() {
     sortBy,
     sortOrder,
   ]);
+
+  useEffect(() => {
+    filterAndSortElements();
+  }, [filterAndSortElements]);
 
   // Update pagination when filtered elements or page settings change
   useEffect(() => {
@@ -289,13 +366,16 @@ export default function PIIElementsPage() {
         byCategory,
         byRiskLevel,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching PII elements:", error);
+      const err = error && typeof error === "object" && "code" in error && "message" in error 
+        ? error as { code?: unknown; message?: unknown }
+        : null;
 
       if (
-        error.code === "installations/request-failed" ||
-        error.message?.includes("API key not valid") ||
-        error.message?.includes("Firebase is not initialized")
+        err?.code === "installations/request-failed" ||
+        (typeof err?.message === "string" && err.message.includes("API key not valid")) ||
+        (typeof err?.message === "string" && err.message.includes("Firebase is not initialized"))
       ) {
         setHasFirebaseError(true);
         toast.error("Firebase Configuration Error", {
@@ -310,75 +390,6 @@ export default function PIIElementsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filterAndSortElements = () => {
-    let filtered = [...piiElements];
-
-    // Apply search filter
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (element) =>
-          element.element.toLowerCase().includes(search) ||
-          element.category.toLowerCase().includes(search) ||
-          element.categorySlug.toLowerCase().includes(search) ||
-          element.applicableRegulations.some((reg) =>
-            reg.toLowerCase().includes(search)
-          )
-      );
-    }
-
-    // Apply category filter
-    if (filterCategory !== "all") {
-      filtered = filtered.filter(
-        (element) => element.category === filterCategory
-      );
-    }
-
-    // Apply risk level filter
-    if (filterRiskLevel !== "all") {
-      filtered = filtered.filter(
-        (element) => element.riskLevel === filterRiskLevel
-      );
-    }
-
-    // Apply regulated filter
-    if (filterRegulated !== "all") {
-      const isRegulated = filterRegulated === "true";
-      filtered = filtered.filter(
-        (element) => element.isRegulated === isRegulated
-      );
-    }
-
-    // Apply regulation filter
-    if (filterRegulation !== "all") {
-      filtered = filtered.filter((element) =>
-        element.applicableRegulations.includes(filterRegulation as Regulation)
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortBy) {
-        case "element":
-          comparison = a.element.localeCompare(b.element);
-          break;
-        case "category":
-          comparison = a.category.localeCompare(b.category);
-          break;
-        case "riskLevel":
-          const riskOrder = { low: 0, medium: 1, high: 2, critical: 3 };
-          comparison = riskOrder[a.riskLevel] - riskOrder[b.riskLevel];
-          break;
-      }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-
-    setFilteredElements(filtered);
   };
 
   const toggleSort = (column: "element" | "category" | "riskLevel") => {

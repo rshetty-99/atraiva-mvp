@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const limitCount = parseInt(searchParams.get("limit") || "50");
-    const statusFilter = searchParams.get("status") as any;
+    const statusFilter = searchParams.get("status");
 
     // Fetch notifications for the current user
     const notifications = await NotificationService.getUserNotifications(

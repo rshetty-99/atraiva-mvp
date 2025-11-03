@@ -33,14 +33,14 @@ export interface DashboardWidget {
   title: string;
   description?: string;
   position: { x: number; y: number; width: number; height: number };
-  data: any;
+  data: unknown;
   config: WidgetConfig;
   requiredPermission?: string;
   requiredRole?: string;
   refreshInterval?: number;
   customizable: boolean;
   resizable: boolean;
-  icon?: any;
+  icon?: string | React.ComponentType<unknown>;
   category?: string;
 }
 
@@ -50,8 +50,8 @@ export interface WidgetConfig {
   showGrid?: boolean;
   colorScheme?: string;
   dataSource?: string;
-  filters?: Record<string, any>;
-  [key: string]: any;
+  filters?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export interface RoleDashboardConfig {
@@ -74,7 +74,7 @@ export interface QuickAction {
   id: string;
   label: string;
   description: string;
-  icon: any;
+  icon: string | React.ComponentType<unknown>;
   action: string;
   requiredPermission?: string;
   requiredRole?: string;
@@ -899,7 +899,7 @@ export const roleDashboardConfig: RoleDashboardConfig = {
 
 // Helper function to get dashboard configuration for a specific role
 export function getDashboardForRole(role: string): {
-  layout: any;
+  layout: RoleDashboardConfig[string]["layout"];
   widgets: DashboardWidget[];
   quickActions: QuickAction[];
 } {

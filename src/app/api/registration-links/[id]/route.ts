@@ -104,7 +104,7 @@ export async function DELETE(
       cancelledAt: new Date(),
       cancelledBy: userId,
       cancellationReason: "Deleted by admin",
-    } as any);
+    } as Record<string, unknown>);
 
     return NextResponse.json({
       success: true,

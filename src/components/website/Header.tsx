@@ -50,7 +50,7 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="px-20 py-[17px]">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-[17px]">
         <nav className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">

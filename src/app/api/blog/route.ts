@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
       seriesOrder,
       relatedPostIds,
       language,
+      featured,
     } = body;
 
     // Validate required fields
@@ -185,9 +186,26 @@ export async function POST(request: NextRequest) {
       language: language || "en-US",
       feedIncluded: true,
       sitemapPriority: 0.8,
+      featured: featured || false,
     };
 
     const docRef = await addDoc(collection(db, "posts"), postData);
+
+    // Revalidate ISR cache if post is created with published status
+    if (status === "published") {
+      try {
+        const { revalidatePath } = await import("next/cache");
+        // Revalidate listing page
+        revalidatePath("/resources");
+        // Revalidate specific post page
+        if (slug) {
+          revalidatePath(`/resources/${slug}`);
+        }
+      } catch (revalidateError) {
+        console.error("Error revalidating cache:", revalidateError);
+        // Don't fail the creation if revalidation fails
+      }
+    }
 
     return NextResponse.json(
       {

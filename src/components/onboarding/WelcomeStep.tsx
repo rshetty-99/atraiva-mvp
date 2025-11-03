@@ -17,10 +17,11 @@ import {
   Clock,
   Globe,
 } from "lucide-react";
+import { OnboardingData } from "@/lib/firestore/types";
 
 interface WelcomeStepProps {
-  data: any;
-  onDataUpdate: (data: any) => void;
+  data: Partial<OnboardingData>;
+  onDataUpdate: (data: Partial<OnboardingData>) => void;
   onNext: () => void;
   onPrevious: () => void;
   isFirstStep: boolean;

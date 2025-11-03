@@ -99,8 +99,8 @@ export default function PartnerDashboard() {
       value?: string | number;
       label?: string;
       change?: string;
-      currentClient?: any;
-      availableClients?: any[];
+      currentClient?: Record<string, unknown>;
+      availableClients?: Array<Record<string, unknown>>;
       [key: string]: unknown;
     };
     position: { x: number; y: number; width: number; height: number };

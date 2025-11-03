@@ -73,6 +73,9 @@ export type Post = {
   seriesOrder?: number | null;
   relatedPostIds?: string[]; // curated
 
+  // Featured/Highlighting
+  featured?: boolean; // Highlight this post in hero sections
+
   // Engagement (denormalized)
   views?: number;
   likes?: number;

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         skipPasswordChecks: false,
         skipPasswordRequirement: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating Clerk user:", error);
       return NextResponse.json(
         { error: "Failed to create user account. Email may already exist." },
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           teamSize: organizationData.teamSize,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating Clerk organization:", error);
       // Cleanup: delete created user
       try {
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         userId: clerkUser.id,
         role: primaryUserData.role,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error adding user to organization:", error);
       // Continue anyway as user and org are created
     }
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
             isActive: true,
           },
         ],
-      } as any);
+      } as Record<string, unknown>);
 
       // Update user with organization reference using proper membership structure
       const now = new Date();
@@ -162,12 +162,12 @@ export async function POST(request: NextRequest) {
           },
         ],
         role: primaryUserData.role,
-        userType: orgData.organizationType as
+        userType: organizationData.organizationType as
           | "law_firm"
           | "enterprise"
           | "channel_partner"
           | "platform_admin",
-      } as any);
+      } as Record<string, unknown>);
 
       // Step 5: Send invitations to team members
       if (teamMembers && teamMembers.length > 0) {
@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
           },
         };
 
-        await registrationEmailService.create(welcomeEmailData as any);
+        await registrationEmailService.create(welcomeEmailData as Record<string, unknown>);
       } catch (emailError) {
         console.error("Error sending welcome email:", emailError);
         // Don't fail the registration if email fails
@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
         userId: clerkUser.id,
         organizationId: clerkOrg.id,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error syncing to Firestore:", error);
       return NextResponse.json(
         {

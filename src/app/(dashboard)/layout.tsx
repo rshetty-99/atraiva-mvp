@@ -15,12 +15,28 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+interface DashboardContentProps {
+  children: React.ReactNode;
+  sidebarUser?: {
+    name: string;
+    email: string;
+    avatar?: string;
+    role?: string;
+  };
+  sidebarOrganizations?: Array<{
+    name: string;
+    plan: string;
+    id: string;
+  }>;
+  currentPermissions?: string[];
+}
+
 function DashboardContent({
   children,
   sidebarUser,
   sidebarOrganizations,
   currentPermissions,
-}: any) {
+}: DashboardContentProps) {
   const { state } = useSidebar();
   const leftPosition = state === "collapsed" ? "3rem" : "16rem";
 

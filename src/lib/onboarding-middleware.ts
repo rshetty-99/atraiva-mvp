@@ -99,7 +99,7 @@ export class OnboardingMiddleware {
   /**
    * Validate onboarding completion requirements
    */
-  static validateOnboardingRequirements(data: any): {
+  static validateOnboardingRequirements(data: Record<string, unknown>): {
     isValid: boolean;
     missingFields: string[];
     errors: string[];

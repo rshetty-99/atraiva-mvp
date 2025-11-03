@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { AuditLog } from "@/lib/firestore/types";
 import { ActivityLogTimeline } from "@/components/activity-log/ActivityLogTimeline";
+import Image from "next/image";
 
 interface MemberDetails {
   id: string;
@@ -73,13 +74,7 @@ export default function MemberDetailsPage() {
     getMemberId();
   }, [params]);
 
-  useEffect(() => {
-    if (memberId) {
-      fetchMemberDetails();
-    }
-  }, [memberId]);
-
-  const fetchMemberDetails = async () => {
+  const fetchMemberDetails = useCallback(async () => {
     if (!memberId) return;
 
     try {
@@ -93,15 +88,22 @@ export default function MemberDetailsPage() {
 
       const data = await response.json();
       setMember(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching member:", error);
-      toast.error(error.message || "Failed to load member details");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load member details";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [memberId]);
 
-  const fetchActivityLogs = async () => {
+  useEffect(() => {
+    if (memberId) {
+      fetchMemberDetails();
+    }
+  }, [memberId, fetchMemberDetails]);
+
+  const fetchActivityLogs = useCallback(async () => {
     if (!memberId) return;
 
     try {
@@ -118,20 +120,21 @@ export default function MemberDetailsPage() {
 
       const data = await response.json();
       setActivityLogs(data.activityLogs || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching activity logs:", error);
-      setActivityError(error.message || "Failed to load activity logs");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load activity logs";
+      setActivityError(errorMessage);
     } finally {
       setActivityLoading(false);
     }
-  };
+  }, [memberId]);
 
   // Fetch activity logs when the activity tab is selected
   useEffect(() => {
     if (activeTab === "activity" && memberId) {
       fetchActivityLogs();
     }
-  }, [activeTab, memberId]);
+  }, [activeTab, memberId, fetchActivityLogs]);
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -218,9 +221,11 @@ export default function MemberDetailsPage() {
             <div className="flex items-center">
               <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden mr-4">
                 {member.imageUrl ? (
-                  <img
+                  <Image
                     src={member.imageUrl}
                     alt={`${member.firstName} ${member.lastName}`}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 object-cover"
                   />
                 ) : (

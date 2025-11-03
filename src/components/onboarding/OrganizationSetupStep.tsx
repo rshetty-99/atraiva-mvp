@@ -37,10 +37,11 @@ import CustomFormField, { FormFieldType } from "@/components/CustomFormFields";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { OnboardingData } from "@/lib/firestore/types";
 
 interface OrganizationSetupStepProps {
-  data: any;
-  onDataUpdate: (data: any) => void;
+  data: Partial<OnboardingData>;
+  onDataUpdate: (data: Partial<OnboardingData>) => void;
   onNext: () => void;
   onPrevious: () => void;
   isFirstStep: boolean;
@@ -292,7 +293,7 @@ export default function OrganizationSetupStep({
     },
   ];
 
-  const onSubmit = (formData: any) => {
+  const onSubmit = (formData: Record<string, unknown>) => {
     onDataUpdate(formData);
     onNext();
   };

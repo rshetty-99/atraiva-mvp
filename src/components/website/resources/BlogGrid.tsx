@@ -42,6 +42,7 @@ type BlogGridProps = {
   activeCategories: string[]; // Array of active category values
   searchQuery: string;
   onCategoriesChange?: (categories: CategoryOption[]) => void;
+  initialPosts?: Post[]; // Pre-loaded posts from server (for ISR)
 };
 
 // Sample test data for blog posts
@@ -169,7 +170,8 @@ const sampleBlogPosts: BlogCardData[] = [
 ];
 
 // Blog Card Component with Aceternity-style design
-const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
+// Memoized BlogCard component for performance
+const BlogCard = React.memo(({ post, index }: { post: BlogCardData; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -177,15 +179,19 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
   const defaultImage = "/images/website/resources/blog-thumbnail-1.jpg";
   const imageSrc = post.image && !imageError ? post.image : defaultImage;
 
+  // Optimize hover handlers with useCallback
+  const handleMouseEnter = React.useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = React.useCallback(() => setIsHovered(false), []);
+
   return (
-    <Link href={`/resources/${post.slug}`}>
+    <Link href={`/resources/${post.slug}`} prefetch={index < 4}>
       <motion.div
         className="relative group block p-2 h-full w-full"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
       >
         <AnimatePresence>
           {isHovered && (
@@ -211,7 +217,7 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
             "transition-all duration-300"
           )}
         >
-          {/* Blog Image */}
+          {/* Blog Image - Optimized with lazy loading */}
           <div className="h-[240px] relative overflow-hidden rounded-t-2xl bg-muted">
             {imageSrc ? (
               <Image
@@ -220,6 +226,11 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 onError={() => setImageError(true)}
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                quality={80}
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWYxZjFmIi8+PC9zdmc+"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
@@ -289,19 +300,57 @@ const BlogCard = ({ post, index }: { post: BlogCardData; index: number }) => {
       </motion.div>
     </Link>
   );
-};
+});
+
+BlogCard.displayName = "BlogCard";
+
+// Helper function to transform Post to BlogCardData
+const transformPostToCardData = (post: Post): BlogCardData => ({
+  id: post.id,
+  title: post.title,
+  author: "Atraiva Team", // Default author - can be fetched from user data
+  date: new Date(post.publishedAt || post.createdAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  ),
+  image: post.featuredImage || null,
+  description: post.excerpt || "",
+  slug: post.slug,
+  tags: post.tags || [],
+  readTime: post.readTimeMinutes || 5,
+  category: post.category || null,
+  likes: post.likes || 0,
+  views: post.views || 0,
+});
 
 export function BlogGrid({
   activeCategories,
   searchQuery,
   onCategoriesChange,
+  initialPosts,
 }: BlogGridProps) {
-  const [blogPosts, setBlogPosts] = useState<BlogCardData[]>(sampleBlogPosts);
-  const [loading, setLoading] = useState(true);
+  const [blogPosts, setBlogPosts] = useState<BlogCardData[]>(() => {
+    // If initialPosts provided, use them; otherwise use sample data
+    if (initialPosts && initialPosts.length > 0) {
+      return initialPosts.map(transformPostToCardData);
+    }
+    return sampleBlogPosts;
+  });
+  const [loading, setLoading] = useState(!initialPosts || initialPosts.length === 0);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 8;
 
+  // Only fetch if initialPosts not provided (fallback for client-side navigation)
   useEffect(() => {
+    if (initialPosts && initialPosts.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     const fetchPosts = async () => {
       try {
         setLoading(true);
@@ -315,27 +364,7 @@ export function BlogGrid({
         const posts: Post[] = data.posts || [];
 
         // Transform posts to BlogCardData format
-        const transformedPosts: BlogCardData[] = posts.map((post) => ({
-          id: post.id,
-          title: post.title,
-          author: "Atraiva Team", // Default author - can be fetched from user data
-          date: new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-            "en-US",
-            {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }
-          ),
-          image: post.featuredImage || null, // Let BlogCard handle fallback
-          description: post.excerpt || "",
-          slug: post.slug,
-          tags: post.tags || [],
-          readTime: post.readTimeMinutes || 5,
-          category: post.category || null,
-          likes: post.likes || 0,
-          views: post.views || 0,
-        }));
+        const transformedPosts: BlogCardData[] = posts.map(transformPostToCardData);
 
         // Use transformed posts if available, otherwise fall back to sample data
         if (transformedPosts.length > 0) {
@@ -353,7 +382,7 @@ export function BlogGrid({
     };
 
     fetchPosts();
-  }, []);
+  }, [initialPosts]);
 
   const derivedCategories = useMemo(() => {
     // Use normalized keys to dedupe, but keep original values for matching
@@ -410,8 +439,9 @@ export function BlogGrid({
     setCurrentPage(1);
   }, [normalizedActiveCategories, normalizedSearch]);
 
+  // Optimized filtering with early returns
   const filteredPosts = useMemo(() => {
-    // If "all" is selected and no search, return all posts
+    // Fast path: if "all" is selected and no search, return all posts
     if (
       normalizedActiveCategories.includes("all") &&
       !normalizedSearch
@@ -419,37 +449,16 @@ export function BlogGrid({
       return blogPosts;
     }
 
-    return blogPosts.filter((post) => {
-      // Normalize all possible category/tag values for comparison
-      const postCategoryValues = [
+    // Pre-compute normalized category values for all posts
+    const postsWithNormalizedCategories = blogPosts.map((post) => ({
+      post,
+      normalizedCategories: [
         post.category ?? undefined,
         ...post.tags,
       ]
         .filter(Boolean)
-        .map((value) => normalizeCategoryValue(value));
-
-      // Check category match - post must match ANY of the selected categories
-      let matchesCategory = false;
-      
-      if (normalizedActiveCategories.includes("all")) {
-        matchesCategory = true; // "all" means show everything
-      } else {
-        // Check if post matches any of the selected categories
-        matchesCategory = normalizedActiveCategories.some((activeCat) =>
-          postCategoryValues.includes(activeCat)
-        );
-      }
-
-      if (!matchesCategory) {
-        return false;
-      }
-
-      // Check search match
-      if (!normalizedSearch) {
-        return true;
-      }
-
-      const searchableFields = [
+        .map((value) => normalizeCategoryValue(value)),
+      searchableText: [
         post.title,
         post.description,
         post.author,
@@ -457,12 +466,28 @@ export function BlogGrid({
         post.category,
       ]
         .filter(Boolean)
-        .map((value) => value.toString().toLowerCase());
+        .map((value) => value.toString().toLowerCase())
+        .join(" "),
+    }));
 
-      return searchableFields.some((field) =>
-        field.includes(normalizedSearch)
-      );
-    });
+    return postsWithNormalizedCategories
+      .filter(({ post, normalizedCategories, searchableText }) => {
+        // Category filter
+        if (!normalizedActiveCategories.includes("all")) {
+          const matchesCategory = normalizedActiveCategories.some((activeCat) =>
+            normalizedCategories.includes(activeCat)
+          );
+          if (!matchesCategory) return false;
+        }
+
+        // Search filter
+        if (normalizedSearch) {
+          return searchableText.includes(normalizedSearch);
+        }
+
+        return true;
+      })
+      .map(({ post }) => post);
   }, [blogPosts, normalizedActiveCategories, normalizedSearch]);
 
   const totalPosts = filteredPosts.length;

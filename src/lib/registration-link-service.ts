@@ -104,7 +104,7 @@ export async function createRegistrationLink(data: {
 
     // Save to Firestore
     const linkId = await registrationLinkService.create(
-      registrationLink as any
+      registrationLink as Record<string, unknown>
     );
 
     return {

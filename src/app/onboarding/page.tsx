@@ -204,12 +204,12 @@ export default function OnboardingPage() {
 
           toast.success("Registration information loaded successfully!");
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error fetching registration data:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
         // Check if it's an expiration error
-        const errorMsg =
-          error.message || "Failed to load registration information.";
+        const errorMsg = errorMessage || "Failed to load registration information.";
         if (errorMsg.toLowerCase().includes("expired")) {
           setIsExpired(true);
           setErrorMessage(errorMsg);

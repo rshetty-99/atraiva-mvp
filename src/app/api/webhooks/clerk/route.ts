@@ -6,6 +6,42 @@ import { SessionService } from "@/lib/session";
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
 
+// Types for Clerk webhook events
+type ClerkWebhookEvent = {
+  type: string;
+  data: Record<string, unknown>;
+};
+
+type ClerkUserData = {
+  id: string;
+  [key: string]: unknown;
+};
+
+type ClerkOrgData = {
+  id: string;
+  [key: string]: unknown;
+};
+
+type ClerkSessionData = {
+  user_id: string;
+  [key: string]: unknown;
+};
+
+type ClerkMembershipData = {
+  id: string;
+  public_user_data: {
+    user_id: string;
+    [key: string]: unknown;
+  };
+  organization: {
+    id: string;
+    [key: string]: unknown;
+  };
+  role: string;
+  permissions?: string[];
+  [key: string]: unknown;
+};
+
 export async function POST(req: NextRequest) {
   if (!webhookSecret) {
     throw new Error(
@@ -33,7 +69,7 @@ export async function POST(req: NextRequest) {
   // Create a new Svix instance with your webhook secret.
   const wh = new Webhook(webhookSecret);
 
-  let evt: any;
+  let evt: ClerkWebhookEvent;
 
   // Verify the payload with the headers
   try {
@@ -41,7 +77,7 @@ export async function POST(req: NextRequest) {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
-    }) as any;
+    }) as ClerkWebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
     return new Response("Error occured", {
@@ -105,7 +141,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleUserCreated(userData: any) {
+async function handleUserCreated(userData: ClerkUserData) {
   console.log("User created:", userData.id);
 
   try {
@@ -118,7 +154,7 @@ async function handleUserCreated(userData: any) {
   }
 }
 
-async function handleUserUpdated(userData: any) {
+async function handleUserUpdated(userData: ClerkUserData) {
   console.log("User updated:", userData.id);
 
   try {
@@ -135,7 +171,7 @@ async function handleUserUpdated(userData: any) {
   }
 }
 
-async function handleUserDeleted(userData: any) {
+async function handleUserDeleted(userData: ClerkUserData) {
   console.log("User deleted:", userData.id);
 
   try {
@@ -151,7 +187,7 @@ async function handleUserDeleted(userData: any) {
   }
 }
 
-async function handleSessionCreated(sessionData: any) {
+async function handleSessionCreated(sessionData: ClerkSessionData) {
   console.log("Session created for user:", sessionData.user_id);
 
   try {
@@ -166,12 +202,12 @@ async function handleSessionCreated(sessionData: any) {
   }
 }
 
-async function handleSessionEnded(sessionData: any) {
+async function handleSessionEnded(sessionData: ClerkSessionData) {
   console.log("Session ended for user:", sessionData.user_id);
   // Could track session duration, logout events, etc.
 }
 
-async function handleOrganizationCreated(orgData: any) {
+async function handleOrganizationCreated(orgData: ClerkOrgData) {
   console.log("Organization created:", orgData.id);
 
   try {
@@ -183,7 +219,7 @@ async function handleOrganizationCreated(orgData: any) {
   }
 }
 
-async function handleOrganizationUpdated(orgData: any) {
+async function handleOrganizationUpdated(orgData: ClerkOrgData) {
   console.log("Organization updated:", orgData.id);
 
   try {
@@ -195,7 +231,7 @@ async function handleOrganizationUpdated(orgData: any) {
   }
 }
 
-async function handleOrganizationDeleted(orgData: any) {
+async function handleOrganizationDeleted(orgData: ClerkOrgData) {
   console.log("Organization deleted:", orgData.id);
 
   try {
@@ -210,7 +246,7 @@ async function handleOrganizationDeleted(orgData: any) {
   }
 }
 
-async function handleMembershipCreated(membershipData: any) {
+async function handleMembershipCreated(membershipData: ClerkMembershipData) {
   console.log("Membership created:", membershipData.id);
 
   try {
@@ -227,7 +263,7 @@ async function handleMembershipCreated(membershipData: any) {
   }
 }
 
-async function handleMembershipUpdated(membershipData: any) {
+async function handleMembershipUpdated(membershipData: ClerkMembershipData) {
   console.log("Membership updated:", membershipData.id);
 
   try {
@@ -244,7 +280,7 @@ async function handleMembershipUpdated(membershipData: any) {
   }
 }
 
-async function handleMembershipDeleted(membershipData: any) {
+async function handleMembershipDeleted(membershipData: ClerkMembershipData) {
   console.log("Membership deleted:", membershipData.id);
 
   try {

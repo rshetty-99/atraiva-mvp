@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -94,7 +94,7 @@ const registrationSchema = z
       .min(1, "At least one team member is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Passwords don&apos;t match",
     path: ["confirmPassword"],
   });
 
@@ -139,18 +139,7 @@ export default function RegisterPage() {
     },
   });
 
-  // Validate token on mount
-  useEffect(() => {
-    if (!token) {
-      setError("No registration token provided");
-      setValidating(false);
-      return;
-    }
-
-    validateToken(token);
-  }, [token]);
-
-  const validateToken = async (token: string) => {
+  const validateToken = useCallback(async (tokenParam: string) => {
     try {
       const response = await fetch("/api/registration-links/validate", {
         method: "POST",
@@ -201,7 +190,18 @@ export default function RegisterPage() {
       setError("Failed to validate registration link. Please try again.");
       setValidating(false);
     }
-  };
+  }, [form]);
+
+  // Validate token on mount
+  useEffect(() => {
+    if (!token) {
+      setError("No registration token provided");
+      setValidating(false);
+      return;
+    }
+
+    validateToken(token);
+  }, [token, validateToken]);
 
   const addTeamMember = () => {
     const currentMembers = form.getValues("teamMembers");
@@ -276,9 +276,10 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/onboarding");
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error completing registration:", error);
-      toast.error(error.message || "Failed to complete registration");
+      const errorMessage = error instanceof Error ? error.message : "Failed to complete registration";
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }

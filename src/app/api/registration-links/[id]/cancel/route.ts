@@ -54,7 +54,7 @@ export async function POST(
         userAgent: request.headers.get("user-agent") || "unknown",
         timestamp: new Date(),
         success: true,
-      } as any);
+      } as Record<string, unknown>);
     } catch (auditError) {
       console.error("Failed to create audit log:", auditError);
     }

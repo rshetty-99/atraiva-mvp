@@ -51,7 +51,7 @@ export interface Organization {
       enableSMS: boolean;
       enableInApp: boolean;
       digestFrequency: 'realtime' | 'hourly' | 'daily' | 'weekly';
-      escalationRules: Record<string, any>[];
+      escalationRules: Array<Record<string, unknown>>;
     };
     
     // Security Settings
@@ -61,7 +61,7 @@ export interface Organization {
       ssoProvider?: string;
       ipWhitelist?: string[];
       sessionTimeout: number; // minutes
-      passwordPolicy: Record<string, any>;
+      passwordPolicy: Record<string, unknown>;
     };
     
     // Compliance Settings

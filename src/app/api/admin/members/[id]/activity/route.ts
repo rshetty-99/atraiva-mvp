@@ -3,6 +3,9 @@ import { auth } from "@clerk/nextjs/server";
 import { createClerkClient } from "@clerk/backend";
 import { ActivityLogService } from "@/lib/activity-log-service";
 
+// Type for Clerk metadata
+type ClerkOrgMeta = { primaryOrganization?: { role?: string } };
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -21,8 +24,8 @@ export async function GET(
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can access this
     if (userRole !== "platform_admin" && userRole !== "super_admin") {

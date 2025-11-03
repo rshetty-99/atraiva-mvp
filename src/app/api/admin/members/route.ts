@@ -3,6 +3,24 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
+// Minimal Clerk user shape used in this route
+type ClerkOrgMeta = { primaryOrganization?: { id?: string; role?: string } };
+type ClerkUserLite = {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  emailAddresses: Array<{ emailAddress: string }>;
+  imageUrl?: string | null;
+  createdAt?: string | number | Date | null;
+  lastSignInAt?: string | number | Date | null;
+  publicMetadata?: { atraiva?: ClerkOrgMeta } | Record<string, unknown>;
+  privateMetadata?: Record<string, unknown> & {
+    primaryOrganizationId?: string;
+    organizationId?: string;
+    primaryRole?: string;
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const authData = await auth();
@@ -16,8 +34,8 @@ export async function GET(request: NextRequest) {
     const user = await client.users.getUser(authData.userId);
 
     // Get role from the correct metadata location
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
 
     // Only platform_admin and super_admin can access this
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
@@ -37,7 +55,7 @@ export async function GET(request: NextRequest) {
     const orgFilter = searchParams.get("organizationId");
 
     // Get all users from Clerk
-    let allUsers: any[] = [];
+    let allUsers: ClerkUserLite[] = [];
     let hasMore = true;
     let offset = 0;
     const limit = 100;
@@ -59,7 +77,7 @@ export async function GET(request: NextRequest) {
     // Get all organizations to map org IDs to names
     const organizationsRef = collection(db, "organizations");
     const organizationsSnapshot = await getDocs(organizationsRef);
-    const orgsMap = new Map();
+    const orgsMap = new Map<string, { name?: string; slug?: string }>();
 
     organizationsSnapshot.docs.forEach((doc) => {
       const data = doc.data();
@@ -72,7 +90,7 @@ export async function GET(request: NextRequest) {
     // Get Firestore user data
     const usersRef = collection(db, "users");
     const usersSnapshot = await getDocs(usersRef);
-    const firestoreUsersMap = new Map();
+    const firestoreUsersMap = new Map<string, Record<string, unknown>>();
 
     usersSnapshot.docs.forEach((doc) => {
       firestoreUsersMap.set(doc.id, doc.data());
@@ -81,7 +99,8 @@ export async function GET(request: NextRequest) {
     // Enrich users with organization data
     const enrichedUsers = await Promise.all(
       allUsers.map(async (clerkUser) => {
-        const firestoreData = firestoreUsersMap.get(clerkUser.id) || {};
+        const firestoreData =
+          firestoreUsersMap.get(clerkUser.id) ?? ({} as Record<string, unknown>);
 
         // Try to get organization data from multiple sources
         let organizationId = null;
@@ -89,7 +108,7 @@ export async function GET(request: NextRequest) {
         let dataSource = "none";
 
         // Check publicMetadata.atraiva.primaryOrganization (session service format)
-        const userMetadata = clerkUser.publicMetadata?.atraiva as any;
+        const userMetadata = (clerkUser.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
         if (
           userMetadata?.primaryOrganization?.id &&
           userMetadata.primaryOrganization.id !== "temp"
@@ -105,22 +124,33 @@ export async function GET(request: NextRequest) {
           (clerkUser.privateMetadata?.primaryOrganizationId ||
             clerkUser.privateMetadata?.organizationId)
         ) {
-          organizationId = (clerkUser.privateMetadata.primaryOrganizationId ||
-            clerkUser.privateMetadata.organizationId) as string;
+          organizationId = String(
+            clerkUser.privateMetadata?.primaryOrganizationId ||
+              clerkUser.privateMetadata?.organizationId
+          );
           // Try to get role from private metadata, fallback to Firestore, then default
+          const fsRole = (firestoreData["role"] as string | undefined) ?? undefined;
           role =
-            (clerkUser.privateMetadata.primaryRole as string) ||
-            firestoreData.role ||
+            (clerkUser.privateMetadata?.primaryRole as string | undefined) ||
+            fsRole ||
             "org_viewer";
           dataSource = "privateMetadata";
         }
         // Check Firestore user data
         else if (
-          firestoreData.organizations &&
+          firestoreData &&
+          typeof firestoreData === "object" &&
+          "organizations" in firestoreData &&
+          Array.isArray(firestoreData.organizations) &&
           firestoreData.organizations.length > 0
         ) {
-          organizationId = firestoreData.organizations[0];
-          role = firestoreData.role || "org_viewer";
+          const firstOrg = firestoreData.organizations[0];
+          if (firstOrg && typeof firstOrg === "object" && "id" in firstOrg) {
+            organizationId = String(firstOrg.id);
+          } else if (typeof firstOrg === "string") {
+            organizationId = firstOrg;
+          }
+          role = (typeof firestoreData.role === "string" ? firestoreData.role : undefined) || "org_viewer";
           dataSource = "firestore";
         }
         // Fallback: Get from Clerk organization memberships
@@ -138,7 +168,7 @@ export async function GET(request: NextRequest) {
                 membership.role === "org:admin" ? "org_admin" : "org_viewer";
               dataSource = "clerkMemberships";
             }
-          } catch (error) {
+          } catch {
             console.log(
               `No organization memberships found for user ${clerkUser.id}`
             );
@@ -164,7 +194,7 @@ export async function GET(request: NextRequest) {
           lastSignInAt: clerkUser.lastSignInAt
             ? new Date(clerkUser.lastSignInAt)
             : null,
-          isActive: firestoreData.isActive ?? true,
+          isActive: (firestoreData["isActive"] as boolean | undefined) ?? true,
         };
       })
     );
@@ -201,10 +231,10 @@ export async function GET(request: NextRequest) {
       stats,
       total: filteredUsers.length,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching members:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: (error as Error).message },
       { status: 500 }
     );
   }

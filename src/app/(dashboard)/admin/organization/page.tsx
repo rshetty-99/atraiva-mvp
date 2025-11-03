@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -74,9 +74,37 @@ export default function OrganizationPage() {
     fetchOrganizations();
   }, []);
 
+  const filterOrganizations = useCallback(() => {
+    let filtered = [...organizations];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (org) =>
+          org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          org.country.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Plan filter
+    if (filterPlan && filterPlan !== "all") {
+      filtered = filtered.filter((org) => org.subscription?.plan === filterPlan);
+    }
+
+    // Status filter
+    if (filterStatus && filterStatus !== "all") {
+      filtered = filtered.filter(
+        (org) => org.subscription?.status === filterStatus
+      );
+    }
+
+    setFilteredOrgs(filtered);
+  }, [searchTerm, filterPlan, filterStatus, organizations]);
+
   useEffect(() => {
     filterOrganizations();
-  }, [searchTerm, filterPlan, filterStatus, organizations]);
+  }, [filterOrganizations]);
 
   const fetchOrganizations = async () => {
     try {
@@ -104,40 +132,13 @@ export default function OrganizationPage() {
           expired: 0,
         }
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching organizations:", error);
-      toast.error(error.message || "Failed to load organizations");
+      const errorMessage = error instanceof Error ? error.message : "Failed to load organizations";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filterOrganizations = () => {
-    let filtered = [...organizations];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (org) =>
-          org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          org.country.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Plan filter
-    if (filterPlan !== "all") {
-      filtered = filtered.filter((org) => org.subscriptionPlan === filterPlan);
-    }
-
-    // Status filter
-    if (filterStatus !== "all") {
-      filtered = filtered.filter(
-        (org) => org.subscriptionStatus === filterStatus
-      );
-    }
-
-    setFilteredOrgs(filtered);
   };
 
   const getStatusColor = (status: string) => {

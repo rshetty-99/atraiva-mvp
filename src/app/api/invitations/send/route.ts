@@ -5,6 +5,9 @@ import { MemberInvitationService } from "@/lib/member-invitation-service";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+// Type for Clerk metadata
+type ClerkOrgMeta = { primaryOrganization?: { role?: string; id?: string } };
+
 export async function POST(request: NextRequest) {
   try {
     const authData = await auth();
@@ -20,9 +23,9 @@ export async function POST(request: NextRequest) {
     const user = await client.users.getUser(authData.userId);
 
     // Get user role
-    const metadata = user.publicMetadata?.atraiva as any;
-    const userRole = metadata?.primaryOrganization?.role as string;
-    const userOrgId = metadata?.primaryOrganization?.id as string;
+    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+    const userRole = metadata.primaryOrganization?.role ?? "";
+    const userOrgId = metadata.primaryOrganization?.id ?? "";
 
     const body = await request.json();
     const { organizationId, memberData } = body;

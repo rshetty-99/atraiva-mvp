@@ -28,9 +28,9 @@ export interface ClerkUserData {
   imageUrl: string;
   createdAt: number;
   updatedAt: number;
-  publicMetadata: Record<string, any>;
-  privateMetadata: Record<string, any>;
-  unsafeMetadata: Record<string, any>;
+  publicMetadata: Record<string, unknown>;
+  privateMetadata: Record<string, unknown>;
+  unsafeMetadata: Record<string, unknown>;
 }
 
 export interface ClerkOrganizationData {
@@ -40,8 +40,8 @@ export interface ClerkOrganizationData {
   imageUrl: string;
   createdAt: number;
   updatedAt: number;
-  publicMetadata: Record<string, any>;
-  privateMetadata: Record<string, any>;
+  publicMetadata: Record<string, unknown>;
+  privateMetadata: Record<string, unknown>;
   membersCount: number;
   maxAllowedMemberships: number;
 }
@@ -54,8 +54,8 @@ export interface ClerkMembershipData {
   permissions: string[];
   createdAt: number;
   updatedAt: number;
-  publicMetadata: Record<string, any>;
-  privateMetadata: Record<string, any>;
+  publicMetadata: Record<string, unknown>;
+  privateMetadata: Record<string, unknown>;
 }
 
 export class ClerkFirestoreIntegration {
@@ -74,7 +74,14 @@ export class ClerkFirestoreIntegration {
       }
 
       // Get user's organization memberships from Clerk
-      let userOrganizations: any[] = [];
+      let userOrganizations: Array<{
+        orgId: string;
+        role: string;
+        permissions: string[];
+        isPrimary: boolean;
+        joinedAt: Date;
+        updatedAt: Date;
+      }> = [];
       try {
         const memberships = await client.users.getOrganizationMembershipList({
           userId: clerkUserId,
@@ -93,9 +100,10 @@ export class ClerkFirestoreIntegration {
         console.log(
           `Found ${userOrganizations.length} organization memberships for user ${clerkUserId}`
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Handle rate limiting gracefully
-        if (error?.status === 429) {
+        const err = error && typeof error === "object" && "status" in error ? error as { status?: number } : null;
+        if (err?.status === 429) {
           console.warn(
             "Rate limited by Clerk API, skipping organization fetch"
           );
