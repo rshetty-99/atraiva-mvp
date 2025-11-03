@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useSession } from "@/hooks/useSession";
@@ -23,13 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, RefreshCw, Link2, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { PostStatus } from "@/types/blog";
 import { RichTextEditor } from "@/components/blog/RichTextEditor";
 import Image from "next/image";
 import Link from "next/link";
 import { blogTemplates, applyTemplate } from "@/lib/blog/templates";
+import { ConvertedBlogData } from "@/lib/blog/url-converter";
 
 export default function CreateEditBlogPage() {
   const router = useRouter();
@@ -45,6 +46,14 @@ export default function CreateEditBlogPage() {
 
   // Check for template parameter
   const templateId = searchParams?.get("template");
+  
+  // Check for URL parameter for conversion
+  const urlParam = searchParams?.get("url");
+  
+  const [converting, setConverting] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(!!urlParam);
+  const [urlInput, setUrlInput] = useState(urlParam || "");
+  const [isCreating, setIsCreating] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -89,9 +98,96 @@ export default function CreateEditBlogPage() {
     }
   }, [isLoaded, session, router]);
 
+  // Convert URL to blog post
+  const convertUrl = useCallback(async (url: string) => {
+    if (!url || !url.trim()) {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+
+    setConverting(true);
+    try {
+      const response = await fetch("/api/blog/convert-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to convert URL");
+      }
+
+      const convertedData: ConvertedBlogData = data.data;
+
+      // Find the template and apply it with the converted content
+      const template = blogTemplates.find((t) => t.id === convertedData.templateId);
+      
+      if (template) {
+        // Use the converted content but keep template structure where applicable
+        setFormData((prev) => ({
+          ...prev,
+          title: convertedData.title,
+          slug: convertedData.slug,
+          excerpt: convertedData.excerpt,
+          content: convertedData.content,
+          tags: convertedData.tags.length > 0 ? convertedData.tags : prev.tags,
+          category: convertedData.category || prev.category,
+          seo: {
+            title: convertedData.seo.title || convertedData.title,
+            description: convertedData.seo.description || convertedData.excerpt,
+            keywords: convertedData.seo.keywords || convertedData.tags,
+          },
+        }));
+        
+        toast.success(
+          `URL converted! ${template.icon || "📄"} ${template.name} template identified and applied. You can now edit the content.`
+        );
+        setShowUrlInput(false);
+        setUrlInput("");
+      } else {
+        // No template match, just use converted data
+        setFormData((prev) => ({
+          ...prev,
+          title: convertedData.title,
+          slug: convertedData.slug,
+          excerpt: convertedData.excerpt,
+          content: convertedData.content,
+          tags: convertedData.tags,
+          category: convertedData.category,
+          seo: {
+            title: convertedData.seo.title || convertedData.title,
+            description: convertedData.seo.description || convertedData.excerpt,
+            keywords: convertedData.seo.keywords || convertedData.tags,
+          },
+        }));
+        toast.success("URL converted! You can now edit the content.");
+        setShowUrlInput(false);
+        setUrlInput("");
+      }
+    } catch (error) {
+      console.error("Error converting URL:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to convert URL"
+      );
+    } finally {
+      setConverting(false);
+    }
+  }, []);
+
+  // Convert URL from URL parameter on mount
+  useEffect(() => {
+    if (urlParam && !isEditMode && !formData.title) {
+      convertUrl(urlParam);
+    }
+  }, [urlParam, isEditMode, convertUrl, formData.title]);
+
   // Apply template from URL parameter
   useEffect(() => {
-    if (templateId && !isEditMode) {
+    if (templateId && !isEditMode && !urlParam) {
       const template = blogTemplates.find((t) => t.id === templateId);
       if (template) {
         const applied = applyTemplate(template);
@@ -106,16 +202,9 @@ export default function CreateEditBlogPage() {
         toast.success(`${template.name} template applied!`);
       }
     }
-  }, [templateId, isEditMode]);
+  }, [templateId, isEditMode, urlParam]);
 
-  // Load post data if editing
-  useEffect(() => {
-    if (isEditMode && editId) {
-      loadPost(editId);
-    }
-  }, [isEditMode, editId]);
-
-  const loadPost = async (id: string) => {
+  const loadPost = useCallback(async (id: string) => {
     try {
       setLoading(true);
       const response = await fetch(`/api/blog/${id}`);
@@ -149,7 +238,14 @@ export default function CreateEditBlogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load post data if editing
+  useEffect(() => {
+    if (isEditMode && editId) {
+      loadPost(editId);
+    }
+  }, [isEditMode, editId, loadPost]);
 
   const handleSave = async () => {
     try {
@@ -159,6 +255,7 @@ export default function CreateEditBlogPage() {
         return;
       }
 
+      setIsCreating(true);
       setLoading(true);
 
       // Auto-generate slug from title if empty
@@ -207,6 +304,7 @@ export default function CreateEditBlogPage() {
       );
     } finally {
       setLoading(false);
+      setIsCreating(false);
     }
   };
 
@@ -295,8 +393,82 @@ export default function CreateEditBlogPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? (
+          {(formData.status === "draft" || !isEditMode) && (
+            <Button
+              variant="outline"
+              onClick={async () => {
+                // Validate required fields
+                if (!formData.title || !formData.slug || !formData.content) {
+                  toast.error("Title, slug, and content are required");
+                  return;
+                }
+
+                setIsCreating(true);
+                setLoading(true);
+                try {
+                  // Auto-generate slug from title if empty
+                  const slug =
+                    formData.slug ||
+                    formData.title
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/(^-|-$)/g, "");
+
+                  const postData = {
+                    ...formData,
+                    slug,
+                    status: "review", // Send for review
+                    content: {
+                      type: "html",
+                      html: formData.content,
+                    },
+                  };
+
+                  const url = isEditMode ? `/api/blog/${editId}` : "/api/blog";
+                  const method = isEditMode ? "PUT" : "POST";
+
+                  const response = await fetch(url, {
+                    method,
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(postData),
+                  });
+
+                  if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || "Failed to save post");
+                  }
+
+                  toast.success("Post saved and sent for review!");
+                  router.push("/admin/blog");
+                  } catch (error) {
+                    console.error("Error sending for review:", error);
+                    toast.error(
+                      error instanceof Error ? error.message : "Failed to send for review"
+                    );
+                  } finally {
+                    setLoading(false);
+                    setIsCreating(false);
+                  }
+                }}
+                disabled={loading || isCreating}
+              >
+                {(loading || isCreating) ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send for Review
+                  </>
+                )}
+              </Button>
+          )}
+          <Button onClick={handleSave} disabled={loading || isCreating}>
+            {(loading || isCreating) ? (
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Save className="w-4 h-4 mr-2" />
@@ -305,6 +477,74 @@ export default function CreateEditBlogPage() {
           </Button>
         </div>
       </div>
+
+      {/* URL Converter */}
+      {showUrlInput && (
+        <Card className="mb-6 border-primary/50">
+          <CardHeader>
+            <CardTitle>Convert URL to Blog Post</CardTitle>
+            <CardDescription>
+              Enter a URL to automatically extract content and identify the appropriate template
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://example.com/article"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !converting) {
+                    convertUrl(urlInput);
+                  }
+                }}
+                disabled={converting}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => convertUrl(urlInput)}
+                disabled={converting || !urlInput.trim() || loading}
+              >
+                {converting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Converting...
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="w-4 h-4 mr-2" />
+                    Convert
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowUrlInput(false);
+                  setUrlInput("");
+                }}
+                disabled={converting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* URL Converter Button */}
+      {!showUrlInput && !isEditMode && (
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowUrlInput(true)}
+            className="w-full sm:w-auto"
+          >
+            <Link2 className="w-4 h-4 mr-2" />
+            Convert URL to Blog Post
+          </Button>
+        </div>
+      )}
 
       {/* Form */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

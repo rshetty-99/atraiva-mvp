@@ -14,6 +14,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,14 +49,20 @@ import {
   Plus,
   MoreVertical,
   Search,
-  RefreshCw,
   Edit,
   Trash2,
   Eye,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CheckCircle2,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Post, PostStatus } from "@/types/blog";
 import Image from "next/image";
+import { LogoSpinner } from "@/components/ui/logo-spinner";
 
 export default function BlogManagementPage() {
   const router = useRouter();
@@ -57,12 +70,17 @@ export default function BlogManagementPage() {
   const { session } = useSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [paginatedPosts, setPaginatedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postsFetched, setPostsFetched] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Check permissions
   useEffect(() => {
@@ -95,12 +113,26 @@ export default function BlogManagementPage() {
     }
 
     setFilteredPosts(filtered);
+    // Reset to first page when filters change
+    setCurrentPage(1);
   }, [posts, searchTerm, statusFilter]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPosts.length / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  // Update paginated posts when filtered posts or pagination changes
+  useEffect(() => {
+    const paginated = filteredPosts.slice(startIndex, endIndex);
+    setPaginatedPosts(paginated);
+  }, [filteredPosts, startIndex, endIndex]);
 
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/blog");
+      // Fetch all posts (admin should see all posts, pagination is handled client-side)
+      const response = await fetch("/api/blog?limit=100");
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -121,6 +153,21 @@ export default function BlogManagementPage() {
       setLoading(false);
     }
   }, []);
+
+  // Pagination handlers
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const goToNextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const goToPreviousPage = () =>
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+
+  const handlePageSizeChange = (newSize: string) => {
+    const size = parseInt(newSize, 10);
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page
+    toast.success(`Page size updated to ${size} items`);
+  };
 
   // Fetch posts - only once after permission check
   useEffect(() => {
@@ -170,6 +217,67 @@ export default function BlogManagementPage() {
     }
   };
 
+  const handleApprove = async (post: Post) => {
+    try {
+      const response = await fetch(`/api/blog/${post.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...post,
+          status: "published",
+          // Preserve all other fields
+          content: post.content,
+          seo: post.seo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to approve post");
+      }
+
+      toast.success(`"${post.title}" has been approved and published!`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error approving post:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to approve post"
+      );
+    }
+  };
+
+  const handleSendForReview = async (post: Post) => {
+    try {
+      const response = await fetch(`/api/blog/${post.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...post,
+          status: "review",
+          content: post.content,
+          seo: post.seo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send post for review");
+      }
+
+      toast.success(`"${post.title}" has been sent for review!`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error sending post for review:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to send post for review"
+      );
+    }
+  };
+
   const getStatusBadge = (status: PostStatus) => {
     const variants = {
       draft: "secondary",
@@ -197,8 +305,11 @@ export default function BlogManagementPage() {
 
   if (!isLoaded || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ marginTop: "140px" }}
+      >
+        <LogoSpinner size={80} text="Loading blog posts..." />
       </div>
     );
   }
@@ -248,6 +359,13 @@ export default function BlogManagementPage() {
                 Draft
               </Button>
               <Button
+                variant={statusFilter === "review" ? "default" : "outline"}
+                onClick={() => setStatusFilter("review")}
+                size="sm"
+              >
+                Review
+              </Button>
+              <Button
                 variant={statusFilter === "published" ? "default" : "outline"}
                 onClick={() => setStatusFilter("published")}
                 size="sm"
@@ -286,7 +404,7 @@ export default function BlogManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPosts.length === 0 ? (
+              {paginatedPosts.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
@@ -296,7 +414,7 @@ export default function BlogManagementPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPosts.map((post) => (
+                paginatedPosts.map((post) => (
                   <TableRow key={post.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
@@ -354,6 +472,27 @@ export default function BlogManagementPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
+                          {(post.status === "draft" ||
+                            post.status === "review") && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => handleApprove(post)}
+                                className="text-green-600 dark:text-green-400"
+                              >
+                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                Approve & Publish
+                              </DropdownMenuItem>
+                              {post.status === "draft" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleSendForReview(post)}
+                                >
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Send for Review
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
                           <DropdownMenuItem onClick={() => handleEdit(post)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
@@ -384,6 +523,84 @@ export default function BlogManagementPage() {
               )}
             </TableBody>
           </Table>
+
+          {/* Pagination Controls */}
+          {filteredPosts.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t">
+              {/* Page Info and Size Selector */}
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1} to{" "}
+                  {Math.min(endIndex, filteredPosts.length)} of{" "}
+                  {filteredPosts.length} results
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Items per page:
+                  </span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={handlePageSizeChange}
+                  >
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Pagination Buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToFirstPage}
+                  disabled={currentPage === 1}
+                  title="First Page"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 1}
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-2 px-2">
+                  <span className="text-sm font-medium">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  title="Next Page"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToLastPage}
+                  disabled={currentPage === totalPages}
+                  title="Last Page"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

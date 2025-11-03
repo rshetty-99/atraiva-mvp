@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Post } from "@/types/blog";
 import type { CategoryOption } from "./BrowseSection";
+import { LogoSpinner } from "@/components/ui/logo-spinner";
 
 // Normalize category for comparison - handle all variations consistently
 // This function must be used consistently everywhere for matching to work
@@ -492,7 +493,7 @@ export function BlogGrid({
       <section className="bg-background py-20 px-20">
         <div className="w-full">
           <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-muted-foreground">Loading blog posts...</div>
+            <LogoSpinner size={80} text="Loading blog posts..." />
           </div>
         </div>
       </section>

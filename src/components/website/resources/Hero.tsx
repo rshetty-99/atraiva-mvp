@@ -189,9 +189,9 @@ export function Hero({ post, isLoading = false }: HeroProps) {
         boxSizing: "border-box",
         paddingTop: "320px",
         paddingBottom: "5rem",
-        height: "593px",
-        maxHeight: "593px",
-        minHeight: "593px",
+        height: "638px",
+        maxHeight: "638px",
+        minHeight: "638px",
         backgroundImage: `url(${heroBackground})`,
         backgroundSize: "cover",
         backgroundPosition: "right center",
@@ -207,9 +207,9 @@ export function Hero({ post, isLoading = false }: HeroProps) {
       <div
         className="relative z-10 flex items-center"
         style={{
-          height: "calc(593px - 320px - 5rem)",
-          minHeight: "calc(593px - 320px - 5rem)",
-          maxHeight: "calc(593px - 320px - 5rem)",
+          height: "calc(638px - 320px - 5rem)",
+          minHeight: "calc(638px - 320px - 5rem)",
+          maxHeight: "calc(638px - 320px - 5rem)",
         }}
       >
         <div className="flex items-center justify-between w-full gap-20">
