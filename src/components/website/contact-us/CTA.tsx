@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export function CTA() {
   return (
     <section
-      className="relative flex flex-col justify-center gap-6 py-30 px-20 min-h-[750px]"
+      className="relative flex flex-col justify-center gap-6 py-30 px-4 sm:px-8 md:px-12 lg:px-20 min-h-[750px] w-full max-w-full overflow-x-hidden"
       style={{
         backgroundImage: `url(/images/website/contact-us/cta-overlay-3a14d9.jpg)`,
         backgroundSize: "cover",

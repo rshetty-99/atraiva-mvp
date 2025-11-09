@@ -133,7 +133,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div style={{ marginTop: "140px" }} className="container mx-auto px-6 pb-6">
+    <div style={{ marginTop: "140px", maxWidth: "100vw", width: "100%", boxSizing: "border-box", overflow: "hidden", position: "relative" }} className="container mx-auto px-4 sm:px-6 pb-6 w-full max-w-full overflow-x-hidden">
       {/* Top Section - Active Incidents, Alerts, and SLA Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Left Column - Active Incidents & Critical Alerts */}
@@ -160,14 +160,14 @@ export default function AdminDashboard() {
           </a>
 
           {/* Critical Alerts */}
-          <Card>
+          <Card style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
                 <ShieldAlert className="h-5 w-5 mr-3 text-yellow-500" />
                 Critical Alerts
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" style={{ maxWidth: "100%", overflow: "hidden" }}>
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-full mr-4 flex-shrink-0">
                   <UserPlus className="h-5 w-5 text-yellow-600" />
@@ -333,16 +333,16 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
         {/* Breach Exposure Distribution */}
-        <Card>
+        <Card style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
           <CardHeader>
             <CardTitle className="text-lg">
               Breach Exposure Distribution
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <ResponsiveContainer width="100%" height={250} style={{ maxWidth: "100%" }}>
               <PieChart>
                 <Pie
                   data={breachExposureData}
@@ -380,8 +380,8 @@ export default function AdminDashboard() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <ResponsiveContainer width="100%" height={250} style={{ maxWidth: "100%" }}>
               <PieChart>
                 <Pie
                   data={regulatoryAlignmentData}
@@ -415,8 +415,8 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="text-lg">Customer Health Score</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <ResponsiveContainer width="100%" height={250} style={{ maxWidth: "100%" }}>
               <BarChart data={customerHealthData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
@@ -438,14 +438,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row 2 - Onboarding Pipeline & New Customers */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
         {/* Onboarding Pipeline */}
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-3" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
           <CardHeader>
             <CardTitle className="text-lg">Onboarding Pipeline</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <ResponsiveContainer width="100%" height={300} style={{ maxWidth: "100%" }}>
               <BarChart
                 layout="vertical"
                 data={onboardingPipelineData}
@@ -471,7 +471,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* New Customers */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">New Customers</CardTitle>
             <select className="text-sm border border-input bg-background rounded-md px-2 py-1">
@@ -479,8 +479,8 @@ export default function AdminDashboard() {
               <option>Last 6 Months</option>
             </select>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <ResponsiveContainer width="100%" height={300} style={{ maxWidth: "100%" }}>
               <ComposedChart data={newCustomersData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis

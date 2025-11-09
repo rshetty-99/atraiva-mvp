@@ -184,7 +184,7 @@ export function Hero({ post, isLoading = false }: HeroProps) {
 
   return (
     <section
-      className="relative bg-background px-20 overflow-hidden"
+      className="relative bg-background px-4 sm:px-8 md:px-12 lg:px-20 overflow-x-hidden w-full max-w-full"
       style={{
         boxSizing: "border-box",
         paddingTop: "320px",
@@ -196,13 +196,14 @@ export function Hero({ post, isLoading = false }: HeroProps) {
         backgroundSize: "cover",
         backgroundPosition: "right center",
         backgroundRepeat: "no-repeat",
+        overflow: "hidden",
       }}
     >
       {/* Theme-aware overlay for text contrast */}
       <div className="absolute inset-0 bg-background/60"></div>
 
-      {/* Background Blur Element */}
-      <div className="absolute top-16 left-[639px] w-[681.42px] h-[592.91px] rounded-full bg-[rgba(134,145,216,0.4)] blur-[300px]"></div>
+      {/* Background Blur Element - Hidden until xl to prevent overflow */}
+      <div className="absolute top-16 right-0 xl:left-[639px] w-[681.42px] h-[592.91px] rounded-full bg-[rgba(134,145,216,0.4)] blur-[300px] hidden xl:block max-w-[max(0px,calc(100vw-639px))] overflow-hidden" style={{ clipPath: "inset(0)" }}></div>
 
       <div
         className="relative z-10 flex items-center"
@@ -212,15 +213,15 @@ export function Hero({ post, isLoading = false }: HeroProps) {
           maxHeight: "calc(638px - 320px - 5rem)",
         }}
       >
-        <div className="flex items-center justify-between w-full gap-20">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full gap-8 lg:gap-20">
           {/* Left Content */}
-          <div className="flex flex-col gap-6 flex-1 min-w-0">
+          <div className="flex flex-col gap-6 flex-1 min-w-0 w-full lg:w-auto">
             <div className="flex flex-col gap-4">
-              <span className="font-lato text-lg font-normal leading-[1.33] text-left text-primary">
+              <span className="font-lato text-lg font-normal leading-[1.33] text-left text-primary break-words max-w-full inline-block truncate">
                 Home / Resources
               </span>
               <h1
-                className="font-lato text-[48px] font-normal leading-[1.2] text-left text-foreground"
+                className="font-lato text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-normal leading-[1.2] text-left text-foreground"
                 style={{
                   wordBreak: "normal",
                   overflowWrap: "normal",
@@ -289,8 +290,8 @@ export function Hero({ post, isLoading = false }: HeroProps) {
 
             {/* CTA Buttons */}
             <div
-              className="flex gap-4"
-              style={{ height: "48px", minHeight: "48px", maxHeight: "48px" }}
+              className="flex flex-col sm:flex-row gap-4"
+              style={{ minHeight: "48px" }}
             >
               {slug ? (
                 <Link href={`/resources/${slug}`}>

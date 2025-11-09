@@ -78,8 +78,8 @@ const teamMembers = [
 
 export function TeamSection() {
   return (
-    <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-24 px-6">
-      <div className="max-w-[1800px] mx-auto">
+    <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-24 px-4 sm:px-6 md:px-8 lg:px-12 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-[1800px] mx-auto w-full">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}

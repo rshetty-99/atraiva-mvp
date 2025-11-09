@@ -2,11 +2,7 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import {
-  SidebarProvider,
-  SidebarInset,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useSession } from "@/hooks/useSession";
 import { useUser } from "@clerk/nextjs";
 import React, { ReactNode } from "react";
@@ -37,27 +33,24 @@ function DashboardContent({
   sidebarOrganizations,
   currentPermissions,
 }: DashboardContentProps) {
-  const { state } = useSidebar();
-  const leftPosition = state === "collapsed" ? "3rem" : "16rem";
-
   return (
-    <>
-      <AppSidebar
-        user={sidebarUser}
-        organizations={sidebarOrganizations}
-        permissions={currentPermissions}
-      />
-      <div
-        className="fixed top-0 bottom-0 right-0 flex flex-col bg-background transition-[left] duration-200 ease-linear overflow-auto"
-        style={{
-          left: leftPosition,
-          zIndex: 50,
-        }}
-      >
-        <SiteHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+    <div className="flex min-h-screen w-full flex-col">
+      <SiteHeader />
+      <div className="flex flex-1 mt-[var(--header-height,3.0625rem)] sm:mt-[var(--header-height-sm,4.0625rem)]">
+        <AppSidebar
+          user={sidebarUser}
+          organizations={sidebarOrganizations}
+          permissions={currentPermissions}
+        />
+        <SidebarInset className="flex flex-1 flex-col">
+          <div className="flex-1 overflow-x-hidden px-4 py-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-6">
+              {children}
+            </div>
+          </div>
+        </SidebarInset>
       </div>
-    </>
+    </div>
   );
 }
 

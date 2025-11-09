@@ -63,8 +63,8 @@ export function PricingTiers() {
   const [isYearly, setIsYearly] = useState(true);
 
   return (
-    <section className="bg-[#0F0C0B] pt-2 pb-20 px-20 mx-[130px]">
-      <div className="w-full">
+    <section className="bg-[#0F0C0B] pt-2 pb-20 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden">
+      <div className="w-full max-w-[1280px] mx-auto">
         {/* Animated Toggle Switch */}
         <div className="flex justify-center mb-12">
           <div className="flex items-center gap-4 bg-white/8 rounded-lg p-1.5">
@@ -92,7 +92,7 @@ export function PricingTiers() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-12 w-full">
           {pricingTiers.map((tier) => (
             <div
               key={tier.id}

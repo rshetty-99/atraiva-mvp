@@ -612,8 +612,8 @@ async function createMockBlogPosts() {
   try {
     console.log("🚀 Starting mock blog post creation...\n");
 
-    // Get user ID for rshetty@atraiva.ai
-    const userEmail = "rshetty@atraiva.ai";
+    // Get user ID for rajesh@atraiva.ai
+    const userEmail = "rajesh@atraiva.ai";
     const authorId = await getUserIdByEmail(userEmail);
     console.log(`📧 Using author ID: ${authorId} (${userEmail})\n`);
 

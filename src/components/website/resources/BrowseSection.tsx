@@ -193,9 +193,9 @@ export function BrowseSection({
   };
 
   return (
-    <section className="bg-background pt-[100px] pb-20 px-20">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="flex gap-30">
+    <section className="bg-background pt-[100px] pb-20 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-[1280px] mx-auto w-full">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-30">
           {/* Browse by Category */}
           <div className="flex flex-col gap-4 w-full">
             <h2 className="font-lato text-lg font-semibold leading-[1.2] text-left text-foreground">
@@ -328,7 +328,7 @@ export function BrowseSection({
             <h2 className="font-lato text-lg font-semibold leading-[1.2] text-left text-foreground">
               Search
             </h2>
-            <div className="relative w-[400px]">
+            <div className="relative w-full max-w-[400px]">
               <Input
                 type="text"
                 placeholder="Browse articles"

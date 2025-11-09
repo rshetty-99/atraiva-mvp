@@ -11,7 +11,7 @@ import {
 
 export default function ContactUsPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground w-full max-w-full overflow-x-hidden">
       <Header />
       <Hero />
       <Suspense

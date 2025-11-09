@@ -1,0 +1,746 @@
+{
+  "timestamp": "2025-11-05T21:48:37.718Z",
+  "totalIssues": 105,
+  "issuesBySeverity": {
+    "high": 7,
+    "medium": 31,
+    "low": 67
+  },
+  "issues": [
+    {
+      "page": "/contact-us",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+93px), div (+82px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_contact-us-desktop-large.png"
+    },
+    {
+      "page": "/contact-us",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (1354 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_contact-us-desktop-large.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile",
+      "issue": "Elements with overflow: span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-mobile.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 38x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-mobile.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (2284 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-mobile.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile-landscape",
+      "issue": "Elements with overflow: span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-mobile-landscape.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 40x20px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-mobile-landscape.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (2471 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-mobile-landscape.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "tablet",
+      "issue": "Elements with overflow: span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-tablet.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (2471 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-tablet.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "tablet-landscape",
+      "issue": "Elements with overflow: span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-tablet-landscape.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (2471 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-tablet-landscape.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "desktop",
+      "issue": "Elements with overflow: span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-desktop.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (2549 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-desktop.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+93px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_price-desktop-large.png"
+    },
+    {
+      "page": "/price",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2534 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_price-desktop-large.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_dashboard-mobile.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-mobile.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 239x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (1617 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-tablet.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-tablet-landscape.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-desktop.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+103px), span (+93px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2399 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "mobile",
+      "issue": "Elements with overflow: div (+52px), span (+100px), span (+90px), div (+71px), div (+120px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_admin_dashboard-mobile.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 28x28px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_dashboard-mobile.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (4129 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-mobile.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (6650 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-tablet.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "tablet-landscape",
+      "issue": "Elements with overflow: span (+100px), span (+90px), div (+59px), div (+59px), div (+83px), div (+120px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_admin_dashboard-tablet-landscape.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (6181 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-tablet-landscape.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-desktop.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+103px), span (+93px), div (+120px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_admin_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/admin/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (7193 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_dashboard-mobile.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-mobile.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-tablet.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-tablet-landscape.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-desktop.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+103px), span (+93px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_org_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/org/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2408 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_partner_dashboard-mobile.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-mobile.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (1626 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-mobile-landscape.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-tablet.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (1992 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-tablet-landscape.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (1976 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-desktop.png"
+    },
+    {
+      "page": "/partner/dashboard",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2408 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_partner_dashboard-desktop-large.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 28x28px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_blog-mobile.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (255 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-mobile.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_blog-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "tablet",
+      "issue": "Elements with overflow: span (+100px), span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_blog-tablet.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (2331 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-tablet.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (2023 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-tablet-landscape.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "desktop",
+      "issue": "Elements with overflow: span (+100px), span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_blog-desktop.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (2006 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-desktop.png"
+    },
+    {
+      "page": "/admin/blog",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2438 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_blog-desktop-large.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_members-mobile.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (241 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-mobile.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (1647 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "tablet",
+      "issue": "Elements with overflow: span (+100px), span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_members-tablet.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (2318 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-tablet.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-tablet-landscape.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-desktop.png"
+    },
+    {
+      "page": "/admin/members",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2425 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_members-desktop-large.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 28x28px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_admin_organization-mobile.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (241 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-mobile.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (1647 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-mobile-landscape.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (2318 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-tablet.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (2009 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-tablet-landscape.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (1993 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-desktop.png"
+    },
+    {
+      "page": "/admin/organization",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (2425 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_admin_organization-desktop-large.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "mobile",
+      "issue": "Elements with overflow: div (+52px), span (+100px), span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_profile-mobile.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 28x28px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_profile-mobile.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (1212 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-mobile.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_profile-mobile-landscape.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (2479 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-mobile-landscape.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-tablet.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "tablet-landscape",
+      "issue": "Elements with overflow: span (+100px), span (+90px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_profile-tablet-landscape.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (2983 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-tablet-landscape.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-desktop.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+103px), span (+93px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_org_profile-desktop-large.png"
+    },
+    {
+      "page": "/org/profile",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (3497 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_profile-desktop-large.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_incidents-mobile.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-mobile.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_incidents-mobile-landscape.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (2143 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-mobile-landscape.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-tablet.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (2645 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-tablet-landscape.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-desktop.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "desktop-large",
+      "issue": "Elements with overflow: span (+103px), span (+93px)",
+      "severity": "high",
+      "screenshot": "test-results/responsive/_org_incidents-desktop-large.png"
+    },
+    {
+      "page": "/org/incidents",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (3173 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_incidents-desktop-large.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "mobile",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_users-mobile.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "mobile",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-mobile.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "mobile-landscape",
+      "issue": "Touch target too small: 32x32px (minimum: 44x44px)",
+      "severity": "medium",
+      "screenshot": "test-results/responsive/_org_users-mobile-landscape.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "mobile-landscape",
+      "issue": "Multiple overlapping elements detected (2023 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-mobile-landscape.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "tablet",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-tablet.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "tablet-landscape",
+      "issue": "Multiple overlapping elements detected (14 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-tablet-landscape.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "desktop",
+      "issue": "Multiple overlapping elements detected (2569 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-desktop.png"
+    },
+    {
+      "page": "/org/users",
+      "viewport": "desktop-large",
+      "issue": "Multiple overlapping elements detected (3003 pairs)",
+      "severity": "low",
+      "screenshot": "test-results/responsive/_org_users-desktop-large.png"
+    }
+  ]
+}

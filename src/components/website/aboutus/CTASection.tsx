@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export function CTASection() {
   return (
     <section
-      className="relative py-[120px] px-20 flex items-center"
+      className="relative py-[120px] px-4 sm:px-8 md:px-12 lg:px-20 flex items-center w-full max-w-full overflow-x-hidden"
       style={{
         backgroundImage: `
           linear-gradient(180deg, rgba(16, 14, 16, 0) 0%, rgba(16, 14, 16, 1) 100%),
@@ -19,8 +19,8 @@ export function CTASection() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="relative z-10 max-w-[1280px] mx-auto">
-        <div className="flex flex-col gap-10 w-[670px]">
+      <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4">
+        <div className="flex flex-col gap-10 w-full max-w-[670px]">
           <div className="flex flex-col gap-6">
             <h2 className="text-primary text-[42px] font-normal font-['Encode_Sans_Semi_Expanded'] leading-[1.25]">
               Ready to Transform Your Legal Compliance?
@@ -32,7 +32,7 @@ export function CTASection() {
             </p>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Link href="/contact-us?inquiryType=demo">
               <Button className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] text-white hover:opacity-90 font-['Lato'] text-base font-medium leading-[1] px-6 py-3 rounded-[48px] h-12 border-0 shadow-lg transition-all">
                 Schedule a Demo

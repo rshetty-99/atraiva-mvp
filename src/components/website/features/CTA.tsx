@@ -24,10 +24,10 @@ export function CTA() {
         }}
       ></div>
 
-      <div className="px-20 py-8">
-        <div className="relative z-10 flex flex-col justify-center items-center gap-6 w-full">
-          <div className="flex flex-col gap-6">
-            <h2 className="font-['Encode_Sans_Semi_Expanded'] text-[42px] font-normal leading-[1.25] text-left text-primary w-[494px]">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-8 w-full max-w-full overflow-x-hidden">
+        <div className="relative z-10 flex flex-col justify-center items-center gap-6 w-full max-w-[1280px] mx-auto">
+          <div className="flex flex-col gap-6 w-full">
+            <h2 className="font-['Encode_Sans_Semi_Expanded'] text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-normal leading-[1.25] text-left text-primary w-full max-w-[494px]">
               Ready to Transform Your Legal Compliance?
             </h2>
             <p className="font-lato text-lg font-normal leading-[1.333] text-left text-foreground">

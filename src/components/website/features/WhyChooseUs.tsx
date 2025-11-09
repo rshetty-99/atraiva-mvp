@@ -53,15 +53,15 @@ const metrics = [
 export function WhyChooseUs() {
   return (
     <section className="bg-background py-20">
-      <div className="px-20 py-8">
-        <div className="flex gap-20 w-full mx-[50px]">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-8 w-full max-w-full overflow-x-hidden">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-20 w-full max-w-[1280px] mx-auto">
           {/* Left Content */}
-          <div className="flex flex-col gap-8 flex-1">
+          <div className="flex flex-col gap-8 flex-1 min-w-0">
             <div className="flex flex-col justify-center items-start gap-4">
-              <h2 className="font-['Encode_Sans_Semi_Expanded'] text-[42px] font-normal leading-[1.25] text-left text-primary">
+              <h2 className="font-['Encode_Sans_Semi_Expanded'] text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-normal leading-[1.25] text-left text-primary">
                 Why Legal Teams Choose Atraiva.ai
               </h2>
-              <p className="font-lato text-lg font-normal leading-[1.333] text-left text-muted-foreground w-[534px]">
+              <p className="font-lato text-base sm:text-lg font-normal leading-[1.333] text-left text-muted-foreground w-full max-w-[534px]">
                 Data breach laws are constantly evolving across different
                 jurisdictions. Missing a single update could expose your
                 organization to significant penalties and compliance risks.
@@ -73,7 +73,7 @@ export function WhyChooseUs() {
               {benefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="bg-card border border-dashed border-border p-4 flex items-center h-[56px] rounded-lg w-[320px]"
+                  className="bg-card border border-dashed border-border p-4 flex items-center h-[56px] rounded-lg w-full max-w-[320px]"
                 >
                   <div className="flex items-center gap-3 w-full">
                     <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
@@ -93,13 +93,13 @@ export function WhyChooseUs() {
           </div>
 
           {/* Right Content - Metrics */}
-          <div className="flex flex-col gap-6 flex-1">
-            <div className="flex gap-6">
-              <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 flex-1 min-w-0">
+            <div className="flex flex-col lg:flex-row gap-6 w-full min-w-0">
+              <div className="flex flex-col gap-6 flex-1 min-w-0">
                 {metrics.slice(0, 2).map((metric, index) => (
                   <div
                     key={index}
-                    className="bg-card border-l-[3px] border-l-primary p-6 flex gap-2.5 h-[290px]"
+                    className="bg-card border-l-[3px] border-l-primary p-6 flex gap-2.5 h-[290px] min-w-0"
                   >
                     <div className="flex flex-col gap-12">
                       <div className="flex flex-col gap-2.5">
@@ -122,11 +122,11 @@ export function WhyChooseUs() {
                   </div>
                 ))}
               </div>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6 flex-1 min-w-0">
                 {metrics.slice(2, 4).map((metric, index) => (
                   <div
                     key={index}
-                    className="bg-card border-l-[3px] border-l-primary p-6 flex gap-2.5 h-[290px]"
+                    className="bg-card border-l-[3px] border-l-primary p-6 flex gap-2.5 h-[290px] min-w-0"
                   >
                     <div className="flex flex-col gap-12">
                       <div className="flex flex-col gap-2.5">
@@ -138,7 +138,7 @@ export function WhyChooseUs() {
                         </span>
                       </div>
                       <div className="flex flex-col gap-4">
-                        <span className="font-lato text-[28px] font-medium leading-[1.286] text-left text-foreground w-[238px]">
+                        <span className="font-lato text-xl sm:text-2xl lg:text-[28px] font-medium leading-[1.286] text-left text-foreground w-full max-w-[238px]">
                           {metric.subtitle}
                         </span>
                         <p className="font-lato text-base font-normal leading-[1.3125] text-left text-muted-foreground">

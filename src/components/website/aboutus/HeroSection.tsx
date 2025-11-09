@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export function HeroSection() {
   return (
     <section
-      className="hero-section relative pt-40 pb-20 px-20 z-10 flex items-center"
+      className="hero-section relative pt-40 pb-20 px-4 sm:px-8 md:px-12 lg:px-20 z-10 flex items-center w-full max-w-full overflow-x-hidden"
       style={{
         backgroundImage: "url(/images/website/hero-background.jpg)",
         backgroundSize: "cover",
@@ -17,10 +17,10 @@ export function HeroSection() {
       {/* Overlay */}
       <div className="absolute inset-0 bg-background/60 z-0"></div>
 
-      <div className="relative z-20 max-w-[1280px] mx-auto">
-        <div className="flex flex-col gap-10 w-[680px]">
-          <div className="inline-flex items-center justify-center gap-2 bg-muted/30 backdrop-blur-[10px] rounded-[60px] px-4 py-2 self-start">
-            <span className="text-primary text-sm font-['Lato'] font-medium uppercase tracking-wide">
+      <div className="relative z-20 max-w-[1280px] mx-auto w-full px-4">
+        <div className="flex flex-col gap-10 w-full max-w-[680px]">
+          <div className="inline-flex items-center justify-center gap-2 bg-muted/30 backdrop-blur-[10px] rounded-[60px] px-4 py-2 self-start max-w-full">
+            <span className="text-primary text-sm font-['Lato'] font-medium uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
               AI - Powered Design Security
             </span>
           </div>

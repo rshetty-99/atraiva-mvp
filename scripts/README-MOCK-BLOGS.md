@@ -44,7 +44,7 @@ ts-node --project tsconfig.scripts.json scripts/create-mock-blog-posts.ts
 1. **Creates blog posts** in Firestore `posts` collection with:
    - Title, slug, excerpt, and full HTML content
    - Category and tags for filtering
-   - Author ID for `rshetty@atraiva.ai`
+   - Author ID for `rajesh@atraiva.ai`
    - Published status
    - SEO metadata
    - View and like counts (randomized for realism)
@@ -60,9 +60,9 @@ ts-node --project tsconfig.scripts.json scripts/create-mock-blog-posts.ts
 
 ## Author Information
 
-- **Email**: rshetty@atraiva.ai
+- **Email**: rajesh@atraiva.ai
 - **Role**: Platform Admin
-- **Author ID**: Generated as `user_rshetty_atraiva_ai` (or actual user ID if found)
+- **Author ID**: Generated as `user_rajesh_atraiva_ai` (or actual user ID if found)
 
 ## Testing
 

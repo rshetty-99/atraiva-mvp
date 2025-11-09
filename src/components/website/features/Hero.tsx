@@ -13,12 +13,16 @@ type HeroProps = {
 
 export function Hero({ breachCountsByState }: HeroProps) {
   return (
-    <section className="relative bg-background min-h-[calc(100vh-439px)] pt-[164px] pb-[150px] lg:min-h-[calc(100vh-439px)] flex items-start">
-      {/* Background Blur Element */}
-      <div className="absolute top-16 left-[702px] w-[770px] h-[765px] rounded-full bg-primary/20 blur-[250px] hidden lg:block"></div>
+    <section className="relative isolate overflow-hidden bg-background min-h-[calc(100vh-110px)] pt-[160px] pb-[140px] flex items-start">
+      {/* Background emphasis */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-[10%] right-[-25vw] h-[75vw] w-[75vw] max-h-[900px] max-w-[900px] rounded-full bg-primary/15 blur-[220px]" />
+        <div className="absolute bottom-[-20vw] left-[-15vw] h-[60vw] w-[60vw] max-h-[720px] max-w-[720px] rounded-full bg-primary/10 blur-[200px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
+      </div>
 
-      <div className="px-4 sm:px-8 md:px-12 lg:px-20 pt-8 pb-0 w-full">
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-[150px] max-w-[1600px] mx-auto">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-8 pb-0 w-full max-w-full overflow-x-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-24 max-w-[1500px] mx-auto w-full">
           {/* Left Content */}
           <div className="flex flex-col justify-center gap-6 lg:gap-10 w-full lg:w-auto lg:flex-1">
             <div className="flex flex-col gap-6 lg:gap-10">
@@ -75,13 +79,13 @@ export function Hero({ breachCountsByState }: HeroProps) {
           </div>
 
           {/* Right Content - Map */}
-          <div className="flex flex-col justify-center items-center gap-8 lg:gap-12 w-full lg:w-auto lg:flex-1">
+          <div className="flex flex-col justify-center items-center gap-8 lg:gap-12 w-full lg:w-auto lg:flex-1 min-w-0">
             {breachCountsByState ? (
-              <div className="w-full max-w-[650px] lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
+              <div className="w-full max-w-full lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
                 <BreachMap breachCountsByState={breachCountsByState} />
               </div>
             ) : (
-              <div className="w-full max-w-[650px] lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
+              <div className="w-full max-w-full lg:max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1400px]">
                 <Image
                   src="/images/website/features/legal-updates-chart-47bf32.jpg"
                   alt="Legal Updates Chart"

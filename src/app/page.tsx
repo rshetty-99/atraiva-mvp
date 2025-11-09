@@ -63,7 +63,7 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-black text-gray-200">
+    <div className="min-h-screen bg-black text-gray-200 w-full max-w-full overflow-x-hidden">
       <Header />
       <HeroSection />
       <MissionVision />

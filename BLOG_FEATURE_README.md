@@ -435,6 +435,14 @@ Templates include smart placeholders you need to replace:
 
 **Tip**: Use Find & Replace (Ctrl+H) to quickly replace all instances.
 
+### URL Conversion & Headless Fetching
+
+- The `/api/blog/convert-url` endpoint now uses a headless Chromium fallback when a page's HTML looks incomplete.
+- Dependencies: `@sparticuz/chromium` (serverless-compatible binary) and `puppeteer-core`.
+- Firebase Functions: allocate at least 1024 MB memory and set timeout ≥ 60s to give Chromium enough room.
+- Local dev: no extra setup required; the fallback automatically runs only when the standard fetch returns a tiny/JS shell.
+- Optional: set `PUPPETEER_EXECUTABLE_PATH` to point at a custom Chrome binary if your hosting environment has one pre-installed.
+
 ## Best Practices
 
 ### Template Best Practices

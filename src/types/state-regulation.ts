@@ -2,7 +2,7 @@
 
 export interface StateRegulation {
   id: string; // Firestore document ID
-  state: string; // State code e.g., "AR", "CA"
+  state: string; // State code e.g., "AR", "CA" (or FEDERAL)
   source_id: string; // URL to the source document
   url: string; // URL to the regulation
   fetched_at: string | Date; // ISO timestamp when data was fetched
@@ -27,6 +27,11 @@ export interface StateRegulation {
   industry: string; // Industry applicability
   scan_type: string; // Scan type (e.g., "full", "partial")
   updated_at: string | Date; // ISO timestamp when updated
+  jurisdictionType?: string; // "state", "federal", etc.
+  regulationName?: string; // Friendly name/title of the regulation
+  citation?: string; // Legal citation reference
+  regulator?: string; // Responsible agency/regulator
+  country?: string; // Country code (defaults to US)
 }
 
 // Extended interface with computed fields for display
@@ -105,4 +110,6 @@ export const US_STATES_MAP: Record<string, string> = {
   WI: "Wisconsin",
   WY: "Wyoming",
   DC: "District of Columbia",
+  FEDERAL: "Federal",
+  UNKNOWN: "Unknown",
 };

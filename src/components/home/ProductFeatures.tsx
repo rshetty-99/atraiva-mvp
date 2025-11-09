@@ -293,8 +293,8 @@ export function ProductFeatures() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   return (
-    <section className="bg-background py-8 px-4 sm:py-12 sm:px-6 md:py-16 md:px-8 lg:py-20 lg:px-12 xl:py-24 xl:px-16 2xl:px-20">
-      <div className="max-w-xs mx-auto sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
+    <section className="bg-background py-8 px-4 sm:py-12 sm:px-6 md:py-16 md:px-8 lg:py-20 lg:px-12 xl:py-24 xl:px-16 2xl:px-20 w-full max-w-full overflow-x-hidden" style={{ overflow: "hidden", maxWidth: "100vw", width: "100%", boxSizing: "border-box", position: "relative" }}>
+      <div className="max-w-xs mx-auto sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl w-full min-w-0" style={{ maxWidth: "min(100vw, 1280px)", boxSizing: "border-box", width: "100%" }}>
         {/* Header */}
         <motion.div
           className="flex flex-col items-center gap-6 mb-8 sm:gap-8 sm:mb-10 md:gap-10 md:mb-12 lg:gap-12 lg:mb-15 xl:gap-15 xl:mb-16"
@@ -337,19 +337,20 @@ export function ProductFeatures() {
           {features.map((feature) => (
             <motion.div
               key={feature.id}
-              className="flex flex-col sm:flex-col md:flex-col lg:flex-row items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 2xl:gap-[180px] w-full"
+              className="flex flex-col sm:flex-col md:flex-col lg:flex-row items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 2xl:gap-[180px] w-full min-w-0 max-w-full overflow-hidden"
               variants={itemVariants}
               transition={{ duration: 0.6, ease: "easeOut" }}
               whileHover={{
                 scale: 1.02,
                 transition: { duration: 0.3, ease: "easeInOut" },
               }}
+              style={{ maxWidth: "100%", width: "100%", overflow: "hidden" }}
             >
               {feature.layout === "left" ? (
                 <>
                   {/* Content Left */}
                   <motion.div
-                    className="flex flex-col gap-4 sm:gap-5 md:gap-6 w-full lg:w-auto order-2 lg:order-1"
+                    className="flex flex-col gap-4 sm:gap-5 md:gap-6 w-full lg:w-auto order-2 lg:order-1 min-w-0 flex-shrink"
                     variants={contentVariants}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                   >
@@ -388,7 +389,7 @@ export function ProductFeatures() {
                           </div>
                         </div>
                         <motion.p
-                          className="font-lato text-sm sm:text-base font-normal leading-[1.3125] text-left text-muted-foreground w-full lg:w-[424px]"
+                          className="font-lato text-sm sm:text-base font-normal leading-[1.3125] text-left text-muted-foreground w-full lg:max-w-[424px] break-words"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.5, duration: 0.6 }}
@@ -414,10 +415,11 @@ export function ProductFeatures() {
                   </motion.div>
                   {/* Image Right */}
                   <motion.div
-                    className={`bg-gradient-to-b ${feature.gradient} border border-dashed border-border rounded-xl w-full h-[250px] sm:h-[300px] md:h-[350px] lg:w-[500px] lg:h-[400px] xl:h-[450px] 2xl:h-[500px] relative overflow-hidden order-1 lg:order-2`}
+                    className={`bg-gradient-to-b ${feature.gradient} border border-dashed border-border rounded-xl w-full h-[250px] sm:h-[300px] md:h-[350px] lg:max-w-[500px] lg:w-full lg:h-[400px] xl:h-[450px] 2xl:h-[500px] relative overflow-hidden order-1 lg:order-2 min-w-0 flex-shrink-0 max-w-full`}
                     variants={imageVariants}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     whileHover="hover"
+                    style={{ maxWidth: "min(100%, 500px)", boxSizing: "border-box" }}
                   >
                     <motion.div
                       className="absolute top-[60px] left-[60px] w-[calc(100%-60px)] h-[calc(100%-60px)] rounded-lg overflow-hidden"
@@ -441,10 +443,11 @@ export function ProductFeatures() {
                 <>
                   {/* Image Left */}
                   <motion.div
-                    className={`bg-gradient-to-b ${feature.gradient} border border-dashed border-border rounded-xl w-full h-[250px] sm:h-[300px] md:h-[350px] lg:w-[500px] lg:h-[400px] xl:h-[450px] 2xl:h-[500px] relative overflow-hidden order-1 lg:order-1`}
+                    className={`bg-gradient-to-b ${feature.gradient} border border-dashed border-border rounded-xl w-full h-[250px] sm:h-[300px] md:h-[350px] lg:max-w-[500px] lg:w-full lg:h-[400px] xl:h-[450px] 2xl:h-[500px] relative overflow-hidden order-1 lg:order-1 min-w-0 flex-shrink-0 max-w-full`}
                     variants={imageVariants}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     whileHover="hover"
+                    style={{ maxWidth: "min(100%, 500px)", boxSizing: "border-box" }}
                   >
                     <motion.div
                       className="absolute top-[60px] left-[60px] w-[calc(100%-60px)] h-[calc(100%-60px)] rounded-lg overflow-hidden"
@@ -465,12 +468,12 @@ export function ProductFeatures() {
                   </motion.div>
                   {/* Content Right */}
                   <motion.div
-                    className="flex flex-col gap-4 sm:gap-5 md:gap-6 w-full lg:w-auto order-2 lg:order-2"
+                    className="flex flex-col gap-4 sm:gap-5 md:gap-6 w-full lg:w-auto order-2 lg:order-2 min-w-0 flex-shrink"
                     variants={contentVariants}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                   >
                     <div className="flex flex-col gap-6">
-                      <div className="flex flex-col gap-6 w-full lg:w-[490px]">
+                      <div className="flex flex-col gap-6 w-full lg:max-w-[490px] min-w-0">
                         <div className="flex flex-col gap-4">
                           <div className="flex flex-col gap-6">
                             <div className="flex flex-col gap-4">
@@ -485,7 +488,7 @@ export function ProductFeatures() {
                                 {renderIcon(feature.icon)}
                               </motion.div>
                               <motion.h3
-                                className="font-lato text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.25] text-left text-primary w-full lg:w-[448px]"
+                                className="font-lato text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.25] text-left text-primary w-full lg:max-w-[448px] break-words"
                                 whileHover={{
                                   color: "#C9B9FF",
                                   transition: { duration: 0.3 },
@@ -496,7 +499,7 @@ export function ProductFeatures() {
                             </div>
                             <div className="flex flex-col gap-2">
                               <motion.h4
-                                className="font-lato text-lg sm:text-xl md:text-2xl font-medium leading-[1.2] text-left text-muted-foreground w-full lg:w-[490px]"
+                                className="font-lato text-lg sm:text-xl md:text-2xl font-medium leading-[1.2] text-left text-muted-foreground w-full lg:max-w-[490px] break-words"
                                 whileHover={{
                                   color: "#B8CBFF",
                                   transition: { duration: 0.3 },

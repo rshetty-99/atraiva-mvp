@@ -32,39 +32,39 @@ const values = [
 
 export function CoreValues() {
   return (
-    <section className="bg-white dark:bg-background flex items-center py-20 px-20">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="flex flex-col items-center gap-[60px]">
+    <section className="bg-white dark:bg-background flex items-center py-20 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-[1280px] mx-auto w-full min-w-0">
+        <div className="flex flex-col items-center gap-[60px] w-full min-w-0">
           {/* Header */}
-          <div className="flex flex-col justify-center items-center gap-4">
-            <h2 className="text-primary text-[42px] font-normal font-['Encode_Sans_Semi_Expanded'] leading-[1.25] text-center">
+          <div className="flex flex-col justify-center items-center gap-4 w-full min-w-0">
+            <h2 className="text-primary text-[42px] font-normal font-['Encode_Sans_Semi_Expanded'] leading-[1.25] text-center break-words">
               Our Core Values
             </h2>
-            <p className="text-muted-foreground text-[18px] font-['Lato'] leading-[1.2] text-center w-[680px]">
+            <p className="text-muted-foreground text-[18px] font-['Lato'] leading-[1.2] text-center w-full max-w-[680px] px-4 break-words">
               These principles guide every decision we make and every solution
               we develop
             </p>
           </div>
 
           {/* Values Grid */}
-          <div className="flex flex-col gap-4 w-full">
-            <div className="flex gap-4">
+          <div className="flex flex-col gap-4 w-full min-w-0">
+            <div className="flex flex-col md:flex-row gap-4 w-full min-w-0">
               {values.slice(0, 2).map((value, index) => {
                 const IconComponent = value.icon;
                 return (
                   <div
                     key={index}
-                    className="flex-1 bg-card border border-dashed border-primary/50 rounded-lg p-6 flex flex-col gap-[100px]"
+                    className="flex-1 bg-card border border-dashed border-primary/50 rounded-lg p-6 flex flex-col gap-[100px] min-w-0"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 flex-shrink-0">
                         <IconComponent className="w-10 h-10 text-primary stroke-[2.5px]" />
                       </div>
-                      <div className="flex flex-col gap-3 flex-1">
-                        <h3 className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] bg-clip-text text-transparent text-[28px] font-['Lato'] font-medium leading-[1.286]">
+                      <div className="flex flex-col gap-3 flex-1 min-w-0">
+                        <h3 className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] bg-clip-text text-transparent text-[28px] font-['Lato'] font-medium leading-[1.286] break-words">
                           {value.title}
                         </h3>
-                        <p className="text-muted-foreground text-base font-['Lato'] leading-[1.3125]">
+                        <p className="text-muted-foreground text-base font-['Lato'] leading-[1.3125] break-words">
                           {value.description}
                         </p>
                       </div>
@@ -73,23 +73,23 @@ export function CoreValues() {
                 );
               })}
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4 w-full min-w-0">
               {values.slice(2, 4).map((value, index) => {
                 const IconComponent = value.icon;
                 return (
                   <div
                     key={index}
-                    className="flex-1 bg-card border border-dashed border-accent/50 rounded-lg p-6 flex flex-col gap-[100px]"
+                    className="flex-1 bg-card border border-dashed border-accent/50 rounded-lg p-6 flex flex-col gap-[100px] min-w-0"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 flex-shrink-0">
                         <IconComponent className="w-10 h-10 text-accent stroke-[2.5px]" />
                       </div>
-                      <div className="flex flex-col gap-3 flex-1">
-                        <h3 className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] bg-clip-text text-transparent text-[28px] font-['Lato'] font-medium leading-[1.286]">
+                      <div className="flex flex-col gap-3 flex-1 min-w-0">
+                        <h3 className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] bg-clip-text text-transparent text-[28px] font-['Lato'] font-medium leading-[1.286] break-words">
                           {value.title}
                         </h3>
-                        <p className="text-muted-foreground text-base font-['Lato'] leading-[1.3125]">
+                        <p className="text-muted-foreground text-base font-['Lato'] leading-[1.3125] break-words">
                           {value.description}
                         </p>
                       </div>

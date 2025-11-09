@@ -16,12 +16,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { User, Settings, LogOut, LayoutDashboard, Menu } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
   const { isSignedIn, signOut } = useAuth();
   const { user } = useUser();
+
+  const navItems = [
+    { href: "/home", label: "Home" },
+    { href: "/aboutus", label: "About Us" },
+    { href: "/features", label: "Features" },
+    { href: "/resources", label: "Resources" },
+    { href: "/contact-us", label: "Contact Us" },
+  ];
 
   // Helper function to check if a menu item is active
   const isActive = (path: string) => {
@@ -49,67 +57,86 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-[17px]">
-        <nav className="flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border" style={{ maxWidth: "100vw", width: "100%", boxSizing: "border-box", overflow: "hidden" }}>
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-[17px]" style={{ maxWidth: "100vw", width: "100%", boxSizing: "border-box", overflow: "hidden" }}>
+        <nav className="flex items-center justify-between" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/home" className="flex items-center flex-shrink-0">
             <Logo
               width={200}
               height={80}
-              className="w-[200px] h-[80px] object-contain"
+              className="w-[120px] sm:w-[150px] lg:w-[200px] h-[48px] sm:h-[60px] lg:h-[80px] object-contain"
             />
           </Link>
 
           {/* Navigation */}
-          <div className="flex items-center gap-6 bg-muted/20 backdrop-blur-sm border border-border rounded-lg px-6 py-4">
-            <div className="group flex flex-col items-center gap-1">
-              <Link href="/home" className={getMenuItemClasses("/home")}>
-                Home
-              </Link>
-              <div className={getUnderlineClasses("/home")}></div>
-            </div>
-
-            <div className="group flex flex-col items-center gap-1">
-              <Link href="/aboutus" className={getMenuItemClasses("/aboutus")}>
-                About Us
-              </Link>
-              <div className={getUnderlineClasses("/aboutus")}></div>
-            </div>
-
-            <div className="group flex flex-col items-center gap-1">
-              <Link
-                href="/features"
-                className={getMenuItemClasses("/features")}
+          <div className="hidden md:flex items-center gap-4 lg:gap-6 bg-muted/20 backdrop-blur-sm border border-border rounded-lg px-4 lg:px-6 py-2 lg:py-4 min-w-0 overflow-hidden mx-auto max-w-3xl w-full justify-center" style={{ width: "100%", boxSizing: "border-box" }}>
+            {navItems.map((item) => (
+              <div
+                key={item.href}
+                className="group flex flex-col items-center gap-1 min-w-0 max-w-full overflow-hidden"
+                style={{ maxWidth: "100%", overflow: "hidden", boxSizing: "border-box" }}
               >
-                Features
-              </Link>
-              <div className={getUnderlineClasses("/features")}></div>
-            </div>
-
-            <div className="group flex flex-col items-center gap-1">
-              <Link
-                href="/resources"
-                className={getMenuItemClasses("/resources")}
-              >
-                Resources
-              </Link>
-              <div className={getUnderlineClasses("/resources")}></div>
-            </div>
-
-            <div className="group flex flex-col items-center gap-1">
-              <Link
-                href="/contact-us"
-                className={getMenuItemClasses("/contact-us")}
-              >
-                Contact Us
-              </Link>
-              <div className={getUnderlineClasses("/contact-us")}></div>
-            </div>
+                <Link
+                  href={item.href}
+                  className={getMenuItemClasses(item.href) + " truncate max-w-full overflow-hidden"}
+                  style={{
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    display: "block",
+                    width: "100%",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <span
+                    style={{
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "block",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+                <div
+                  className={getUnderlineClasses(item.href)}
+                  style={{ maxWidth: "100%", overflow: "hidden" }}
+                ></div>
+              </div>
+            ))}
           </div>
 
           {/* Auth Buttons & Theme Toggle */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 flex-shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-sm transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 md:hidden">
+                {navItems.map((item) => (
+                  <DropdownMenuItem asChild key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={
+                        isActive(item.href)
+                          ? "font-semibold text-primary"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ThemeToggle />
             {isSignedIn ? (
               <DropdownMenu>

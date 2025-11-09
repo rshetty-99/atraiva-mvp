@@ -157,10 +157,10 @@ export function Newsletter() {
   };
 
   return (
-    <section className="bg-background py-10 px-20">
-      <div className="w-full">
+    <section className="bg-background py-10 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden">
+      <div className="w-full max-w-[1280px] mx-auto">
         <div
-          className="bg-gradient-to-b from-accent to-accent/60 rounded-3xl p-30 flex flex-col items-center gap-8 relative"
+          className="bg-gradient-to-b from-accent to-accent/60 rounded-3xl p-8 md:p-15 lg:p-30 flex flex-col items-center gap-8 relative"
           style={{
             backgroundImage: `url(/images/website/resources/newsletter-background.jpg)`,
             backgroundSize: "cover",
@@ -170,13 +170,13 @@ export function Newsletter() {
         >
           {/* Theme-aware overlay for text contrast */}
           <div className="absolute inset-0 bg-background/50 rounded-3xl"></div>
-          <div className="relative z-10 flex flex-col items-center gap-8 w-[800px]">
+          <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-[800px] px-4">
             <div className="flex flex-col items-center gap-6">
               <div className="flex flex-col items-center gap-4">
-                <h2 className="font-['Encode_Sans_Semi_Expanded'] text-[42px] font-normal leading-[1.25] text-center text-foreground">
+                <h2 className="font-['Encode_Sans_Semi_Expanded'] text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-normal leading-[1.25] text-center text-foreground">
                   Never Miss a Security Update
                 </h2>
-                <p className="font-lato text-lg font-normal leading-[1.33] text-center text-foreground w-[641px]">
+                <p className="font-lato text-base sm:text-lg font-normal leading-[1.33] text-center text-foreground w-full max-w-[641px] px-4">
                   Join over 10,000 security professionals who rely on our
                   insights to stay ahead of emerging threats and industry
                   trends. Get weekly updates delivered straight to your inbox.
@@ -187,7 +187,7 @@ export function Newsletter() {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="flex gap-4 w-[550px]"
+                  className="flex flex-col sm:flex-row gap-4 w-full max-w-[550px]"
                 >
                   <div className="flex-1">
                     <CustomFormField<NewsletterFormValues>
@@ -253,7 +253,7 @@ export function Newsletter() {
             </div>
           </div>
 
-          <p className="font-lato text-lg font-normal leading-[1.33] text-center text-foreground w-[641px] relative z-10">
+          <p className="font-lato text-base sm:text-lg font-normal leading-[1.33] text-center text-foreground w-full max-w-[641px] px-4 relative z-10">
             No spam, unsubscribe at any time. Read our privacy policy.
           </p>
         </div>

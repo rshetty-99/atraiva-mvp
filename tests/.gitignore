@@ -1,0 +1,3 @@
+# Authentication state files (contain sensitive session data)
+.auth/
+*.json

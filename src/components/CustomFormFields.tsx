@@ -84,9 +84,9 @@ const RenderInput = <T extends FieldValues>({
   switch (props.fieldType) {
     case FormFieldType.INPUT:
       return (
-        <div className="flex rounded-md border border-input bg-background">
+        <div className="flex rounded-md border border-input bg-background w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
           {props.iconSrc && (
-            <div className="flex items-center justify-center px-3">
+            <div className="flex items-center justify-center px-3 flex-shrink-0">
               <Image
                 src={props.iconSrc}
                 height={24}
@@ -95,12 +95,13 @@ const RenderInput = <T extends FieldValues>({
               />
             </div>
           )}
-          <FormControl>
+          <FormControl className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
             <Input
               type={props.inputType || "text"}
               placeholder={props.placeholder}
               {...field}
-              className="border-0 focus-visible:ring-0"
+              className="border-0 focus-visible:ring-0 w-full min-w-0"
+              style={{ maxWidth: "100%", boxSizing: "border-box" }}
               disabled={props.disabled}
             />
           </FormControl>
@@ -109,11 +110,12 @@ const RenderInput = <T extends FieldValues>({
 
     case FormFieldType.TEXTAREA:
       return (
-        <FormControl>
+        <FormControl className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
           <Textarea
             placeholder={props.placeholder}
             {...field}
-            className="min-h-[100px] resize-none"
+            className="min-h-[100px] resize-none w-full min-w-0"
+            style={{ maxWidth: "100%", boxSizing: "border-box" }}
             disabled={props.disabled}
           />
         </FormControl>
@@ -121,7 +123,7 @@ const RenderInput = <T extends FieldValues>({
 
     case FormFieldType.PHONE_INPUT:
       return (
-        <FormControl>
+        <FormControl className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
           <PhoneInput
             defaultCountry="US"
             placeholder={props.placeholder}
@@ -129,7 +131,8 @@ const RenderInput = <T extends FieldValues>({
             withCountryCallingCode
             value={field.value as E164Number | undefined}
             onChange={field.onChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background min-w-0"
+            style={{ maxWidth: "100%", boxSizing: "border-box" }}
           />
         </FormControl>
       );
@@ -185,12 +188,12 @@ const RenderInput = <T extends FieldValues>({
 
     case FormFieldType.SELECT:
       return (
-        <FormControl>
+        <FormControl className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
           <Select
             onValueChange={field.onChange}
             defaultValue={field.value || undefined}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
               <SelectValue placeholder={props.placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -234,13 +237,15 @@ const CustomFormField = <T extends FieldValues>(props: CustomProps<T>) => {
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex w-full flex-col gap-1.5">
+        <FormItem className="flex w-full flex-col gap-1.5" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
           {props.fieldType !== FormFieldType.CHECKBOX && label && (
-            <FormLabel className={props.required ? "required-asterisk" : ""}>
+            <FormLabel className={props.required ? "required-asterisk" : ""} style={{ maxWidth: "100%", overflow: "hidden", wordBreak: "break-word", boxSizing: "border-box" }}>
               {label}
             </FormLabel>
           )}
-          <RenderInput field={field} props={props} />
+          <div style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
+            <RenderInput field={field} props={props} />
+          </div>
           <FormMessage />
         </FormItem>
       )}

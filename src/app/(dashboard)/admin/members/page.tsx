@@ -166,37 +166,6 @@ export default function MembersPage() {
     }
   };
 
-  const filterMembers = () => {
-    let filtered = [...members];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (member) =>
-          member.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.organizationName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Organization filter
-    if (filterOrg !== "all") {
-      filtered = filtered.filter(
-        (member) => member.organizationId === filterOrg
-      );
-    }
-
-    // Role filter
-    if (filterRole !== "all") {
-      filtered = filtered.filter((member) => member.role === filterRole);
-    }
-
-    setFilteredMembers(filtered);
-  };
-
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "super_admin":
@@ -271,7 +240,7 @@ export default function MembersPage() {
 
   return (
     <div
-      className="w-full min-h-[calc(100vh-140px)] p-8"
+      className="w-full min-h-[calc(100vh-140px)] p-4 sm:p-6 md:p-8 max-w-full overflow-x-hidden"
       style={{ marginTop: "140px" }}
     >
       <motion.div

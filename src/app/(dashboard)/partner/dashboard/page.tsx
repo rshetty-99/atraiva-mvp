@@ -242,7 +242,7 @@ export default function PartnerDashboard() {
   };
 
   return (
-    <div style={{ marginTop: "140px" }}>
+    <div style={{ marginTop: "140px" }} className="w-full max-w-full overflow-x-hidden px-4 sm:px-6">
       {/* Dashboard Header */}
       <div className="flex items-center justify-between mb-8">
         <div>

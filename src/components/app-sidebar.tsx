@@ -117,9 +117,9 @@ export function AppSidebar({
             <SidebarMenuButton size="lg" asChild>
               <a href="/home" className="flex items-center justify-center">
                 <Logo
-                  width={200}
-                  height={80}
-                  className="w-[200px] h-[80px] object-contain"
+                  width={160}
+                  height={64}
+                  className="w-[160px] h-[64px] object-contain"
                 />
               </a>
             </SidebarMenuButton>

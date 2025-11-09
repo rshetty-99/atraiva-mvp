@@ -1,6 +1,7 @@
 // API endpoint to convert a URL into a blog post
 import { NextRequest, NextResponse } from "next/server";
 import { convertToBlogPost } from "@/lib/blog/url-converter";
+import { fetchHtmlWithFallback } from "@/lib/blog/headless-fetch";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,35 +18,15 @@ export async function POST(request: NextRequest) {
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: "Invalid URL format" },
         { status: 400 }
       );
     }
 
-    // Fetch the webpage
-    const fetchResponse = await fetch(parsedUrl.toString(), {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-      },
-      // Set timeout
-      signal: AbortSignal.timeout(30000), // 30 seconds
-    });
-
-    if (!fetchResponse.ok) {
-      return NextResponse.json(
-        {
-          error: `Failed to fetch URL: ${fetchResponse.status} ${fetchResponse.statusText}`,
-        },
-        { status: fetchResponse.status }
-      );
-    }
-
-    const html = await fetchResponse.text();
+    // Fetch the webpage with standard request first, then headless fallback
+    const { html, mode } = await fetchHtmlWithFallback(parsedUrl.toString());
 
     if (!html || html.length < 100) {
       return NextResponse.json(
@@ -61,6 +42,7 @@ export async function POST(request: NextRequest) {
       success: true,
       data: blogData,
       sourceUrl: url,
+      fetchMode: mode,
     });
   } catch (error) {
     console.error("Error converting URL to blog post:", error);

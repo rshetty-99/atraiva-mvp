@@ -106,16 +106,16 @@ export function ProductFeatures() {
     features.find((f) => f.id === activeFeature) || features[0];
 
   return (
-    <section className="bg-background py-20">
-      <div className="px-20 py-8">
-        <div className="max-w-[1280px] mx-auto">
+    <section className="bg-background py-20 overflow-hidden">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-20 py-8 w-full max-w-full">
+        <div className="max-w-[1200px] xl:max-w-[1320px] mx-auto w-full min-w-0">
           {/* Header */}
           <div className="flex flex-col items-center gap-15 mb-15">
             <div className="flex flex-col justify-center items-center gap-4">
-              <h2 className="font-['Encode_Sans_Semi_Expanded'] text-[42px] font-normal leading-[1.25] text-left text-primary">
+              <h2 className="font-['Encode_Sans_Semi_Expanded'] text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-normal leading-[1.25] text-left text-primary">
                 Product & Features
               </h2>
-              <p className="font-lato text-lg font-normal leading-[1.2] text-center text-muted-foreground w-[680px]">
+              <p className="font-lato text-base sm:text-lg font-normal leading-[1.2] text-center text-muted-foreground w-full max-w-[680px] px-4">
                 Cutting-edge technology meets enterprise-grade security to
                 deliver comprehensive data breach management and risk mitigation
                 solutions.
@@ -123,10 +123,10 @@ export function ProductFeatures() {
             </div>
           </div>
 
-          <div className="flex gap-15 md:gap-18 lg:gap-20 xl:gap-24 2xl:gap-28 h-[600px]">
+          <div className="flex flex-col xl:flex-row gap-8 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24 min-h-[580px] w-full min-w-0">
             {/* Left Side - Feature Tabs */}
             <motion.div
-              className="flex flex-col w-[400px] md:w-[440px] lg:w-[500px] xl:w-[560px] 2xl:w-[620px] h-full"
+              className="flex flex-col w-full xl:max-w-[440px] 2xl:max-w-[520px] h-full min-w-0 flex-shrink-0"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -148,7 +148,7 @@ export function ProductFeatures() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <motion.span
-                    className={`font-lato text-2xl font-medium leading-[1.2] text-left transition-all duration-300 ${
+                    className={`font-lato text-xl sm:text-2xl font-medium leading-[1.2] text-left transition-all duration-300 ${
                       activeFeature === feature.id
                         ? "bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] bg-clip-text text-transparent"
                         : "text-foreground opacity-60 hover:opacity-100"
@@ -162,9 +162,9 @@ export function ProductFeatures() {
                     <AnimatePresence>
                       {activeFeature === feature.id && (
                         <motion.div
-                          className="w-[226px] h-0.5 bg-primary"
+                          className="w-full max-w-[226px] h-0.5 bg-primary"
                           initial={{ width: 0, opacity: 0 }}
-                          animate={{ width: 226, opacity: 1 }}
+                          animate={{ width: "100%", opacity: 1 }}
                           exit={{ width: 0, opacity: 0 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
@@ -177,19 +177,20 @@ export function ProductFeatures() {
 
             {/* Right Side - Feature Display */}
             <motion.div
-              className="flex flex-col gap-6 w-[880px] md:w-[920px] lg:w-[1020px] xl:w-[1100px] 2xl:w-[1200px] h-full"
+              className="flex flex-col gap-6 w-full lg:flex-1 h-full min-w-0"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             >
               <motion.div
-                className="bg-card border border-dashed border-border p-10 flex items-center gap-15 h-full "
+                className="bg-card border border-dashed border-border p-6 lg:p-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-15 h-full min-w-0 flex-1 max-w-full overflow-hidden"
                 layout
                 transition={{ duration: 0.3, ease: "easeInOut" }}
+                style={{ overflow: "hidden" }}
               >
                 {/* Content */}
                 <motion.div
-                  className="flex flex-col gap-6 flex-1"
+                  className="flex flex-col gap-6 flex-1 min-w-0"
                   key={activeFeature}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -214,7 +215,7 @@ export function ProductFeatures() {
                         <FeatureIcon iconType={currentFeature.icon} />
                       </motion.div>
                       <motion.h3
-                        className="font-['Encode_Sans_Semi_Expanded'] text-[32px] font-normal leading-[1.25] text-left text-primary"
+                        className="font-['Encode_Sans_Semi_Expanded'] text-[28px] sm:text-[32px] font-normal leading-[1.25] text-left text-primary"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.2 }}
@@ -228,7 +229,7 @@ export function ProductFeatures() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.3 }}
                     >
-                      <p className="font-lato text-base font-normal leading-[1.3125] text-left text-muted-foreground">
+                      <p className="font-lato text-base sm:text-lg font-normal leading-[1.5] text-left text-muted-foreground">
                         {currentFeature.description}
                       </p>
                     </motion.div>
@@ -237,7 +238,7 @@ export function ProductFeatures() {
 
                 {/* Image */}
                 <motion.div
-                  className={`bg-gradient-to-b ${currentFeature.gradient} border border-dashed border-border rounded-xl p-9 w-[350px] h-[300px] flex items-center justify-center relative overflow-hidden`}
+                  className={`bg-gradient-to-b ${currentFeature.gradient} border border-dashed border-border rounded-2xl p-6 lg:p-8 w-full max-w-[360px] xl:max-w-[420px] min-w-0 h-[260px] lg:h-[320px] flex items-center justify-center relative overflow-hidden flex-shrink-0`}
                   key={`${activeFeature}-image`}
                   initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
                   animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -247,18 +248,20 @@ export function ProductFeatures() {
                     scale: 1.05,
                     transition: { duration: 0.2 },
                   }}
+                  style={{ maxWidth: "min(100%, 350px)" }}
                 >
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
+                    className="relative w-full h-full"
                   >
                     <Image
                       src={currentFeature.image}
                       alt={currentFeature.title}
-                      width={240}
-                      height={180}
+                      fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     />
                   </motion.div>
                 </motion.div>

@@ -95,7 +95,7 @@ export default async function ResourcesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F0C0B] text-gray-200">
+    <div className="min-h-screen bg-[#0F0C0B] text-gray-200 w-full max-w-full overflow-x-hidden">
       {/* Structured Data for SEO */}
       <script
         type="application/ld+json"

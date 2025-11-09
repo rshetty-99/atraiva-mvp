@@ -14,7 +14,7 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground w-full max-w-full overflow-x-hidden">
       <Header />
       <Hero />
       <WhatWeDo />

@@ -51,10 +51,17 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 
 // US States list for filter
-const US_STATES = Object.entries(US_STATES_MAP).map(([code, name]) => ({
-  code,
-  name,
-}));
+const US_STATES = Object.entries(US_STATES_MAP)
+  .filter(([code]) => code !== "UNKNOWN")
+  .sort(([codeA], [codeB]) => {
+    if (codeA === "FEDERAL") return -1;
+    if (codeB === "FEDERAL") return 1;
+    return codeA.localeCompare(codeB);
+  })
+  .map(([code, name]) => ({
+    code,
+    name,
+  }));
 
 export default function StateRegulationsPage() {
   const [regulations, setRegulations] = useState<StateRegulation[]>([]);
@@ -89,13 +96,26 @@ export default function StateRegulationsPage() {
     // Apply search filter
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (reg) =>
+      filtered = filtered.filter((reg) => {
+        const stateName = US_STATES_MAP[reg.state]?.toLowerCase() ?? "";
+        const lawType = reg.parsed?.law_type?.toLowerCase() ?? "";
+        const keywords = Array.isArray(reg.keywords)
+          ? reg.keywords.join(" ").toLowerCase()
+          : "";
+        const regulationName = reg.regulationName?.toLowerCase() ?? "";
+        const citation = reg.citation?.toLowerCase() ?? "";
+        const jurisdictionType = reg.jurisdictionType?.toLowerCase() ?? "";
+
+        return (
           reg.state.toLowerCase().includes(search) ||
-          US_STATES_MAP[reg.state]?.toLowerCase().includes(search) ||
-          reg.parsed.law_type?.toLowerCase().includes(search) ||
-          reg.keywords.some((kw) => kw.toLowerCase().includes(search))
-      );
+          stateName.includes(search) ||
+          lawType.includes(search) ||
+          keywords.includes(search) ||
+          regulationName.includes(search) ||
+          citation.includes(search) ||
+          jurisdictionType.includes(search)
+        );
+      });
     }
 
     // Apply state filter
@@ -161,42 +181,98 @@ export default function StateRegulationsPage() {
         throw new Error("Firebase is not configured");
       }
 
-      const regulationsRef = collection(db, "state_regulations");
-      const q = query(regulationsRef, orderBy("state", "asc"));
-      const querySnapshot = await getDocs(q);
+      const regulationsRef = collection(db, "regulations");
+      const querySnapshot = await getDocs(regulationsRef);
 
-      const fetchedRegulations: StateRegulation[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        fetchedRegulations.push({
-          id: doc.id,
-          state: data.state || "",
-          source_id: data.source_id || "",
-          url: data.url || "",
-          fetched_at: data.fetched_at || new Date().toISOString(),
-          metadata: data.metadata || {},
-          parsed: data.parsed || {
-            breach_notification: {},
-            requirements: {},
-            timelines: [],
-            penalties: {},
-            exemptions: [],
-            definitions: {},
-            state: data.state || "",
-            url: data.url || "",
-            metadata: {},
-            parsed_at: new Date().toISOString(),
-            extractor: "",
-            law_type: "",
-            industry: "",
-          },
-          keywords: data.keywords || [],
-          changes: data.changes || [],
-          industry: data.industry || "general",
-          scan_type: data.scan_type || "full",
-          updated_at: data.updated_at || new Date().toISOString(),
-        });
-      });
+      const fetchedRegulations: StateRegulation[] = querySnapshot.docs.map(
+        (doc) => {
+          const data = doc.data() as Record<string, any>;
+          const jurisdiction = (data.jurisdiction || {}) as Record<string, any>;
+          const parsed = (data.parsed || {}) as Record<string, any>;
+
+          const levelRaw =
+            data.jurisdictionType ||
+            jurisdiction.type ||
+            data.level ||
+            (jurisdiction.state || data.state ? "state" : "federal");
+          const jurisdictionType = String(levelRaw || "state").toLowerCase();
+
+          const stateRaw =
+            jurisdiction.state || data.state || parsed.state || "";
+          const state = stateRaw
+            ? String(stateRaw).toUpperCase()
+            : jurisdictionType === "federal"
+            ? "FEDERAL"
+            : "UNKNOWN";
+
+          const industry = String(
+            data.industry || parsed.industry || "general"
+          ).toLowerCase();
+          const lawType = String(
+            data.lawType || parsed.law_type || data.type || "unknown"
+          ).toLowerCase();
+          const scanType = String(
+            data.scan_type || data.scanType || jurisdiction.scanType || "full"
+          ).toLowerCase();
+
+          const keywords = Array.isArray(data.keywords)
+            ? data.keywords
+            : Array.isArray(parsed.keywords)
+            ? parsed.keywords
+            : [];
+
+          const parsedBlock = {
+            breach_notification: parsed.breach_notification || {},
+            requirements: parsed.requirements || {},
+            timelines: Array.isArray(parsed.timelines) ? parsed.timelines : [],
+            penalties: parsed.penalties || {},
+            exemptions: Array.isArray(parsed.exemptions)
+              ? parsed.exemptions
+              : [],
+            definitions: parsed.definitions || {},
+            state,
+            url: data.url || parsedBlock.url || "",
+            metadata: parsed.metadata || {},
+            parsed_at:
+              parsed.parsed_at ||
+              data.updated_at ||
+              data.fetched_at ||
+              new Date().toISOString(),
+            extractor: parsed.extractor || data.extractor || "",
+            law_type: lawType,
+            industry,
+          };
+
+          return {
+            id: doc.id,
+            state,
+            source_id: data.source_id || data.sourceId || "",
+            url: data.url || parsedBlock.url || "",
+            fetched_at:
+              data.fetched_at || data.updated_at || new Date().toISOString(),
+            metadata: data.metadata || {},
+            parsed: parsedBlock,
+            keywords,
+            changes: Array.isArray(data.changes) ? data.changes : [],
+            industry,
+            scan_type: scanType,
+            updated_at:
+              data.updated_at || data.fetched_at || new Date().toISOString(),
+            jurisdictionType,
+            regulationName:
+              data.name || data.title || parsed.metadata?.name || "",
+            citation:
+              data.citation || parsed.metadata?.citation || data.reference || "",
+            regulator:
+              data.regulator ||
+              parsed.metadata?.regulator ||
+              jurisdiction.agency ||
+              "",
+            country:
+              data.country || jurisdiction.country || parsed.metadata?.country || "US",
+          } as StateRegulation;
+        }
+      );
 
       setRegulations(fetchedRegulations);
 
@@ -319,7 +395,7 @@ export default function StateRegulationsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto space-y-6 px-4 pb-6 pt-20 sm:px-6">
         {/* Header Skeleton */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
@@ -415,7 +491,7 @@ export default function StateRegulationsPage() {
   // Show Firebase error state
   if (hasFirebaseError) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-4 pb-6 pt-20 sm:px-6">
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
@@ -463,7 +539,7 @@ export default function StateRegulationsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6 px-4 pb-6 pt-20 sm:px-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

@@ -13,7 +13,7 @@ import {
 
 export default function AboutUsPage() {
   return (
-    <div className="min-h-screen bg-black text-gray-200">
+    <div className="min-h-screen bg-black text-gray-200 w-full max-w-full overflow-x-hidden">
       <Header />
       <HeroSection />
       <MissionVision />

@@ -23,10 +23,10 @@ export default function SignInPage() {
 
   return (
     <AuthLayout>
-      <div className="grid min-h-[calc(100vh-12rem)] lg:grid-cols-2">
-        <div className="flex flex-col justify-center p-6 md:p-10">
-          <div className="flex flex-1 items-center justify-center">
-            <div className="w-full max-w-md">
+      <div className="grid min-h-[calc(100vh-12rem)] lg:grid-cols-2 w-full max-w-full overflow-x-hidden">
+        <div className="flex flex-col justify-center p-6 md:p-10 w-full max-w-full overflow-x-hidden">
+          <div className="flex flex-1 items-center justify-center w-full max-w-full overflow-x-hidden">
+            <div className="w-full max-w-md overflow-x-hidden">
               {email && (
                 <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">

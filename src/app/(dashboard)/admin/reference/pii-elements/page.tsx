@@ -482,7 +482,7 @@ export default function PIIElementsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto space-y-6 px-4 pb-6 pt-20 sm:px-6">
         {/* Header Skeleton */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
@@ -556,7 +556,7 @@ export default function PIIElementsPage() {
   // Show Firebase error state
   if (hasFirebaseError) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-4 pb-6 pt-20 sm:px-6">
         <Card className="border-destructive bg-destructive/10">
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
@@ -585,7 +585,7 @@ export default function PIIElementsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6 px-4 pb-6 pt-20 sm:px-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

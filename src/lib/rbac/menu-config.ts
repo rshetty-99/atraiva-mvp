@@ -43,6 +43,7 @@ import {
   Building2,
   PlugZap,
   LayoutDashboard,
+  ShieldCheck,
 } from "lucide-react";
 
 export interface MenuItem {
@@ -443,11 +444,20 @@ export const roleMenuConfig: RoleMenuConfig = {
         ],
       },
       {
+        id: "breach-exposure",
+        label: "Breach Exposure",
+        icon: ShieldCheck,
+        route: "/org/breach-exposure",
+        order: 5,
+        description: "Monitor exposure and response readiness",
+        category: "main",
+      },
+      {
         id: "users",
         label: "Users",
         icon: Users,
         route: "/org/users",
-        order: 5,
+        order: 6,
         description: "User management and roles",
         category: "main",
       },
@@ -456,7 +466,7 @@ export const roleMenuConfig: RoleMenuConfig = {
         label: "Payment",
         icon: CreditCard,
         route: "/org/payment",
-        order: 6,
+        order: 7,
         description: "Billing and subscription",
         category: "main",
       },

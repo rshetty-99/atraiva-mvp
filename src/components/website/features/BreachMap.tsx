@@ -178,20 +178,22 @@ export function BreachMap({ breachCountsByState }: BreachMapProps) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full max-w-full overflow-hidden">
       {/* Map Container */}
-      <div className="relative w-full bg-muted/10 rounded-lg overflow-hidden border border-border">
-        <ComposableMap
-          projection="geoAlbersUsa"
-          projectionConfig={{
-            scale: 1000,
-            center: [0, 0],
-          }}
-          width={800}
-          height={500}
-          style={{ width: "100%", height: "auto" }}
-          viewBox="0 0 800 500"
-        >
+      <div className="relative w-full max-w-full bg-muted/10 rounded-lg overflow-hidden border border-border">
+        <div className="w-full" style={{ aspectRatio: '16/10' }}>
+          <ComposableMap
+            projection="geoAlbersUsa"
+            projectionConfig={{
+              scale: 1000,
+              center: [0, 0],
+            }}
+            width={800}
+            height={500}
+            style={{ width: "100%", height: "100%" }}
+            viewBox="0 0 800 500"
+            className="max-w-full"
+          >
           <ZoomableGroup>
             <Geographies geography={geoUrl}>
               {({ geographies }) =>
@@ -256,6 +258,7 @@ export function BreachMap({ breachCountsByState }: BreachMapProps) {
             </Geographies>
           </ZoomableGroup>
         </ComposableMap>
+        </div>
       </div>
 
       {/* Tooltip */}

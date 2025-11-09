@@ -179,28 +179,31 @@ export function ContactForm() {
   };
 
   return (
-    <section className="bg-background py-20 px-20">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="flex border-border rounded-lg">
+    <section className="bg-background py-20 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden" style={{ overflow: "hidden", maxWidth: "100vw", width: "100%", boxSizing: "border-box", position: "relative" }}>
+      <div className="max-w-[1280px] mx-auto w-full min-w-0" style={{ maxWidth: "min(100vw, 1280px)", boxSizing: "border-box", width: "100%" }}>
+        <div className="flex flex-col lg:flex-row border-border rounded-lg w-full min-w-0 overflow-hidden" style={{ overflow: "hidden", maxWidth: "100%", width: "100%", boxSizing: "border-box" }}>
           {/* Left Side - Hero Image */}
           <div
-            className="flex flex-col justify-stretch items-stretch w-1/2 gap-2.5 p-2.5 rounded-lg"
+            className="flex flex-col justify-stretch items-stretch w-full lg:w-1/2 gap-2.5 p-2.5 rounded-lg min-h-[300px] lg:min-h-0 min-w-0 flex-shrink-0"
             style={{
               backgroundImage: `url(/images/website/contact-us/contact-hero-background.jpg)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
+              maxWidth: "100%",
+              boxSizing: "border-box",
+              width: "100%",
             }}
           ></div>
 
           {/* Right Side - Contact Form */}
-          <div className="flex flex-col justify-center items-end p-10 bg-card border border-dashed border-border rounded-lg">
-            <div className="flex flex-col justify-center gap-8 w-[480px]">
-              <div className="flex flex-col gap-4">
-                <h2 className="font-lato text-[32px] font-bold leading-[1.2] text-left text-primary">
+          <div className="flex flex-col justify-center items-start lg:items-end p-6 lg:p-10 bg-card border border-dashed border-border rounded-lg w-full lg:w-1/2 min-w-0 shrink overflow-hidden" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
+            <div className="flex flex-col justify-center gap-8 w-full max-w-full lg:max-w-[480px] min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
+              <div className="flex flex-col gap-4" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                <h2 className="font-lato text-[32px] font-bold leading-[1.2] text-left text-primary" style={{ maxWidth: "100%", overflow: "hidden", wordBreak: "break-word", boxSizing: "border-box" }}>
                   Write to us!
                 </h2>
-                <p className="font-lato text-lg font-normal leading-[1.78] text-left text-foreground w-full">
+                <p className="font-lato text-lg font-normal leading-[1.78] text-left text-foreground w-full" style={{ maxWidth: "100%", overflow: "hidden", wordBreak: "break-word", boxSizing: "border-box" }}>
                   Need any help, just write us here and we will get back to you
                   within 24 hours
                 </p>
@@ -210,10 +213,11 @@ export function ContactForm() {
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="flex flex-col gap-8"
+                  style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}
                 >
                   {/* Success/Error Messages */}
                   {formState.isSuccess && (
-                    <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg text-green-400">
+                    <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg text-green-400" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
                       <p className="font-medium">Thank you for your message!</p>
                       <p className="text-sm">
                         We will get back to you within 24 hours.
@@ -222,17 +226,17 @@ export function ContactForm() {
                   )}
 
                   {formState.error && (
-                    <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400">
+                    <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
                       <p className="font-medium">Error</p>
                       <p className="text-sm">{formState.error}</p>
                     </div>
                   )}
 
                   {/* Form Fields */}
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                     {/* First Row - Name Fields */}
-                    <div className="flex gap-6">
-                      <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="firstName"
@@ -242,7 +246,7 @@ export function ContactForm() {
                           required
                         />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="lastName"
@@ -255,8 +259,8 @@ export function ContactForm() {
                     </div>
 
                     {/* Second Row - Email and Phone */}
-                    <div className="flex gap-6">
-                      <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="email"
@@ -267,7 +271,7 @@ export function ContactForm() {
                           required
                         />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="phone"
@@ -280,8 +284,8 @@ export function ContactForm() {
                     </div>
 
                     {/* Third Row - Company and Subject */}
-                    <div className="flex gap-6">
-                      <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="company"
@@ -290,7 +294,7 @@ export function ContactForm() {
                           fieldType={FormFieldType.INPUT}
                         />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                         <CustomFormField
                           control={form.control}
                           name="inquiryType"
@@ -308,7 +312,7 @@ export function ContactForm() {
                     </div>
 
                     {/* Message Field */}
-                    <div>
+                    <div className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
                       <CustomFormField
                         control={form.control}
                         name="message"
