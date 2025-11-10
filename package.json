@@ -23,6 +23,8 @@
     "test:onboarding:headed": "playwright test --config=tests/onboarding/playwright.config.ts --headed"
   },
   "dependencies": {
+    "@arcjet/inspect": "^1.0.0-beta.14",
+    "@arcjet/next": "^1.0.0-beta.14",
     "@clerk/agent-toolkit": "^0.1.32",
     "@clerk/backend": "^2.14.0",
     "@clerk/nextjs": "^6.31.3",
@@ -58,6 +60,8 @@
     "firebase": "^12.1.0",
     "firebase-admin": "^13.5.0",
     "framer-motion": "^12.23.12",
+    "google-auth": "^0.0.1",
+    "googleapis": "^134.0.0",
     "libphonenumber-js": "^1.12.17",
     "lucide-react": "^0.540.0",
     "next": "15.4.7",

@@ -2,13 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { collection, query, getDocs, orderBy } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import {
-  StateRegulation,
-  StateRegulationFilters,
-  US_STATES_MAP,
-} from "@/types/state-regulation";
+import { StateRegulation, US_STATES_MAP } from "@/types/state-regulation";
 import {
   Table,
   TableBody,
@@ -184,93 +180,158 @@ export default function StateRegulationsPage() {
       const regulationsRef = collection(db, "regulations");
       const querySnapshot = await getDocs(regulationsRef);
 
+      const toRecord = (value: unknown): Record<string, unknown> =>
+        value && typeof value === "object" && !Array.isArray(value)
+          ? (value as Record<string, unknown>)
+          : {};
+
+      const toStringArray = (value: unknown): string[] =>
+        Array.isArray(value)
+          ? value.filter((item): item is string => typeof item === "string")
+          : [];
+
+      const getString = (value: unknown, fallback = ""): string =>
+        typeof value === "string" ? value : fallback;
+
+      const toDateString = (value: unknown): string => {
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        if (
+          value &&
+          typeof value === "object" &&
+          "toDate" in value &&
+          typeof (value as { toDate: () => Date }).toDate === "function"
+        ) {
+          try {
+            return (value as { toDate: () => Date }).toDate().toISOString();
+          } catch {
+            return new Date().toISOString();
+          }
+        }
+        if (typeof value === "string" && value.trim()) {
+          return value;
+        }
+        return new Date().toISOString();
+      };
+
       const fetchedRegulations: StateRegulation[] = querySnapshot.docs.map(
-        (doc) => {
-          const data = doc.data() as Record<string, any>;
-          const jurisdiction = (data.jurisdiction || {}) as Record<string, any>;
-          const parsed = (data.parsed || {}) as Record<string, any>;
+        (docSnapshot) => {
+          const data = toRecord(docSnapshot.data());
+          const jurisdiction = toRecord(data.jurisdiction);
+          const parsedRaw = toRecord(data.parsed);
 
           const levelRaw =
-            data.jurisdictionType ||
-            jurisdiction.type ||
-            data.level ||
+            data.jurisdictionType ??
+            jurisdiction.type ??
+            data.level ??
             (jurisdiction.state || data.state ? "state" : "federal");
-          const jurisdictionType = String(levelRaw || "state").toLowerCase();
+          const jurisdictionType = getString(levelRaw, "state").toLowerCase();
 
           const stateRaw =
-            jurisdiction.state || data.state || parsed.state || "";
+            jurisdiction.state ?? data.state ?? parsedRaw.state ?? "";
           const state = stateRaw
-            ? String(stateRaw).toUpperCase()
+            ? getString(stateRaw).toUpperCase()
             : jurisdictionType === "federal"
             ? "FEDERAL"
             : "UNKNOWN";
 
-          const industry = String(
-            data.industry || parsed.industry || "general"
+          const industry = getString(
+            data.industry ?? parsedRaw.industry ?? "general"
           ).toLowerCase();
-          const lawType = String(
-            data.lawType || parsed.law_type || data.type || "unknown"
+          const lawType = getString(
+            data.lawType ?? parsedRaw.law_type ?? data.type ?? "unknown"
           ).toLowerCase();
-          const scanType = String(
-            data.scan_type || data.scanType || jurisdiction.scanType || "full"
+          const scanType = getString(
+            data.scan_type ?? data.scanType ?? jurisdiction.scanType ?? "full"
           ).toLowerCase();
 
-          const keywords = Array.isArray(data.keywords)
-            ? data.keywords
-            : Array.isArray(parsed.keywords)
-            ? parsed.keywords
-            : [];
+          const parsedKeywords = toStringArray(parsedRaw.keywords);
+          const keywords = toStringArray(data.keywords).length
+            ? toStringArray(data.keywords)
+            : parsedKeywords;
 
-          const parsedBlock = {
-            breach_notification: parsed.breach_notification || {},
-            requirements: parsed.requirements || {},
-            timelines: Array.isArray(parsed.timelines) ? parsed.timelines : [],
-            penalties: parsed.penalties || {},
-            exemptions: Array.isArray(parsed.exemptions)
-              ? parsed.exemptions
+          const parsedUrl = getString(parsedRaw.url);
+          const url = getString(data.url, parsedUrl);
+
+          const parsedMetadata = toRecord(parsedRaw.metadata);
+
+          const parsedAt = toDateString(
+            parsedRaw.parsed_at ?? data.updated_at ?? data.fetched_at
+          );
+
+          const parsedBlock: StateRegulation["parsed"] = {
+            breach_notification: toRecord(parsedRaw.breach_notification),
+            requirements: toRecord(parsedRaw.requirements),
+            timelines: Array.isArray(parsedRaw.timelines)
+              ? parsedRaw.timelines
               : [],
-            definitions: parsed.definitions || {},
+            penalties: toRecord(parsedRaw.penalties),
+            exemptions: Array.isArray(parsedRaw.exemptions)
+              ? parsedRaw.exemptions
+              : [],
+            definitions: toRecord(parsedRaw.definitions),
             state,
-            url: data.url || parsedBlock.url || "",
-            metadata: parsed.metadata || {},
-            parsed_at:
-              parsed.parsed_at ||
-              data.updated_at ||
-              data.fetched_at ||
-              new Date().toISOString(),
-            extractor: parsed.extractor || data.extractor || "",
+            url,
+            metadata: parsedMetadata,
+            parsed_at: parsedAt,
+            extractor: getString(parsedRaw.extractor ?? data.extractor),
             law_type: lawType,
             industry,
           };
 
+          const fetchedAt = toDateString(
+            data.fetched_at ?? data.updated_at ?? parsedRaw.parsed_at
+          );
+          const updatedAt = toDateString(
+            data.updated_at ?? data.fetched_at ?? parsedRaw.parsed_at
+          );
           return {
-            id: doc.id,
+            id: docSnapshot.id,
             state,
-            source_id: data.source_id || data.sourceId || "",
-            url: data.url || parsedBlock.url || "",
-            fetched_at:
-              data.fetched_at || data.updated_at || new Date().toISOString(),
-            metadata: data.metadata || {},
+            source_id: getString(data.source_id ?? data.sourceId),
+            url,
+            fetched_at: fetchedAt,
+            metadata: toRecord(data.metadata),
             parsed: parsedBlock,
             keywords,
-            changes: Array.isArray(data.changes) ? data.changes : [],
+            changes: Array.isArray(data.changes)
+              ? data.changes.filter(
+                  (item): item is string => typeof item === "string"
+                )
+              : [],
             industry,
             scan_type: scanType,
-            updated_at:
-              data.updated_at || data.fetched_at || new Date().toISOString(),
+            updated_at: updatedAt,
             jurisdictionType,
             regulationName:
-              data.name || data.title || parsed.metadata?.name || "",
+              getString(
+                data.name ??
+                  data.title ??
+                  (parsedMetadata.name as string | undefined) ??
+                  ""
+              ) || undefined,
             citation:
-              data.citation || parsed.metadata?.citation || data.reference || "",
+              getString(
+                data.citation ??
+                  (parsedMetadata.citation as string | undefined) ??
+                  data.reference ??
+                  ""
+              ) || undefined,
             regulator:
-              data.regulator ||
-              parsed.metadata?.regulator ||
-              jurisdiction.agency ||
-              "",
-            country:
-              data.country || jurisdiction.country || parsed.metadata?.country || "US",
-          } as StateRegulation;
+              getString(
+                data.regulator ??
+                  (parsedMetadata.regulator as string | undefined) ??
+                  jurisdiction.agency ??
+                  ""
+              ) || undefined,
+            country: getString(
+              data.country ??
+                jurisdiction.country ??
+                (parsedMetadata.country as string | undefined) ??
+                "US"
+            ),
+          };
         }
       );
 
@@ -315,7 +376,8 @@ export default function StateRegulationsPage() {
         });
       } else {
         toast.error("Failed to fetch state regulations", {
-          description: error.message || "Please try again later",
+          description:
+            error instanceof Error ? error.message : "Please try again later",
         });
       }
     } finally {
@@ -549,10 +611,10 @@ export default function StateRegulationsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Gavel className="h-8 w-8 text-primary" />
-            State Regulations
+            Regulations
           </h1>
           <p className="text-muted-foreground mt-1">
-            Monitor state data breach notification laws and regulations
+            Monitor data breach notification laws and regulations
           </p>
         </div>
         <div className="flex gap-2">
@@ -589,7 +651,9 @@ export default function StateRegulationsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Law Types</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Law Types and Regulations
+            </CardTitle>
             <Gavel className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -657,60 +721,83 @@ export default function StateRegulationsPage() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
               {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search regulations..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+              <div className="flex h-full flex-col justify-end gap-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Search
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search regulations..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
               </div>
 
               {/* State Filter */}
-              <Select value={filterState} onValueChange={setFilterState}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All States" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All States</SelectItem>
-                  {US_STATES.map((state) => (
-                    <SelectItem key={state.code} value={state.code}>
-                      {state.name} ({state.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  States
+                </label>
+                <Select value={filterState} onValueChange={setFilterState}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    {US_STATES.map((state) => (
+                      <SelectItem key={state.code} value={state.code}>
+                        {state.name} ({state.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Law Type Filter */}
-              <Select value={filterLawType} onValueChange={setFilterLawType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Law Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Law Types</SelectItem>
-                  {uniqueLawTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type.replace(/_/g, " ").toUpperCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Law Types and Regulations
+                </label>
+                <Select value={filterLawType} onValueChange={setFilterLawType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    {uniqueLawTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.replace(/_/g, " ").toUpperCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Industry Filter */}
-              <Select value={filterIndustry} onValueChange={setFilterIndustry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Industries" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Industries</SelectItem>
-                  {uniqueIndustries.map((industry) => (
-                    <SelectItem key={industry} value={industry}>
-                      {industry.toUpperCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Industry
+                </label>
+                <Select
+                  value={filterIndustry}
+                  onValueChange={setFilterIndustry}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    {uniqueIndustries.map((industry) => (
+                      <SelectItem key={industry} value={industry}>
+                        {industry.toUpperCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Clear Filters */}
@@ -768,7 +855,7 @@ export default function StateRegulationsPage() {
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Law Type</TableHead>
+                    <TableHead>Law Types and Regulations</TableHead>
                     <TableHead>Industry</TableHead>
                     <TableHead>Scan Type</TableHead>
                     <TableHead>Keywords</TableHead>

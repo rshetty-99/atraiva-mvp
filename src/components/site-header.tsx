@@ -22,12 +22,18 @@ export function SiteHeader() {
 
   // Generate breadcrumbs from pathname
   const pathSegments = pathname.split("/").filter(Boolean);
+  const labelOverrides: Record<string, string> = {
+    regulations: "Breach Regulations",
+  };
+
   const breadcrumbs = pathSegments.map((segment, index) => {
     const href = "/" + pathSegments.slice(0, index + 1).join("/");
-    const label = segment
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    const label =
+      labelOverrides[segment] ??
+      segment
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
     return { href, label, isLast: index === pathSegments.length - 1 };
   });
 
@@ -43,7 +49,11 @@ export function SiteHeader() {
     >
       <div className="flex flex-1 items-center gap-3 overflow-hidden">
         <Link href="/home" className="flex items-center">
-          <Logo width={140} height={48} className="hidden sm:block h-10 w-auto" />
+          <Logo
+            width={140}
+            height={48}
+            className="hidden sm:block h-10 w-auto"
+          />
           <Logo width={120} height={40} className="sm:hidden h-8 w-auto" />
         </Link>
         <SidebarTrigger />
@@ -53,8 +63,11 @@ export function SiteHeader() {
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            {breadcrumbs.map((breadcrumb, index) => (
-              <BreadcrumbItem key={breadcrumb.href} className="flex items-center">
+            {breadcrumbs.map((breadcrumb) => (
+              <BreadcrumbItem
+                key={breadcrumb.href}
+                className="flex items-center"
+              >
                 <BreadcrumbSeparator />
                 {breadcrumb.isLast ? (
                   <BreadcrumbPage className="truncate max-w-[140px] text-foreground sm:max-w-[200px]">

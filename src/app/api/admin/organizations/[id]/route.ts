@@ -2,34 +2,55 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createClerkClient } from "@clerk/backend";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ActivityLogService } from "@/lib/activity-log-service";
+import { organizationFormSchema } from "@/lib/validators/organization";
+import {
+  normalizeFirestoreOrganization,
+  mapOrganizationResponse,
+  buildClerkOrganizationMetadata,
+  buildFirestoreOrganizationPayload,
+  parseOrganizationMetadata,
+  type ClerkOrganizationLite,
+} from "@/lib/organization-utils";
 
-// Type for Clerk metadata
 type ClerkOrgMeta = { primaryOrganization?: { role?: string } };
-type ClerkPublicMetadata = {
-  industry?: string;
-  size?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  zipCode?: string;
-  website?: string;
-  phone?: string;
-  description?: string;
-  subscriptionPlan?: string;
-  subscriptionStatus?: string;
-  applicableRegulations?: string[];
-  settings?: {
-    timezone?: string;
-    locale?: string;
-    notifications?: {
-      email?: boolean;
-      sms?: boolean;
-      push?: boolean;
-    };
-  };
+
+type ClerkUserLite = {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  emailAddresses: Array<{ emailAddress: string }>;
+  imageUrl?: string | null;
+  createdAt?: number | string | Date | null;
+  lastSignInAt?: number | string | Date | null;
+};
+
+const getClerkStatus = (error: unknown): number | undefined => {
+  if (typeof error === "object" && error !== null && "status" in error) {
+    const status = (error as { status?: number }).status;
+    return typeof status === "number" ? status : undefined;
+  }
+  return undefined;
+};
+
+const authorizePlatformAdmin = async (userId: string) => {
+  if (!process.env.CLERK_SECRET_KEY) {
+    throw new Error("CLERK_SECRET_KEY is required for organization endpoints");
+  }
+
+  const client = createClerkClient({
+    secretKey: process.env.CLERK_SECRET_KEY,
+  });
+  const user = await client.users.getUser(userId);
+  const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
+  const userRole = metadata.primaryOrganization?.role ?? "";
+
+  if (userRole !== "platform_admin" && userRole !== "super_admin") {
+    throw new Error("forbidden");
+  }
+
+  return { client, user } as const;
 };
 
 export async function GET(
@@ -43,147 +64,112 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from Clerk to check role using Backend API
-    const client = createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY!,
-    });
-    const user = await client.users.getUser(authData.userId);
+    const { client } = await authorizePlatformAdmin(authData.userId);
 
-    // Get role from the correct metadata location
-    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
-    const userRole = metadata.primaryOrganization?.role ?? "";
+    const { id: organizationId } = await params;
 
-    // Only platform_admin and super_admin can access this
-    if (userRole !== "platform_admin" && userRole !== "super_admin") {
+    const firestoreDoc = await getDoc(doc(db, "organizations", organizationId));
+    const firestoreData = firestoreDoc.exists() ? firestoreDoc.data() : {};
+    const normalizedOrg = normalizeFirestoreOrganization(
+      organizationId,
+      firestoreData
+    );
+
+    let clerkOrg: ClerkOrganizationLite | undefined;
+    try {
+      clerkOrg = await client.organizations.getOrganization({
+        organizationId,
+      });
+    } catch (clerkError: unknown) {
+      const status = getClerkStatus(clerkError);
+      if (status === 404) {
+        console.warn(
+          `Clerk organization ${organizationId} not found; falling back to Firestore data.`
+        );
+      } else {
+        throw clerkError;
+      }
+    }
+
+    const organization = mapOrganizationResponse(normalizedOrg, clerkOrg);
+
+    let members: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      imageUrl?: string;
+      role: string;
+      createdAt: Date;
+      lastSignInAt: Date | null;
+    }> = [];
+
+    if (clerkOrg) {
+      try {
+        const membersResponse =
+          await client.organizations.getOrganizationMembershipList({
+            organizationId,
+            limit: 100,
+          });
+
+        const fetchedMembers = await Promise.all(
+          membersResponse.data.map(async (membership) => {
+            const userId = membership.publicUserData?.userId;
+            if (!userId) return null;
+            try {
+              const clerkUser = await client.users.getUser(userId);
+              const member: ClerkUserLite = clerkUser;
+              return {
+                id: member.id,
+                firstName: member.firstName || "",
+                lastName: member.lastName || "",
+                email: member.emailAddresses[0]?.emailAddress || "",
+                imageUrl: member.imageUrl || undefined,
+                role: membership.role,
+                createdAt: member.createdAt
+                  ? new Date(member.createdAt)
+                  : new Date(),
+                lastSignInAt: member.lastSignInAt
+                  ? new Date(member.lastSignInAt)
+                  : null,
+              };
+            } catch (memberError) {
+              console.error("Error fetching member", memberError);
+              return null;
+            }
+          })
+        );
+
+        members = fetchedMembers.filter(
+          (member): member is NonNullable<typeof member> => member !== null
+        );
+      } catch (membershipError: unknown) {
+        const status = getClerkStatus(membershipError);
+        if (status === 404) {
+          console.warn(
+            `No membership list available for Clerk organization ${organizationId}.`
+          );
+        } else {
+          throw membershipError;
+        }
+      }
+    }
+
+    return NextResponse.json({ organization, members });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "forbidden") {
       return NextResponse.json(
         {
           error: "Forbidden",
-          details: `Access denied. Your role: ${
-            userRole || "unknown"
-          }. Required: platform_admin or super_admin`,
+          details:
+            "Access denied. Required role: platform_admin or super_admin.",
         },
         { status: 403 }
       );
     }
-
-    // Await params before accessing properties (Next.js 15 requirement)
-    const { id: organizationId } = await params;
-
-    // Get organization from Clerk
-    const clerkOrg = await client.organizations.getOrganization({
-      organizationId,
-    });
-
-    // Get organization from Firestore
-    const orgDoc = await getDoc(doc(db, "organizations", organizationId));
-    const orgData = orgDoc.exists() ? orgDoc.data() : {};
-
-    // Get organization members from Clerk
-    const membersResponse =
-      await client.organizations.getOrganizationMembershipList({
-        organizationId,
-        limit: 100,
-      });
-
-    // Enrich member data with user details
-    const enrichedMembers = await Promise.all(
-      membersResponse.data.map(async (membership) => {
-        try {
-          const memberUser = await client.users.getUser(
-            membership.publicUserData?.userId || ""
-          );
-          return {
-            id: memberUser.id,
-            firstName: memberUser.firstName || "",
-            lastName: memberUser.lastName || "",
-            email: memberUser.emailAddresses[0]?.emailAddress || "No email",
-            imageUrl: memberUser.imageUrl || undefined,
-            role: membership.role,
-            createdAt: memberUser.createdAt
-              ? new Date(memberUser.createdAt)
-              : new Date(),
-            lastSignInAt: memberUser.lastSignInAt
-              ? new Date(memberUser.lastSignInAt)
-              : undefined,
-          };
-        } catch (error) {
-          console.error("Error fetching member user:", error);
-          return null;
-        }
-      })
-    );
-
-    // Filter out any failed member fetches
-    const validMembers = enrichedMembers.filter((m) => m !== null);
-
-    // Find account owner (first admin or first member)
-    const accountOwner = validMembers.find((m) => m?.role === "org:admin");
-
-    // Get public metadata from Clerk (if available)
-    const clerkPublicMetadata = (clerkOrg.publicMetadata ??
-      {}) as ClerkPublicMetadata;
-
-    // Combine organization data - prioritize Clerk publicMetadata over Firestore
-    const organization = {
-      id: clerkOrg.id,
-      name: clerkOrg.name,
-      slug: clerkOrg.slug,
-      imageUrl: clerkOrg.imageUrl || undefined,
-      membersCount: clerkOrg.membersCount || validMembers.length,
-      subscriptionPlan:
-        clerkPublicMetadata.subscriptionPlan ||
-        orgData.subscriptionPlan ||
-        "free",
-      subscriptionStatus:
-        clerkPublicMetadata.subscriptionStatus ||
-        orgData.subscriptionStatus ||
-        "active",
-      industry: clerkPublicMetadata.industry || orgData.industry || "",
-      size: clerkPublicMetadata.size || orgData.size || "1-10",
-      country: clerkPublicMetadata.country || orgData.country || "",
-      state: clerkPublicMetadata.state || orgData.state || "",
-      city: clerkPublicMetadata.city || orgData.city || "",
-      address: clerkPublicMetadata.address || orgData.address || "",
-      zipCode: clerkPublicMetadata.zipCode || orgData.zipCode || "",
-      website: clerkPublicMetadata.website || orgData.website || "",
-      phone: clerkPublicMetadata.phone || orgData.phone || "",
-      description: clerkPublicMetadata.description || orgData.description || "",
-      applicableRegulations:
-        clerkPublicMetadata.applicableRegulations ||
-        orgData.applicableRegulations ||
-        [],
-      settings: clerkPublicMetadata.settings ||
-        orgData.settings || {
-          timezone: "UTC",
-          locale: "en-US",
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-          },
-        },
-      createdAt: orgData.createdAt?.toDate?.() || new Date(clerkOrg.createdAt),
-      updatedAt:
-        orgData.updatedAt?.toDate?.() ||
-        new Date(clerkOrg.updatedAt || clerkOrg.createdAt),
-      accountOwner: accountOwner
-        ? {
-            name: `${accountOwner.firstName} ${accountOwner.lastName}`,
-            email: accountOwner.email,
-          }
-        : undefined,
-    };
-
-    return NextResponse.json({
-      organization,
-      members: validMembers,
-    });
-  } catch (error: unknown) {
     console.error("Error fetching organization details:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal server error", details: errorMessage },
+      { error: "Failed to fetch organization details" },
       { status: 500 }
     );
   }
@@ -200,223 +186,225 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from Clerk to check role using Backend API
-    const client = createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY!,
-    });
+    const { client, user } = await authorizePlatformAdmin(authData.userId);
 
-    // Debug: Check if secret key is available
-    if (!process.env.CLERK_SECRET_KEY) {
-      console.error("CLERK_SECRET_KEY is not set in environment variables");
-      throw new Error("CLERK_SECRET_KEY is required for organization updates");
+    const { id: organizationId } = await params;
+
+    const body = await request.json();
+    const parsed = organizationFormSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          details: parsed.error.flatten(),
+        },
+        { status: 400 }
+      );
     }
 
-    console.log("Using Clerk Backend API with secret key");
+    const values = parsed.data;
+    let parsedMetadata: Record<string, unknown> | null = null;
+    try {
+      parsedMetadata = parseOrganizationMetadata(values.metadata);
+    } catch (metadataError) {
+      return NextResponse.json(
+        {
+          error: "Invalid metadata",
+          details:
+            metadataError instanceof Error
+              ? metadataError.message
+              : "Metadata must be valid JSON",
+        },
+        { status: 400 }
+      );
+    }
 
-    const user = await client.users.getUser(authData.userId);
+    const existingDoc = await getDoc(doc(db, "organizations", organizationId));
+    const oldData = existingDoc.exists() ? existingDoc.data() : {};
+    const oldNormalized = normalizeFirestoreOrganization(
+      organizationId,
+      oldData
+    );
 
-    // Get role from the correct metadata location
-    const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
-    const userRole = metadata.primaryOrganization?.role ?? "";
+    await client.organizations.updateOrganization(organizationId, {
+      name: values.name,
+      slug: values.slug,
+      publicMetadata: buildClerkOrganizationMetadata(values, parsedMetadata),
+    });
 
-    // Only platform_admin and super_admin can update organizations
-    if (userRole !== "platform_admin" && userRole !== "super_admin") {
+    const firestorePayload = buildFirestoreOrganizationPayload(
+      values,
+      parsedMetadata
+    );
+
+    await updateDoc(doc(db, "organizations", organizationId), firestorePayload);
+
+    const updatedDoc = await getDoc(doc(db, "organizations", organizationId));
+    const updatedNormalized = normalizeFirestoreOrganization(
+      organizationId,
+      updatedDoc.exists() ? updatedDoc.data() : {}
+    );
+
+    const fieldsToCompare: Array<keyof typeof oldNormalized> = [
+      "name",
+      "plan",
+      "status",
+      "timezone",
+      "industry",
+      "primaryEmail",
+      "phone",
+      "description",
+      "address",
+    ];
+
+    const changes: { field: string; oldValue?: unknown; newValue?: unknown }[] =
+      [];
+
+    fieldsToCompare.forEach((field) => {
+      if (oldNormalized[field] !== updatedNormalized[field]) {
+        changes.push({
+          field,
+          oldValue: oldNormalized[field],
+          newValue: updatedNormalized[field],
+        });
+      }
+    });
+
+    if (
+      oldNormalized.notifyOnIncidents !== updatedNormalized.notifyOnIncidents
+    ) {
+      changes.push({
+        field: "notifyOnIncidents",
+        oldValue: oldNormalized.notifyOnIncidents,
+        newValue: updatedNormalized.notifyOnIncidents,
+      });
+    }
+
+    if (oldNormalized.requireMfa !== updatedNormalized.requireMfa) {
+      changes.push({
+        field: "requireMfa",
+        oldValue: oldNormalized.requireMfa,
+        newValue: updatedNormalized.requireMfa,
+      });
+    }
+
+    if (oldNormalized.shareReports !== updatedNormalized.shareReports) {
+      changes.push({
+        field: "shareReports",
+        oldValue: oldNormalized.shareReports,
+        newValue: updatedNormalized.shareReports,
+      });
+    }
+
+    if (changes.length > 0) {
+      await ActivityLogService.logOrganizationUpdated({
+        organizationId,
+        organizationName: updatedNormalized.name,
+        userId: authData.userId,
+        userName:
+          `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+          user.emailAddresses[0]?.emailAddress ||
+          "Unknown",
+        userEmail: user.emailAddresses[0]?.emailAddress || "",
+        changes,
+      });
+    }
+
+    let clerkOrg;
+    try {
+      clerkOrg = await client.organizations.getOrganization({
+        organizationId,
+      });
+    } catch (clerkError: unknown) {
+      const status = getClerkStatus(clerkError);
+      if (status === 404) {
+        console.warn(
+          `Clerk organization ${organizationId} not found after update; response will use Firestore data.`
+        );
+      } else {
+        throw clerkError;
+      }
+    }
+
+    const responseOrg = mapOrganizationResponse(updatedNormalized, clerkOrg);
+
+    return NextResponse.json({
+      success: true,
+      organization: responseOrg,
+      changes,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "forbidden") {
       return NextResponse.json(
         {
           error: "Forbidden",
-          details: `Access denied. Your role: ${
-            userRole || "unknown"
-          }. Required: platform_admin or super_admin`,
+          details:
+            "Access denied. Required role: platform_admin or super_admin.",
         },
         { status: 403 }
       );
     }
+    console.error("Error updating organization:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { error: "Internal server error", details: errorMessage },
+      { status: 500 }
+    );
+  }
+}
 
-    // Await params before accessing properties (Next.js 15 requirement)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authData = await auth();
+
+    if (!authData.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { client, user } = await authorizePlatformAdmin(authData.userId);
     const { id: organizationId } = await params;
 
-    // Parse request body
-    const updateData = await request.json();
+    await client.organizations.deleteOrganization(organizationId);
+    await deleteDoc(doc(db, "organizations", organizationId));
 
-    console.log(`Attempting to update organization: ${organizationId}`);
-    console.log(`Update data:`, updateData);
-
-    // Get existing organization data for change tracking
-    const orgDoc = await getDoc(doc(db, "organizations", organizationId));
-    const oldOrgData = orgDoc.data();
-
-    // First, let's verify the organization exists using the Backend API
-    let existingOrg;
-    try {
-      existingOrg = await client.organizations.getOrganization({
-        organizationId,
-      });
-      console.log(`Organization found in Clerk:`, existingOrg.name);
-    } catch (getError: unknown) {
-      const errorMessage =
-        getError instanceof Error ? getError.message : "Unknown error";
-      console.error(`Error fetching organization from Clerk:`, errorMessage);
-      throw new Error(`Organization not found in Clerk: ${errorMessage}`);
-    }
-
-    // Update organization in Clerk using Backend API
-    try {
-      // Try the correct method signature from Clerk docs
-      const updateResult = await client.organizations.updateOrganization(
-        organizationId,
-        {
-          name: updateData.name,
-          publicMetadata: {
-            industry: updateData.industry,
-            size: updateData.size,
-            country: updateData.country,
-            state: updateData.state,
-            city: updateData.city,
-            address: updateData.address,
-            zipCode: updateData.zipCode,
-            website: updateData.website,
-            phone: updateData.phone,
-            description: updateData.description,
-            subscriptionPlan: updateData.subscriptionPlan,
-            subscriptionStatus: updateData.subscriptionStatus,
-            applicableRegulations: updateData.applicableRegulations,
-            settings: updateData.settings,
-          },
-        }
-      );
-      console.log(
-        `Successfully updated organization in Clerk: ${organizationId}`,
-        updateResult
-      );
-    } catch (clerkError: unknown) {
-      const errorMessage =
-        clerkError instanceof Error ? clerkError.message : "Unknown error";
-      console.error(
-        `Error updating organization in Clerk:`,
-        errorMessage,
-        clerkError
-      );
-      // Continue with Firestore update even if Clerk fails
-      console.log(`Continuing with Firestore update despite Clerk error`);
-    }
-
-    // Update organization in Firestore
-    const orgRef = doc(db, "organizations", organizationId);
-    await updateDoc(orgRef, {
-      name: updateData.name,
-      industry: updateData.industry,
-      size: updateData.size,
-      country: updateData.country,
-      state: updateData.state || "",
-      city: updateData.city || "",
-      address: updateData.address || "",
-      zipCode: updateData.zipCode || "",
-      website: updateData.website || "",
-      phone: updateData.phone || "",
-      description: updateData.description || "",
-      subscriptionPlan: updateData.subscriptionPlan,
-      subscriptionStatus: updateData.subscriptionStatus,
-      applicableRegulations: updateData.applicableRegulations || [],
-      settings: {
-        timezone: updateData.settings?.timezone || "UTC",
-        locale: updateData.settings?.locale || "en-US",
-        notifications: {
-          email: updateData.settings?.notifications?.email ?? true,
-          sms: updateData.settings?.notifications?.sms ?? false,
-          push: updateData.settings?.notifications?.push ?? true,
-        },
-      },
-      updatedAt: serverTimestamp(),
-    });
-
-    // Track changes and log activity
-    const changes: { field: string; oldValue?: unknown; newValue?: unknown }[] =
-      [];
-
-    if (oldOrgData) {
-      if (oldOrgData.name !== updateData.name) {
-        changes.push({
-          field: "name",
-          oldValue: oldOrgData.name,
-          newValue: updateData.name,
-        });
-      }
-      if (oldOrgData.industry !== updateData.industry) {
-        changes.push({
-          field: "industry",
-          oldValue: oldOrgData.industry,
-          newValue: updateData.industry,
-        });
-      }
-      if (oldOrgData.size !== updateData.size) {
-        changes.push({
-          field: "size",
-          oldValue: oldOrgData.size,
-          newValue: updateData.size,
-        });
-      }
-      if (oldOrgData.subscriptionPlan !== updateData.subscriptionPlan) {
-        changes.push({
-          field: "subscription_plan",
-          oldValue: oldOrgData.subscriptionPlan,
-          newValue: updateData.subscriptionPlan,
-        });
-      }
-      if (oldOrgData.subscriptionStatus !== updateData.subscriptionStatus) {
-        changes.push({
-          field: "subscription_status",
-          oldValue: oldOrgData.subscriptionStatus,
-          newValue: updateData.subscriptionStatus,
-        });
-      }
-      if (oldOrgData.country !== updateData.country) {
-        changes.push({
-          field: "country",
-          oldValue: oldOrgData.country,
-          newValue: updateData.country,
-        });
-      }
-      if (oldOrgData.state !== updateData.state) {
-        changes.push({
-          field: "state",
-          oldValue: oldOrgData.state,
-          newValue: updateData.state,
-        });
-      }
-    }
-
-    // Get organization members to notify them
-    const members = await client.organizations.getOrganizationMembershipList({
+    await ActivityLogService.logActivity({
       organizationId,
-    });
-    const memberIds = members.data
-      .filter((m) => m.publicUserData)
-      .map((m) => m.publicUserData!.userId);
-
-    // Log the organization update activity and notify members
-    await ActivityLogService.logOrganizationUpdated({
-      organizationId,
-      organizationName: updateData.name,
       userId: authData.userId,
       userName:
         `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
         user.emailAddresses[0]?.emailAddress ||
         "Unknown",
       userEmail: user.emailAddresses[0]?.emailAddress || "",
-      changes,
-      memberIds, // This will trigger notifications to all members
+      action: "organization_deleted",
+      category: "organization",
+      resourceType: "organization",
+      resourceId: organizationId,
+      description: `Organization ${organizationId} deleted by ${
+        user.firstName || user.emailAddresses[0]?.emailAddress || "user"
+      }`,
+      severity: "critical",
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Organization updated successfully",
-    });
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    console.error("Error updating organization:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    if (error instanceof Error && error.message === "forbidden") {
+      return NextResponse.json(
+        {
+          error: "Forbidden",
+          details:
+            "Access denied. Required role: platform_admin or super_admin.",
+        },
+        { status: 403 }
+      );
+    }
+    console.error("Error deleting organization:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: errorMessage },
+      { error: "Failed to delete organization" },
       { status: 500 }
     );
   }

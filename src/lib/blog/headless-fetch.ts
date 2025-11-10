@@ -48,10 +48,7 @@ export async function fetchHtmlWithFallback(
 async function fetchWithStandardRequest(url: string): Promise<string | null> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      STANDARD_TIMEOUT_MS
-    );
+    const timeout = setTimeout(() => controller.abort(), STANDARD_TIMEOUT_MS);
 
     const response = await fetch(url, {
       headers: {
@@ -141,7 +138,7 @@ async function fetchWithHeadlessBrowser(url: string): Promise<string | null> {
       });
 
       // Allow late-loading scripts a brief moment to settle.
-      await page.waitForTimeout(1000);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const html = await page.content();
       return html || null;
@@ -154,30 +151,43 @@ async function fetchWithHeadlessBrowser(url: string): Promise<string | null> {
   }
 }
 
-type PuppeteerModule =
-  | typeof import("puppeteer-core")
-  | typeof import("puppeteer");
+type PuppeteerModule = {
+  launch: (options?: Record<string, unknown>) => Promise<{
+    newPage: () => Promise<{
+      setUserAgent: (ua: string) => Promise<void>;
+      goto: (url: string, options?: Record<string, unknown>) => Promise<void>;
+      content: () => Promise<string>;
+    }>;
+    close: () => Promise<void>;
+  }>;
+};
 
 async function loadPuppeteer(): Promise<PuppeteerModule | null> {
   try {
-    const puppeteerModule = await import("puppeteer-core");
-    return (puppeteerModule as unknown as PuppeteerModule).default ??
-      (puppeteerModule as unknown as PuppeteerModule);
-  } catch {
-    try {
-      const puppeteerModule = await import("puppeteer");
-      return (puppeteerModule as unknown as PuppeteerModule).default ??
-        (puppeteerModule as unknown as PuppeteerModule);
-    } catch (error) {
-      console.warn("[blog] Failed to load Puppeteer or Puppeteer-core", error);
-      return null;
+    const puppeteerModule = (await import("puppeteer-core")) as unknown as
+      | PuppeteerModule
+      | ({ default: PuppeteerModule } & Record<string, unknown>);
+
+    if (
+      typeof puppeteerModule === "object" &&
+      puppeteerModule !== null &&
+      "default" in puppeteerModule &&
+      puppeteerModule.default
+    ) {
+      return puppeteerModule.default;
     }
+
+    return puppeteerModule as PuppeteerModule;
+  } catch (error) {
+    console.warn(
+      "[blog] Puppeteer-core is not available; headless scraping disabled.",
+      error
+    );
+    return null;
   }
 }
 
-async function resolveLaunchOptions(): Promise<
-  Parameters<PuppeteerModule["launch"]>[0]
-> {
+async function resolveLaunchOptions(): Promise<Record<string, unknown>> {
   const baseArgs = [
     "--no-sandbox",
     "--disable-setuid-sandbox",
@@ -212,9 +222,8 @@ async function resolveLaunchOptions(): Promise<
 
     return {
       args: baseArgs,
-      headless: "new",
+      headless: true,
       executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
     };
   }
 }
-

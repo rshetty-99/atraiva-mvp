@@ -58,6 +58,7 @@ import {
   ChevronsRight,
   CheckCircle2,
   Send,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Post, PostStatus } from "@/types/blog";
@@ -80,7 +81,7 @@ export default function BlogManagementPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(6);
 
   // Check permissions
   useEffect(() => {
@@ -278,12 +279,44 @@ export default function BlogManagementPage() {
     }
   };
 
+  const handleMarkUpdated = async (post: Post) => {
+    try {
+      const response = await fetch(`/api/blog/${post.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...post,
+          status: "updated",
+          content: post.content,
+          seo: post.seo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to mark post as updated");
+      }
+
+      toast.success(`"${post.title}" marked as updated.`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error marking post as updated:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to mark post as updated"
+      );
+    }
+  };
+
   const getStatusBadge = (status: PostStatus) => {
     const variants = {
       draft: "secondary",
       review: "default",
       scheduled: "default",
       published: "default",
+      updated: "default",
       archived: "outline",
     } as const;
 
@@ -315,7 +348,10 @@ export default function BlogManagementPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 w-full max-w-full overflow-x-hidden" style={{ marginTop: "140px" }}>
+    <div
+      className="p-4 sm:p-6 space-y-6 w-full max-w-full overflow-x-hidden"
+      style={{ marginTop: "140px" }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -373,6 +409,13 @@ export default function BlogManagementPage() {
                 Published
               </Button>
               <Button
+                variant={statusFilter === "updated" ? "default" : "outline"}
+                onClick={() => setStatusFilter("updated")}
+                size="sm"
+              >
+                Updated
+              </Button>
+              <Button
                 variant={statusFilter === "archived" ? "default" : "outline"}
                 onClick={() => setStatusFilter("archived")}
                 size="sm"
@@ -391,138 +434,154 @@ export default function BlogManagementPage() {
           <CardDescription>Manage all blog posts</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tags</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Views</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedPosts.length === 0 ? (
+          <div className="overflow-x-auto lg:min-h-[420px]">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-muted-foreground py-8"
-                  >
-                    No blog posts found
-                  </TableCell>
+                  <TableHead className="w-16 text-center">Actions</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Tags</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Views</TableHead>
                 </TableRow>
-              ) : (
-                paginatedPosts.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {post.featuredImage && (
-                          <div className="relative w-10 h-10 rounded overflow-hidden">
-                            <Image
-                              src={post.featuredImage}
-                              alt={post.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <div>{post.title}</div>
-                          {post.excerpt && (
-                            <div className="text-xs text-muted-foreground truncate max-w-md">
-                              {post.excerpt}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(post.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1 flex-wrap max-w-xs">
-                        {post.tags.slice(0, 3).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                        {post.tags.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{post.tags.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{post.category || "-"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(post.createdAt)}
-                    </TableCell>
-                    <TableCell>{post.views || 0}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {(post.status === "draft" ||
-                            post.status === "review") && (
-                            <>
-                              <DropdownMenuItem
-                                onClick={() => handleApprove(post)}
-                                className="text-green-600 dark:text-green-400"
-                              >
-                                <CheckCircle2 className="w-4 h-4 mr-2" />
-                                Approve & Publish
-                              </DropdownMenuItem>
-                              {post.status === "draft" && (
-                                <DropdownMenuItem
-                                  onClick={() => handleSendForReview(post)}
-                                >
-                                  <Send className="w-4 h-4 mr-2" />
-                                  Send for Review
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                            </>
-                          )}
-                          <DropdownMenuItem onClick={() => handleEdit(post)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              router.push(`/resources/${post.slug}`)
-                            }
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedPost(post);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              </TableHeader>
+              <TableBody>
+                {paginatedPosts.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground py-8"
+                    >
+                      No blog posts found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  paginatedPosts.map((post) => (
+                    <TableRow key={post.id}>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {(post.status === "draft" ||
+                              post.status === "review") && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => handleApprove(post)}
+                                  className="text-green-600 dark:text-green-400"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  Approve & Publish
+                                </DropdownMenuItem>
+                                {post.status === "draft" && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleSendForReview(post)}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Send for Review
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
+                            {(post.status === "published" ||
+                              post.status === "updated") && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => handleMarkUpdated(post)}
+                                >
+                                  <RefreshCw className="w-4 h-4 mr-2" />
+                                  Mark as Updated
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
+                            <DropdownMenuItem onClick={() => handleEdit(post)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(`/resources/${post.slug}`)
+                              }
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedPost(post);
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(post.status)}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {post.featuredImage && (
+                            <div className="relative w-10 h-10 rounded overflow-hidden">
+                              <Image
+                                src={post.featuredImage}
+                                alt={post.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <div>{post.title}</div>
+                            {post.excerpt && (
+                              <div className="text-xs text-muted-foreground truncate max-w-md">
+                                {post.excerpt}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 flex-wrap max-w-xs">
+                          {post.tags.slice(0, 3).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {post.tags.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{post.tags.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{post.category || "-"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(post.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {post.views || 0}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
           {/* Pagination Controls */}
           {filteredPosts.length > 0 && (
@@ -546,6 +605,7 @@ export default function BlogManagementPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="6">6</SelectItem>
                       <SelectItem value="10">10</SelectItem>
                       <SelectItem value="25">25</SelectItem>
                       <SelectItem value="50">50</SelectItem>

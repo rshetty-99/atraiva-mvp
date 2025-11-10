@@ -45,6 +45,7 @@ export interface PIIElement {
     createdAt: Date;
     updatedAt: Date;
     createdBy?: string;
+    updatedBy?: string;
     source: string;
     importDate?: string;
   };

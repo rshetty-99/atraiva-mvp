@@ -687,6 +687,7 @@ export default function CreateEditBlogPage() {
                     <SelectItem value="review">Review</SelectItem>
                     <SelectItem value="scheduled">Scheduled</SelectItem>
                     <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="updated">Updated</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>

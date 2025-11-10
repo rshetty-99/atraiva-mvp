@@ -34,6 +34,13 @@ import { AuditLog } from "@/lib/firestore/types";
 import { ActivityLogTimeline } from "@/components/activity-log/ActivityLogTimeline";
 import Image from "next/image";
 
+interface MemberOrganization {
+  id: string;
+  name: string;
+  role: string;
+  status?: string;
+}
+
 interface MemberDetails {
   id: string;
   firstName: string;
@@ -41,6 +48,7 @@ interface MemberDetails {
   email: string;
   imageUrl?: string;
   role: string;
+  status: string;
   organizationId: string | null;
   organizationName: string;
   createdAt: Date;
@@ -48,11 +56,12 @@ interface MemberDetails {
   isActive: boolean;
   twoFactorEnabled: boolean;
   phoneNumber?: string;
-  organizations: Array<{
-    id: string;
-    name: string;
-    role: string;
-  }>;
+  department?: string;
+  jobTitle?: string;
+  allowDashboardAccess: boolean;
+  requireMfa: boolean;
+  metadata?: Record<string, unknown>;
+  organizations: MemberOrganization[];
 }
 
 export default function MemberDetailsPage() {
@@ -87,7 +96,41 @@ export default function MemberDetailsPage() {
       }
 
       const data = await response.json();
-      setMember(data);
+
+      const mapped: MemberDetails = {
+        id: data.id,
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        email: data.email || "",
+        imageUrl: data.imageUrl || undefined,
+        role: data.role || "org_viewer",
+        status: data.status || (data.isActive ? "active" : "inactive"),
+        organizationId: data.organizationId ?? null,
+        organizationName: data.organizationName || "No Organization",
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        lastSignInAt: data.lastSignInAt ? new Date(data.lastSignInAt) : null,
+        isActive:
+          typeof data.isActive === "boolean"
+            ? data.isActive
+            : data.status === "active",
+        twoFactorEnabled: data.twoFactorEnabled ?? false,
+        phoneNumber: data.phoneNumber || data.phone || "",
+        department: data.department || "",
+        jobTitle: data.jobTitle || "",
+        allowDashboardAccess: data.allowDashboardAccess ?? true,
+        requireMfa: data.requireMfa ?? false,
+        metadata: data.metadata || {},
+        organizations: Array.isArray(data.organizations)
+          ? data.organizations.map((org: MemberOrganization) => ({
+              id: org.id,
+              name: org.name,
+              role: org.role,
+              status: org.status,
+            }))
+          : [],
+      };
+
+      setMember(mapped);
     } catch (error: unknown) {
       console.error("Error fetching member:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to load member details";
@@ -161,6 +204,26 @@ export default function MemberDetailsPage() {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
+
+const getStatusBadgeClasses = (status: string) => {
+  switch (status) {
+    case "active":
+      return "bg-green-500/10 text-green-500 border-green-500/20";
+    case "invited":
+    case "pending":
+      return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+    case "suspended":
+    case "inactive":
+      return "bg-red-500/10 text-red-500 border-red-500/20";
+    case "updated":
+      return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    default:
+      return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+  }
+};
+
+const formatStatus = (status: string) =>
+  status.replace(/_/g, " ").toUpperCase();
 
   if (isLoading) {
     return (
@@ -272,13 +335,9 @@ export default function MemberDetailsPage() {
                 <p className="text-sm text-muted-foreground">Status</p>
                 <Badge
                   variant="outline"
-                  className={`mt-2 ${
-                    member.isActive
-                      ? "bg-green-500/10 text-green-500 border-green-500/20"
-                      : "bg-gray-500/10 text-gray-500 border-gray-500/20"
-                  }`}
+                  className={`mt-2 ${getStatusBadgeClasses(member.status)}`}
                 >
-                  {member.isActive ? "ACTIVE" : "INACTIVE"}
+                  {formatStatus(member.status)}
                 </Badge>
               </div>
             </div>
@@ -363,6 +422,22 @@ export default function MemberDetailsPage() {
                       </span>
                     </div>
                   )}
+                  {member.jobTitle && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Job Title:</span>
+                      <span className="font-medium text-foreground">
+                        {member.jobTitle}
+                      </span>
+                    </div>
+                  )}
+                  {member.department && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Department:</span>
+                      <span className="font-medium text-foreground">
+                        {member.department}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -399,18 +474,23 @@ export default function MemberDetailsPage() {
                     <span className="text-muted-foreground">Status:</span>
                     <Badge
                       variant="outline"
-                      className={
-                        member.isActive
-                          ? "bg-green-500/10 text-green-500 border-green-500/20"
-                          : "bg-gray-500/10 text-gray-500 border-gray-500/20"
-                      }
+                      className={getStatusBadgeClasses(member.status)}
                     >
-                      {member.isActive ? "ACTIVE" : "INACTIVE"}
+                      {formatStatus(member.status)}
                     </Badge>
                   </div>
                 </div>
               </div>
             </div>
+
+            {member.metadata && Object.keys(member.metadata).length > 0 && (
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-4">Member Metadata</h3>
+                <pre className="bg-muted/50 rounded-lg p-4 text-xs overflow-x-auto text-muted-foreground">
+                  {JSON.stringify(member.metadata, null, 2)}
+                </pre>
+              </div>
+            )}
           </TabsContent>
 
           {/* Organizations Tab */}
@@ -430,6 +510,9 @@ export default function MemberDetailsPage() {
                     <TableHead className="text-foreground font-semibold">
                       Role
                     </TableHead>
+                    <TableHead className="text-foreground font-semibold">
+                      Status
+                    </TableHead>
                     <TableHead className="text-foreground font-semibold text-right">
                       Actions
                     </TableHead>
@@ -440,7 +523,7 @@ export default function MemberDetailsPage() {
                   member.organizations.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={3}
+                        colSpan={4}
                         className="text-center py-12 text-muted-foreground"
                       >
                         <Building2 className="h-12 w-12 mx-auto mb-4 opacity-20" />
@@ -473,6 +556,18 @@ export default function MemberDetailsPage() {
                           >
                             {getRoleDisplayName(org.role)}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {org.status ? (
+                            <Badge
+                              variant="outline"
+                              className={getStatusBadgeClasses(org.status)}
+                            >
+                              {formatStatus(org.status)}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">N/A</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -526,8 +621,7 @@ export default function MemberDetailsPage() {
                       Account Status
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Current account state:{" "}
-                      {member.isActive ? "Active" : "Inactive"}
+                      Current account state: {formatStatus(member.status)}
                     </p>
                   </div>
                 </div>
@@ -558,6 +652,56 @@ export default function MemberDetailsPage() {
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Status: {member.twoFactorEnabled ? "Enabled" : "Disabled"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dashboard Access */}
+                <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
+                  <div
+                    className={`p-2 rounded-lg ${
+                      member.allowDashboardAccess
+                        ? "bg-blue-500/10"
+                        : "bg-gray-500/10"
+                    }`}
+                  >
+                    <Users
+                      className={`h-5 w-5 ${
+                        member.allowDashboardAccess
+                          ? "text-blue-500"
+                          : "text-gray-500"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Dashboard Access</p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.allowDashboardAccess
+                        ? "Member can access the organizational dashboard."
+                        : "Dashboard access is currently disabled for this member."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* MFA Requirement */}
+                <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
+                  <div
+                    className={`p-2 rounded-lg ${
+                      member.requireMfa ? "bg-purple-500/10" : "bg-gray-500/10"
+                    }`}
+                  >
+                    <Shield
+                      className={`h-5 w-5 ${
+                        member.requireMfa ? "text-purple-500" : "text-gray-500"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">MFA Requirement</p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.requireMfa
+                        ? "Multi-factor authentication is enforced for this member."
+                        : "MFA is not required for this member."}
                     </p>
                   </div>
                 </div>

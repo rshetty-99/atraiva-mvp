@@ -36,6 +36,18 @@ import {
 import { Organization } from "@/lib/firestore/types";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import {
+  organizationFormSchema,
+  OrganizationFormValues,
+} from "@/lib/validators/organization";
+import { OrganizationForm } from "@/components/admin/OrganizationForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface EnrichedOrganization extends Organization {
   clerkName?: string;
@@ -69,6 +81,8 @@ export default function OrganizationPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
@@ -138,6 +152,45 @@ export default function OrganizationPage() {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateOrganization = async (
+    values: OrganizationFormValues
+  ) => {
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("/api/admin/organizations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details ||
+            errorData.error ||
+            "Failed to create organization"
+        );
+      }
+
+      const data = await response.json();
+      toast.success("Organization created successfully");
+      setIsCreateOpen(false);
+      await fetchOrganizations();
+      if (data?.organization?.id) {
+        router.push(`/admin/organization/${data.organization.id}`);
+      }
+    } catch (error: unknown) {
+      console.error("Error creating organization:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create organization";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -269,13 +322,32 @@ export default function OrganizationPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button>
+              <Button onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Organization
               </Button>
             </div>
           </div>
         </div>
+
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Add Organization</DialogTitle>
+              <DialogDescription>
+                Create a new organization and assign platform resources.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[70vh] overflow-y-auto pr-2">
+              <OrganizationForm
+                onSubmit={handleCreateOrganization}
+                isSubmitting={isSubmitting}
+                showStatusField
+                showPlanField
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

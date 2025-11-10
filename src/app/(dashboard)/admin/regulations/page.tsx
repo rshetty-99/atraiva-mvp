@@ -26,7 +26,6 @@ import {
   Flag,
   MapPin,
   ShieldCheck,
-  Users,
   Bookmark,
   ArrowRight,
 } from "lucide-react";

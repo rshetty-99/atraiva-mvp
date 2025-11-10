@@ -1,26 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -29,331 +10,537 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { UserPlus, Trash2, ExternalLink } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MemberForm } from "@/components/admin/MemberForm";
+import {
+  MemberFormValues,
+  OrganizationOption,
+  RoleOption,
+} from "@/lib/validators/member";
+import { toast } from "sonner";
+import { Loader2, Shield, UserPlus } from "lucide-react";
+import { format } from "date-fns";
 
-// Define the form schema
-const addUserSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters long",
-  }),
-  role: z.enum(["User", "Admin"], {
-    required_error: "Please select a role",
-  }),
-});
-
-type AddUserFormValues = z.infer<typeof addUserSchema>;
-
-// Mock user data
-interface User {
+type OrgMember = {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  addedDate: string;
-  role: "Admin" | "User";
-}
+  role: string;
+  status: string;
+  organizationId?: string | null;
+  organizationName?: string | null;
+  createdAt?: string | Date;
+  lastSignInAt?: string | Date | null;
+  phone?: string;
+  allowDashboardAccess?: boolean;
+  requireMfa?: boolean;
+};
 
-const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "sandra.p@clientcorp.com",
-    addedDate: "May 12, 2025",
-    role: "Admin",
-  },
+const roleOptions: RoleOption[] = [
+  { value: "org_admin", label: "Organization Admin" },
+  { value: "org_manager", label: "Organization Manager" },
+  { value: "org_user", label: "Organization User" },
+  { value: "org_viewer", label: "Organization Viewer" },
 ];
 
-export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const INVITED_STATUSES = new Set(["invited", "pending"]);
 
-  const userLimit = 5;
-  const currentUserCount = users.length + 1; // +1 for the logged-in user
-  const usagePercentage = (currentUserCount / userLimit) * 100;
+const statusBadge = (status: string) => {
+  switch (status) {
+    case "active":
+      return "bg-green-500/10 text-green-500 border-green-500/20";
+    case "invited":
+    case "pending":
+      return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+    case "updated":
+      return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    case "suspended":
+    case "inactive":
+      return "bg-red-500/10 text-red-500 border-red-500/20";
+    default:
+      return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+  }
+};
 
-  const form = useForm<AddUserFormValues>({
-    resolver: zodResolver(addUserSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      role: "User",
-    },
-  });
+export default function OrgUsersPage() {
+  const [members, setMembers] = useState<OrgMember[]>([]);
+  const [stats, setStats] = useState<{
+    total: number;
+    active: number;
+    invited: number;
+    admins: number;
+  }>({ total: 0, active: 0, invited: 0, admins: 0 });
+  const [organizationOption, setOrganizationOption] = useState<
+    OrganizationOption | undefined
+  >(undefined);
+  const [loading, setLoading] = useState(true);
+  const [dialogState, setDialogState] = useState<{
+    mode: "create" | "edit";
+    open: boolean;
+    member?: OrgMember | null;
+  }>({ mode: "create", open: false, member: null });
+  const [deleteState, setDeleteState] = useState<{
+    open: boolean;
+    member: OrgMember | null;
+    submitting: boolean;
+  }>({ open: false, member: null, submitting: false });
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = async (data: AddUserFormValues) => {
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const newUser: User = {
-      id: (users.length + 2).toString(),
-      email: data.email,
-      addedDate: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      role: data.role,
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      try {
+        const response = await fetch("/api/org/organization");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.organization) {
+          setOrganizationOption({
+            value: data.organization.id,
+            label: data.organization.name,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching organization:", error);
+      }
     };
 
-    setUsers([...users, newUser]);
-    setIsDialogOpen(false);
-    form.reset();
-    setIsSubmitting(false);
+    const fetchMembers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/org/members");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to load members");
+        }
+        const data = await response.json();
+        setMembers(data.members || []);
+        setStats(data.stats || { total: 0, active: 0, invited: 0, admins: 0 });
+      } catch (error) {
+        console.error("Error fetching members:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to load members"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrganization();
+    fetchMembers();
+  }, []);
+
+  const organizationOptions = useMemo(
+    () => (organizationOption ? [organizationOption] : []),
+    [organizationOption]
+  );
+
+  const closeDialog = () =>
+    setDialogState((state) => ({ ...state, open: false, member: null }));
+
+  const refreshMembers = async () => {
+    try {
+      const response = await fetch("/api/org/members");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to load members");
+      }
+      const data = await response.json();
+      setMembers(data.members || []);
+      setStats(data.stats || { total: 0, active: 0, invited: 0, admins: 0 });
+    } catch (error) {
+      console.error("Error refreshing members:", error);
+    }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter((user) => user.id !== userId));
+  const handleSubmit = async (values: MemberFormValues) => {
+    try {
+      setSubmitting(true);
+      const method = dialogState.mode === "create" ? "POST" : "PUT";
+      const endpoint =
+        dialogState.mode === "create"
+          ? "/api/org/members"
+          : `/api/org/members/${dialogState.member?.id}`;
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save member");
+      }
+
+      toast.success(
+        dialogState.mode === "create"
+          ? "Invitation sent"
+          : "Member updated successfully"
+      );
+      closeDialog();
+      await refreshMembers();
+    } catch (error) {
+      console.error("Error saving member:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save member"
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleViewLog = (userId: string) => {
-    console.log("View activity log for user:", userId);
-    // Implement activity log viewing logic
+  const handleDelete = async () => {
+    if (!deleteState.member) return;
+    try {
+      setDeleteState((state) => ({ ...state, submitting: true }));
+      const response = await fetch(
+        `/api/org/members/${deleteState.member.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to remove member");
+      }
+      toast.success("Member removed");
+      setDeleteState({ open: false, member: null, submitting: false });
+      await refreshMembers();
+    } catch (error) {
+      console.error("Error removing member:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove member"
+      );
+      setDeleteState((state) => ({ ...state, submitting: false }));
+    }
   };
+
+  const handleResend = async (member: OrgMember) => {
+    try {
+      setResendingId(member.id);
+      const response = await fetch(`/api/org/members/${member.id}/resend`, {
+        method: "POST",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to resend invitation");
+      }
+      toast.success(`Invitation resent to ${member.email}`);
+    } catch (error) {
+      console.error("Error resending invitation:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to resend invitation"
+      );
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  const selectedMemberDefaults =
+    dialogState.member && dialogState.mode === "edit"
+      ? ({
+          firstName: dialogState.member.firstName,
+          lastName: dialogState.member.lastName,
+          email: dialogState.member.email,
+          role: dialogState.member.role,
+          status: dialogState.member.status,
+          organizationId: dialogState.member.organizationId || "",
+          department: "",
+          jobTitle: "",
+          phone: dialogState.member.phone || "",
+          metadata: "",
+          sendInvite: false,
+          requireMfa: dialogState.member.requireMfa ?? false,
+          allowDashboardAccess:
+            dialogState.member.allowDashboardAccess ?? true,
+        } as MemberFormValues)
+      : undefined;
 
   return (
     <div
-      className="w-full min-h-[calc(100vh-140px)] p-8"
+      className="w-full min-h-[calc(100vh-140px)] p-4 sm:p-6 md:p-8"
       style={{ marginTop: "140px" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="space-y-6"
       >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-foreground">
-            User Management
-          </h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="lg"
-                disabled={currentUserCount >= userLimit}
-                className="gap-2"
-              >
-                <UserPlus className="h-5 w-5" />
-                Add User
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add a New User</DialogTitle>
-                <DialogDescription>
-                  Create a new user account and assign their role.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>User ID (Email)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="user@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="User">
-                              User (Read Only)
-                            </SelectItem>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter className="gap-2 sm:gap-0">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Adding..." : "Add User"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-semibold text-foreground">
+              Organization Members
+            </h1>
+            <p className="text-muted-foreground">
+              Invite, manage, and monitor members of your organization.
+            </p>
+          </div>
+          <Button
+            onClick={() =>
+              setDialogState({ mode: "create", open: true, member: null })
+            }
+            className="gap-2"
+            disabled={!organizationOption}
+          >
+            <UserPlus className="h-4 w-4" />
+            Invite Member
+          </Button>
         </div>
 
-        {/* User Seats Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>User Seats</CardTitle>
-              <CardDescription>
-                {currentUserCount} of {userLimit} user seats used
-              </CardDescription>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Members
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Progress value={usagePercentage} className="h-3" />
+            <CardContent className="text-2xl font-bold">
+              {stats.total}
             </CardContent>
           </Card>
-        </motion.div>
-
-        {/* Current Users Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
           <Card>
-            <CardHeader>
-              <CardTitle>Current Users</CardTitle>
-              <CardDescription>
-                Manage your organization&apos;s users and their roles
-              </CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Active
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
+            <CardContent className="text-2xl font-bold text-green-500">
+              {stats.active}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Pending Invites
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold text-blue-500">
+              {stats.invited}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Admins
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold text-orange-500">
+              {stats.admins}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-border flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">
+              Team Members
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Last Sign In</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
                   <TableRow>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Added Date</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Activity Log</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableCell colSpan={5} className="py-12 text-center">
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <p>Loading organization members…</p>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <AnimatePresence mode="popLayout">
-                    {users.map((user) => (
-                      <motion.tr
-                        key={user.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        transition={{ duration: 0.3 }}
-                        className="border-b transition-colors hover:bg-muted/50"
-                      >
-                        <TableCell className="font-medium">
-                          {user.email}
-                        </TableCell>
-                        <TableCell>{user.addedDate}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              user.role === "Admin" ? "default" : "secondary"
+                ) : members.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-12 text-center">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Shield className="h-8 w-8" />
+                        <p>No members yet. Invite teammates to collaborate.</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  members.map((member) => (
+                    <TableRow key={member.id} className="border-border">
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-foreground">
+                            {member.firstName} {member.lastName}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {member.email}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={statusBadge(member.status)}
+                        >
+                          {member.status.replace(/_/g, " ").toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{member.role.replace("org_", "")}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {member.lastSignInAt
+                          ? format(new Date(member.lastSignInAt), "MMM dd, yyyy")
+                          : "Never"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {INVITED_STATUSES.has(member.status) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={resendingId === member.id}
+                              onClick={() => handleResend(member)}
+                            >
+                              {resendingId === member.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Resend Invite"
+                              )}
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setDialogState({
+                                mode: "edit",
+                                open: true,
+                                member,
+                              })
                             }
                           >
-                            {user.role}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            className="h-auto p-0 text-primary"
-                            onClick={() => handleViewLog(user.id)}
-                          >
-                            <span className="flex items-center gap-1">
-                              View Log
-                              <ExternalLink className="h-3 w-3" />
-                            </span>
+                            Edit
                           </Button>
-                        </TableCell>
-                        <TableCell className="text-right">
                           <Button
                             variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDeleteUser(user.id)}
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() =>
+                              setDeleteState({
+                                open: true,
+                                member,
+                                submitting: false,
+                              })
+                            }
                           >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete user</span>
+                            Remove
                           </Button>
-                        </TableCell>
-                      </motion.tr>
-                    ))}
-                  </AnimatePresence>
-                </TableBody>
-              </Table>
-              {users.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-muted-foreground">
-                    No users added yet. Click &quot;Add User&quot; to get
-                    started.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </motion.div>
+
+      <Dialog
+        open={dialogState.open}
+        onOpenChange={(open) =>
+          setDialogState((state) => ({ ...state, open }))
+        }
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogState.mode === "create"
+                ? "Invite Member"
+                : "Update Member"}
+            </DialogTitle>
+          </DialogHeader>
+          <MemberForm
+            defaultValues={selectedMemberDefaults}
+            onSubmit={handleSubmit}
+            onCancel={closeDialog}
+            isSubmitting={submitting}
+            mode={dialogState.mode}
+            roleOptions={roleOptions}
+            organizationOptions={organizationOptions}
+            requireOrganization
+            allowMetadata={false}
+            showStatusField={dialogState.mode === "edit"}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={deleteState.open}
+        onOpenChange={(open) =>
+          setDeleteState((state) => ({
+            ...state,
+            open,
+            member: open ? state.member : null,
+            submitting: open ? state.submitting : false,
+          }))
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove member</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will revoke access for{" "}
+              <span className="font-medium">
+                {deleteState.member?.firstName} {deleteState.member?.lastName}
+              </span>
+              . They can be invited again later if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteState.submitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteState.submitting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteState.submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Remove"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+

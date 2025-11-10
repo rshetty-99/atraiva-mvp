@@ -504,6 +504,51 @@ export interface RegulationPenalty {
   description: string;
 }
 
+export type SupportTicketStatus =
+  | "open"
+  | "in_progress"
+  | "awaiting_customer"
+  | "resolved"
+  | "closed";
+
+export type SupportTicketPriority = "low" | "medium" | "high" | "urgent";
+
+export interface SupportTicketMessage {
+  id: string;
+  ticketId: string;
+  authorId: string;
+  authorName: string;
+  authorEmail?: string;
+  message: string;
+  createdAt: Date;
+  internal?: boolean;
+}
+
+export interface SupportTicket {
+  id: string;
+  organizationId: string;
+  organizationName?: string;
+  subject: string;
+  description: string;
+  priority: SupportTicketPriority;
+  status: SupportTicketStatus;
+  createdById: string;
+  createdByName: string;
+  createdByEmail?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastActivityAt: Date;
+  assignedToId?: string;
+  assignedToName?: string;
+  assignedToEmail?: string;
+  tags?: string[];
+  isEscalated?: boolean;
+  latestMessageSnippet?: string;
+  attachmentUrls?: string[];
+  resolutionSummary?: string;
+  messageCount?: number;
+}
+
 // Registration Link for new organization onboarding
 export interface RegistrationLink {
   id: string;

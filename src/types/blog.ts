@@ -4,6 +4,7 @@ export type PostStatus =
   | "review"
   | "scheduled"
   | "published"
+  | "updated"
   | "archived";
 export type TwitterCard = "summary" | "summary_large_image";
 

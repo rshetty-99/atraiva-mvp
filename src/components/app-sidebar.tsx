@@ -77,10 +77,15 @@ export function AppSidebar({
     })) || [];
 
   // Secondary navigation - common support items for all roles
+  const supportUrl =
+    userRole === "super_admin" || userRole === "platform_admin"
+      ? "/admin/support"
+      : "/org/support";
+
   const navSecondary = [
     {
       title: "Support",
-      url: "/support",
+      url: supportUrl,
       icon: LifeBuoy,
     },
     {

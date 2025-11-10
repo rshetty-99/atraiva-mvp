@@ -6,13 +6,21 @@ import {
   getDocs,
   doc,
   setDoc,
-  serverTimestamp,
   query,
   where,
+  serverTimestamp,
 } from "firebase/firestore";
 import { ActivityLogService } from "@/lib/activity-log-service";
+import { ensureEmailIsValid } from "@/lib/arcjet";
+import { organizationFormSchema } from "@/lib/validators/organization";
+import {
+  normalizeFirestoreOrganization,
+  mapOrganizationResponse,
+  buildClerkOrganizationMetadata,
+  buildFirestoreOrganizationPayload,
+  parseOrganizationMetadata,
+} from "@/lib/organization-utils";
 
-// Type for Clerk metadata
 type ClerkOrgMeta = { primaryOrganization?: { role?: string } };
 
 export async function GET() {
@@ -23,15 +31,11 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from Clerk to check role
     const client = await clerkClient();
     const user = await client.users.getUser(authData.userId);
-
-    // Get role from the correct metadata location
     const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
     const userRole = metadata.primaryOrganization?.role ?? "";
 
-    // Only platform_admin and super_admin can access this
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
       return NextResponse.json(
         {
@@ -44,47 +48,24 @@ export async function GET() {
       );
     }
 
-    // Get all organizations from Firestore
-    const organizationsRef = collection(db, "organizations");
-    const organizationsSnapshot = await getDocs(organizationsRef);
+    const organizationsSnapshot = await getDocs(
+      collection(db, "organizations")
+    );
+    const firestoreOrgs = organizationsSnapshot.docs.map((snapshot) =>
+      normalizeFirestoreOrganization(snapshot.id, snapshot.data())
+    );
 
-    const firestoreOrgs = organizationsSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        name: data.name || "",
-        industry: data.industry || "",
-        size: data.size || "small",
-        country: data.country || "",
-        state: data.state || "",
-        applicableRegulations: data.applicableRegulations || [],
-        subscriptionPlan: data.subscriptionPlan || "free",
-        subscriptionStatus: data.subscriptionStatus || "active",
-        createdAt: data.createdAt?.toDate?.() || new Date(),
-        updatedAt: data.updatedAt?.toDate?.() || new Date(),
-      };
-    });
-
-    // Get Clerk organizations to enrich data
     const clerkOrgsResponse = await client.organizations.getOrganizationList({
       limit: 100,
     });
+    const clerkOrgMap = new Map(
+      clerkOrgsResponse.data.map((org) => [org.id, org])
+    );
 
-    // Merge Firestore and Clerk data
-    const enrichedOrgs = firestoreOrgs.map((org) => {
-      const clerkOrg = clerkOrgsResponse.data.find((co) => co.id === org.id);
-      return {
-        ...org,
-        clerkName: clerkOrg?.name || org.name,
-        clerkSlug: clerkOrg?.slug || "",
-        membersCount: clerkOrg?.membersCount || 0,
-        imageUrl: clerkOrg?.imageUrl || "",
-      };
-    });
+    const enrichedOrgs = firestoreOrgs.map((org) =>
+      mapOrganizationResponse(org, clerkOrgMap.get(org.id) || undefined)
+    );
 
-    // Get registration links for onboarding count
-    // Include both "pending" (not sent) and "sent" (email sent but not completed)
-    // Exclude "used" (completed), "expired", and "cancelled"
     const registrationLinksRef = collection(db, "registrationLinks");
     const onboardingQuery = query(
       registrationLinksRef,
@@ -92,19 +73,12 @@ export async function GET() {
       where("paymentStatus", "==", "completed")
     );
     const onboardingSnapshot = await getDocs(onboardingQuery);
-    const onboardingCount = onboardingSnapshot.size;
 
-    // Calculate stats
     const stats = {
       total: enrichedOrgs.length,
-      active: enrichedOrgs.filter((org) => org.subscriptionStatus === "active")
-        .length,
-      onboarding: onboardingCount,
-      expired: enrichedOrgs.filter(
-        (org) =>
-          org.subscriptionStatus === "canceled" ||
-          org.subscriptionStatus === "past_due"
-      ).length,
+      active: enrichedOrgs.filter((org) => org.status === "active").length,
+      onboarding: onboardingSnapshot.size,
+      expired: enrichedOrgs.filter((org) => org.status === "inactive").length,
     };
 
     return NextResponse.json({
@@ -129,15 +103,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from Clerk to check role
     const client = await clerkClient();
     const user = await client.users.getUser(authData.userId);
-
-    // Get role from the correct metadata location
     const metadata = (user.publicMetadata?.atraiva ?? {}) as ClerkOrgMeta;
     const userRole = metadata.primaryOrganization?.role ?? "";
 
-    // Only platform_admin and super_admin can create organizations
     if (userRole !== "platform_admin" && userRole !== "super_admin") {
       return NextResponse.json(
         {
@@ -151,33 +121,77 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const parsed = organizationFormSchema.safeParse(body);
 
-    // Create organization in Clerk first
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          details: parsed.error.flatten(),
+        },
+        { status: 400 }
+      );
+    }
+
+    const values = parsed.data;
+
+    try {
+      const arcjetRequest = new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+      });
+      await ensureEmailIsValid(arcjetRequest, values.primaryEmail);
+    } catch (validationError) {
+      const status =
+        (validationError as { status?: number } | undefined)?.status ?? 400;
+      return NextResponse.json(
+        {
+          error: "Invalid organization email",
+          details: (validationError as Error).message,
+        },
+        { status }
+      );
+    }
+    let parsedMetadata: Record<string, unknown> | null = null;
+    try {
+      parsedMetadata = parseOrganizationMetadata(values.metadata);
+    } catch (metadataError) {
+      return NextResponse.json(
+        {
+          error: "Invalid metadata",
+          details:
+            metadataError instanceof Error
+              ? metadataError.message
+              : "Metadata must be valid JSON",
+        },
+        { status: 400 }
+      );
+    }
+
     const clerkOrg = await client.organizations.createOrganization({
-      name: body.name,
-      slug: body.slug,
+      name: values.name,
+      slug: values.slug,
     });
 
-    // Create organization in Firestore
-    const orgRef = doc(db, "organizations", clerkOrg.id);
+    await client.organizations.updateOrganization(clerkOrg.id, {
+      name: values.name,
+      slug: values.slug,
+      publicMetadata: buildClerkOrganizationMetadata(values, parsedMetadata),
+    });
 
-    await setDoc(orgRef, {
-      name: body.name,
-      industry: body.industry || "",
-      size: body.size || "small",
-      country: body.country || "",
-      state: body.state || "",
-      applicableRegulations: body.applicableRegulations || [],
-      subscriptionPlan: body.subscriptionPlan || "free",
-      subscriptionStatus: body.subscriptionStatus || "trialing",
+    const firestorePayload = buildFirestoreOrganizationPayload(
+      values,
+      parsedMetadata
+    );
+
+    await setDoc(doc(db, "organizations", clerkOrg.id), {
+      ...firestorePayload,
       createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
     });
 
-    // Log organization creation activity
     await ActivityLogService.logOrganizationCreated({
       organizationId: clerkOrg.id,
-      organizationName: body.name,
+      organizationName: values.name,
       userId: authData.userId,
       userName:
         `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
@@ -185,17 +199,31 @@ export async function POST(request: NextRequest) {
         "Unknown",
       userEmail: user.emailAddresses[0]?.emailAddress || "",
       metadata: {
-        industry: body.industry,
-        size: body.size,
-        country: body.country,
-        subscriptionPlan: body.subscriptionPlan,
-        subscriptionStatus: body.subscriptionStatus,
+        plan: values.plan,
+        status: values.status,
+        timezone: values.timezone,
+        industry: values.industry,
+        notifyOnIncidents: values.notifyOnIncidents,
+        requireMfa: values.requireMfa,
+        shareReports: values.shareReports,
       },
     });
 
+    const normalizedOrg = normalizeFirestoreOrganization(clerkOrg.id, {
+      ...firestorePayload,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const clerkDetails = await client.organizations.getOrganization({
+      organizationId: clerkOrg.id,
+    });
+
+    const responseOrg = mapOrganizationResponse(normalizedOrg, clerkDetails);
+
     return NextResponse.json({
       success: true,
-      organizationId: clerkOrg.id,
+      organization: responseOrg,
     });
   } catch (error) {
     console.error("Error creating organization:", error);

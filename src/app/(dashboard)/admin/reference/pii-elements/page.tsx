@@ -7,7 +7,9 @@ import {
   query,
   getDocs,
   orderBy,
-  Timestamp,
+  doc,
+  serverTimestamp,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
@@ -52,6 +54,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Shield,
   Search,
   Filter,
@@ -63,50 +75,24 @@ import {
   AlertCircle,
   FileText,
   TrendingUp,
-  Tag,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Plus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
-// All PII Categories
-const ALL_CATEGORIES: PIICategory[] = [
-  "Core Identifiers",
-  "Government-Issued Numbers",
-  "Financial & Payment",
-  "Health & Genetic",
-  "Biometric Identifiers",
-  "Digital & Device IDs",
-  "Login & Security Credentials",
-  "Location & Vehicle",
-  "Personal Characteristics & Demographics",
-  "Civic, Political & Legal",
-  "Education & Employment",
-  "Media & Communications",
-  "Household & Utility",
-  "Miscellaneous Unique Identifiers",
-];
-
-// All Risk Levels
-const ALL_RISK_LEVELS: RiskLevel[] = ["low", "medium", "high", "critical"];
-
-// All Regulations
-const ALL_REGULATIONS: Regulation[] = [
-  "GDPR",
-  "CCPA",
-  "HIPAA",
-  "GLBA",
-  "FERPA",
-  "BIPA",
-  "GINA",
-  "PCI-DSS",
-  "TCPA",
-  "State Laws",
-];
+import {
+  ALL_RISK_LEVELS,
+  serializeElementForAudit,
+  mapFirestoreDocToPIIElement,
+} from "./form-utils";
 
 // Page size options
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 200];
@@ -128,6 +114,8 @@ export default function PIIElementsPage() {
     "element"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [elementToDelete, setElementToDelete] = useState<PIIElement | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -302,43 +290,25 @@ export default function PIIElementsPage() {
       const q = query(elementsRef, orderBy("element", "asc"));
       const querySnapshot = await getDocs(q);
 
-      const fetchedElements: PIIElement[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        fetchedElements.push({
-          id: doc.id,
-          element: data.element,
-          category: data.category as PIICategory,
-          categorySlug: data.categorySlug,
-          description: data.description,
-          riskLevel: data.riskLevel as RiskLevel,
-          isRegulated: data.isRegulated,
-          applicableRegulations: data.applicableRegulations as Regulation[],
-          detectionPatterns: data.detectionPatterns || [],
-          examples: data.examples || [],
-          metadata: {
-            createdAt: data.metadata?.createdAt?.toDate
-              ? data.metadata.createdAt.toDate()
-              : new Date(),
-            updatedAt: data.metadata?.updatedAt?.toDate
-              ? data.metadata.updatedAt.toDate()
-              : new Date(),
-            createdBy: data.metadata?.createdBy,
-            source: data.metadata?.source || "PII_elements.xlsx",
-            importDate: data.metadata?.importDate,
-          },
-        } as PIIElement);
-      });
+      const fetchedElements: PIIElement[] = querySnapshot.docs.map(
+        (docSnapshot) =>
+          mapFirestoreDocToPIIElement(
+            docSnapshot.id,
+            docSnapshot.data() as Record<string, unknown>
+          )
+      );
 
       setPiiElements(fetchedElements);
 
       // Calculate dynamic filter options
       const categories = Array.from(
         new Set(fetchedElements.map((e) => e.category))
-      );
+      ).sort((a, b) => a.localeCompare(b));
       const regulations = Array.from(
-        new Set(fetchedElements.flatMap((e) => e.applicableRegulations))
-      );
+        new Set(
+          fetchedElements.flatMap((e) => e.applicableRegulations)
+        )
+      ).sort((a, b) => a.localeCompare(b));
 
       setUniqueCategories(categories);
       setUniqueRegulations(regulations);
@@ -384,11 +354,70 @@ export default function PIIElementsPage() {
         });
       } else {
         toast.error("Failed to fetch PII elements", {
-          description: error.message || "An unknown error occurred.",
+          description:
+            error instanceof Error ? error.message : "An unknown error occurred.",
         });
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const router = useRouter();
+
+  const handleOpenCreateDialog = () => {
+    router.push("/admin/reference/pii-elements/create");
+  };
+
+  const handleOpenEditDialog = (element: PIIElement) => {
+    router.push(`/admin/reference/pii-elements/${element.id}/edit`);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!user?.id || !elementToDelete) {
+      toast.error("Select a PII element to delete.");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const elementDocRef = doc(db, "ref_pii_elements", elementToDelete.id);
+      await runTransaction(db, async (transaction) => {
+        const snapshot = await transaction.get(elementDocRef);
+        if (!snapshot.exists()) {
+          throw new Error("PII element not found or already deleted.");
+        }
+
+        const previousElement = mapFirestoreDocToPIIElement(
+          snapshot.id,
+          snapshot.data() as Record<string, unknown>
+        );
+
+        transaction.delete(elementDocRef);
+
+        const auditDocRef = doc(collection(db, "audit_pii_elements"));
+        transaction.set(auditDocRef, {
+          action: "delete",
+          piiElementId: elementDocRef.id,
+          userId: user.id,
+          timestamp: serverTimestamp(),
+          previousData: serializeElementForAudit(previousElement),
+          newData: null,
+        });
+      });
+
+      toast.success("PII element deleted successfully");
+      setElementToDelete(null);
+      await fetchPIIElements();
+    } catch (error: unknown) {
+      console.error("Error deleting PII element:", error);
+      const description =
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred while deleting the element.";
+      toast.error("Failed to delete PII element", { description });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -601,8 +630,16 @@ export default function PIIElementsPage() {
             Manage and monitor Personally Identifiable Information elements
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={exportToCSV}>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={handleOpenCreateDialog}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Element
+          </Button>
+          <Button
+            variant="outline"
+            onClick={exportToCSV}
+            disabled={filteredElements.length === 0}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
@@ -897,14 +934,33 @@ export default function PIIElementsPage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewElement(element)}
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewElement(element)}
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenEditDialog(element)}
+                              title="Edit Element"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setElementToDelete(element)}
+                              title="Delete Element"
+                              className="text-destructive hover:text-destructive focus-visible:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -994,6 +1050,58 @@ export default function PIIElementsPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Delete Confirmation */}
+      <AlertDialog
+        open={!!elementToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setElementToDelete(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete PII Element</AlertDialogTitle>
+            <AlertDialogDescription>
+              {elementToDelete ? (
+                <>
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold">
+                    {elementToDelete.element}
+                  </span>
+                  ? This action cannot be undone and will be recorded in the audit
+                  log.
+                </>
+              ) : (
+                "This action cannot be undone."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* PII Element Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -1174,6 +1282,16 @@ export default function PIIElementsPage() {
                       </label>
                       <p className="text-sm">
                         {selectedElement.metadata.createdBy}
+                      </p>
+                    </div>
+                  )}
+                  {selectedElement.metadata?.updatedBy && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Last Updated By
+                      </label>
+                      <p className="text-sm">
+                        {selectedElement.metadata.updatedBy}
                       </p>
                     </div>
                   )}

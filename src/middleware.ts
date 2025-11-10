@@ -1,28 +1,9 @@
+import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Define public routes that don't require authentication
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/home",
-  "/about",
-  "/aboutus",
-  "/contact",
-  "/contact-us",
-  "/pricing",
-  "/price",
-  "/features",
-  "/solutions",
-  "/resources",
-  "/privacy",
-  "/terms",
-  "/api/webhooks/clerk",
-  "/api/contact",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/register(.*)", // Registration link flow
-  "/onboarding(.*)", // Onboarding flow (pre-authentication)
-]);
+import { buildArcjetDenyResponse, requestProtector } from "@/lib/arcjet";
 
+// Define public routes that don't require authentication
 // Define protected routes that require authentication
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -34,11 +15,25 @@ const isProtectedRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
+  if (requestProtector && req.nextUrl.pathname.startsWith("/api/")) {
+    try {
+      const decision = await requestProtector.protect(req, { requested: 1 });
+      const deny = buildArcjetDenyResponse(decision);
+      if (deny) {
+        return NextResponse.json(deny.body, { status: deny.status });
+      }
+    } catch (error) {
+      console.error("[arcjet] Failed to evaluate request", error);
+    }
+  }
+
   // Protect routes that require authentication
   if (isProtectedRoute(req)) {
     auth.protect();
   }
+
+  return NextResponse.next();
 });
 
 export const config = {

@@ -8,7 +8,7 @@ function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
 }
 
-function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+function BreadcrumbList({ className, children, ...props }: React.ComponentProps<"ol">) {
   return (
     <ol
       data-slot="breadcrumb-list"
@@ -17,7 +17,29 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
         className
       )}
       {...props}
-    />
+    >
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child
+        const isSeparator =
+          child.props?.["data-slot"] === "breadcrumb-separator" ||
+          child.props?.role === "presentation"
+        if (child.type === "li" && isSeparator) {
+          const { className: separatorClassName, ...restProps } = child.props
+          return (
+            <span
+              data-slot="breadcrumb-separator"
+              role="presentation"
+              aria-hidden="true"
+              className={cn("[&>svg]:size-3.5", separatorClassName)}
+              {...restProps}
+            >
+              {child.props.children ?? <ChevronRight />}
+            </span>
+          )
+        }
+        return child
+      })}
+    </ol>
   )
 }
 
@@ -66,9 +88,9 @@ function BreadcrumbSeparator({
   children,
   className,
   ...props
-}: React.ComponentProps<"li">) {
+}: React.ComponentProps<"span">) {
   return (
-    <li
+    <span
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
@@ -76,7 +98,7 @@ function BreadcrumbSeparator({
       {...props}
     >
       {children ?? <ChevronRight />}
-    </li>
+    </span>
   )
 }
 

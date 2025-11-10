@@ -36,6 +36,30 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import {
+  MemberFormValues,
+  RoleOption,
+  OrganizationOption,
+} from "@/lib/validators/member";
+import { MemberForm } from "@/components/admin/MemberForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Member {
   id: string;
@@ -48,7 +72,10 @@ interface Member {
   organizationName: string;
   createdAt: Date;
   lastSignInAt: Date | null;
+  status: string;
   isActive: boolean;
+  requireMfa?: boolean;
+  allowDashboardAccess?: boolean;
 }
 
 interface MemberStats {
@@ -80,6 +107,12 @@ export default function MembersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOrg, setFilterOrg] = useState<string>("all");
   const [filterRole, setFilterRole] = useState<string>("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrganizations();
@@ -147,14 +180,45 @@ export default function MembersPage() {
       }
 
       const data = await response.json();
-      setMembers(data.members);
-      setFilteredMembers(data.members);
+      const normalizedMembers: Member[] = (data.members || []).map(
+        (member: any) => ({
+          ...member,
+          createdAt: member.createdAt
+            ? new Date(member.createdAt)
+            : new Date(),
+          lastSignInAt: member.lastSignInAt
+            ? new Date(member.lastSignInAt)
+            : null,
+          status: member.status || (member.isActive ? "active" : "inactive"),
+          isActive:
+            typeof member.isActive === "boolean"
+              ? member.isActive
+              : (member.status || "").toLowerCase() === "active",
+        })
+      );
+
+      setMembers(normalizedMembers);
+      setFilteredMembers(normalizedMembers);
       setStats(
         data.stats || {
-          total: data.members.length,
-          active: 0,
-          admins: 0,
-          noOrg: 0,
+          total: normalizedMembers.length,
+          active: normalizedMembers.filter(
+            (member) => member.status === "active"
+          ).length,
+          admins: normalizedMembers.filter(
+            (member) =>
+              member.role === "super_admin" ||
+              member.role === "platform_admin" ||
+              member.role === "org_admin"
+          ).length,
+          noOrg: normalizedMembers.filter(
+            (member) => !member.organizationId
+          ).length,
+          pendingInvitations:
+            data.pendingInvitations ??
+            normalizedMembers.filter((member) =>
+              INVITED_STATUSES.has(member.status)
+            ).length,
         }
       );
     } catch (error: unknown) {
@@ -163,6 +227,110 @@ export default function MembersPage() {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const INVITED_STATUSES = new Set(["invited", "pending"]);
+
+  const roleOptions: RoleOption[] = [
+    { value: "org_admin", label: "Organization Admin" },
+    { value: "org_manager", label: "Organization Manager" },
+    { value: "org_user", label: "Organization User" },
+    { value: "org_viewer", label: "Organization Viewer" },
+    { value: "auditor", label: "Auditor" },
+  ];
+
+  const organizationOptions: OrganizationOption[] = organizations.map(
+    (org) => ({
+      value: org.id,
+      label: org.name,
+    })
+  );
+
+  const handleCreateMember = async (values: MemberFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("/api/admin/members", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details || errorData.error || "Failed to create member"
+        );
+      }
+
+      toast.success("Member invitation created");
+      setIsCreateOpen(false);
+      await fetchMembers();
+    } catch (error: unknown) {
+      console.error("Error creating member:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create member";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const confirmDeleteMember = (member: Member) => {
+    setMemberToDelete(member);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return;
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/admin/members/${memberToDelete.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete member");
+      }
+      toast.success("Member removed");
+      setIsDeleteOpen(false);
+      setMemberToDelete(null);
+      await fetchMembers();
+    } catch (error: unknown) {
+      console.error("Error deleting member:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete member";
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleResendInvite = async (member: Member) => {
+    try {
+      setResendingId(member.id);
+      const response = await fetch(
+        `/api/admin/members/${member.id}/resend`,
+        {
+          method: "POST",
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Failed to resend invitation"
+        );
+      }
+      toast.success(`Invitation resent to ${member.email}`);
+    } catch (error: unknown) {
+      console.error("Error resending invitation:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to resend invitation";
+      toast.error(errorMessage);
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -192,6 +360,26 @@ export default function MembersPage() {
       .join(" ");
   };
 
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      case "invited":
+      case "pending":
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "updated":
+        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+      case "suspended":
+      case "inactive":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
+  const formatStatus = (status: string) =>
+    status.replace(/_/g, " ").toUpperCase();
+
   const exportToCSV = () => {
     const csvContent = [
       [
@@ -208,7 +396,7 @@ export default function MembersPage() {
         member.email,
         member.organizationName,
         member.role,
-        member.isActive ? "Active" : "Inactive",
+        formatStatus(member.status),
         format(new Date(member.createdAt), "yyyy-MM-dd"),
         member.lastSignInAt
           ? format(new Date(member.lastSignInAt), "yyyy-MM-dd")
@@ -271,7 +459,15 @@ export default function MembersPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button>
+              <Button
+                onClick={() => setIsCreateOpen(true)}
+                disabled={organizations.length === 0}
+                title={
+                  organizations.length === 0
+                    ? "Create an organization before inviting members."
+                    : undefined
+                }
+              >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add Member
               </Button>
@@ -523,13 +719,9 @@ export default function MembersPage() {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={
-                            member.isActive
-                              ? "bg-green-500/10 text-green-500 border-green-500/20"
-                              : "bg-gray-500/10 text-gray-500 border-gray-500/20"
-                          }
+                          className={getStatusBadgeColor(member.status)}
                         >
-                          {member.isActive ? "ACTIVE" : "INACTIVE"}
+                          {formatStatus(member.status)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
@@ -545,6 +737,23 @@ export default function MembersPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {INVITED_STATUSES.has(member.status) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleResendInvite(member);
+                              }}
+                              disabled={resendingId === member.id}
+                            >
+                              {resendingId === member.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Resend Invite"
+                              )}
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -569,7 +778,10 @@ export default function MembersPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDeleteMember(member);
+                            }}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
@@ -594,6 +806,65 @@ export default function MembersPage() {
             Showing {filteredMembers.length} of {members.length} members
           </motion.div>
         )}
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Invite Member</DialogTitle>
+              <DialogDescription>
+                Send an invitation to add a new member to an organization.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[70vh] overflow-y-auto pr-2">
+              <MemberForm
+                onSubmit={handleCreateMember}
+                isSubmitting={isSubmitting}
+                mode="create"
+                roleOptions={roleOptions}
+                organizationOptions={organizationOptions}
+                requireOrganization
+                allowMetadata={false}
+                showStatusField={false}
+                onCancel={() => setIsCreateOpen(false)}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+        <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove member</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will revoke access for{" "}
+                <span className="font-medium">
+                  {memberToDelete?.firstName} {memberToDelete?.lastName}
+                </span>
+                . You can invite them again later if needed.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  if (isDeleting) return;
+                  setIsDeleteOpen(false);
+                  setMemberToDelete(null);
+                }}
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteMember}
+                disabled={isDeleting}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Remove"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </motion.div>
     </div>
   );
