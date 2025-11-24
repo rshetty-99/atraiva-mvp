@@ -7,7 +7,7 @@ import { Logo } from "@/components/logo";
 
 export function Footer() {
   return (
-    <footer className="py-20 px-20 bg-background border-t border-border">
+    <footer className="py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-12 lg:px-20 bg-background border-t border-border w-full max-w-full overflow-x-hidden">
       <div>
         <div className="space-y-10">
           {/* Main Footer Content */}

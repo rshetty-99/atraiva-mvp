@@ -82,6 +82,18 @@ export function AppSidebar({
       ? "/admin/support"
       : "/org/support";
 
+  // Documentation URL based on role
+  const helpUrl =
+    userRole === "super_admin" || userRole === "platform_admin"
+      ? "/docs/support"
+      : "/docs/public";
+
+  // Feedback URL based on role
+  const feedbackUrl =
+    userRole === "super_admin" || userRole === "platform_admin"
+      ? "/admin/feedback"
+      : "/feedback";
+
   const navSecondary = [
     {
       title: "Support",
@@ -90,12 +102,12 @@ export function AppSidebar({
     },
     {
       title: "Feedback",
-      url: "/feedback",
+      url: feedbackUrl,
       icon: Send,
     },
     {
       title: "Help",
-      url: "/help",
+      url: helpUrl,
       icon: HelpCircle,
     },
   ];

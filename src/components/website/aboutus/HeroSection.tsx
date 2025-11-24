@@ -46,6 +46,12 @@ export function HeroSection() {
               <Button
                 variant="outline"
                 className="bg-transparent border-primary border-2 text-primary px-6 py-3 rounded-[48px] text-base font-['Lato'] font-medium leading-[1] h-12 hover:bg-primary/10 transition-all"
+                onClick={() => {
+                  document.getElementById('team')?.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                  });
+                }}
               >
                 Meet our Team
               </Button>

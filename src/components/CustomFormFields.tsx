@@ -192,8 +192,9 @@ const RenderInput = <T extends FieldValues>({
           <Select
             onValueChange={field.onChange}
             defaultValue={field.value || undefined}
+            disabled={props.disabled}
           >
-            <SelectTrigger className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }}>
+            <SelectTrigger className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box" }} disabled={props.disabled}>
               <SelectValue placeholder={props.placeholder} />
             </SelectTrigger>
             <SelectContent>

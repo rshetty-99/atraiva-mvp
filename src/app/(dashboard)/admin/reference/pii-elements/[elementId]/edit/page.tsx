@@ -40,7 +40,9 @@ export default function EditPiiElementPage() {
   const router = useRouter();
   const routeParams = useParams<{ elementId: string }>();
   const elementIdRaw = routeParams?.elementId;
-  const elementId = Array.isArray(elementIdRaw) ? elementIdRaw[0] : elementIdRaw;
+  const elementId = Array.isArray(elementIdRaw)
+    ? elementIdRaw[0]
+    : elementIdRaw;
   const { user } = useUser();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +74,7 @@ export default function EditPiiElementPage() {
         setIsLoading(true);
         setLoadError(null);
 
-        const elementRef = doc(db, "ref_pii_elements", elementId);
+        const elementRef = doc(db, "pii_elements", elementId);
         const snapshot = await getDoc(elementRef);
 
         if (!snapshot.exists()) {
@@ -142,7 +144,7 @@ export default function EditPiiElementPage() {
         toast.error("Missing element identifier.");
         return;
       }
-      const elementDocRef = doc(db, "ref_pii_elements", elementId);
+      const elementDocRef = doc(db, "pii_elements", elementId);
       const now = new Date();
 
       await runTransaction(db, async (transaction) => {
@@ -151,10 +153,10 @@ export default function EditPiiElementPage() {
           throw new Error("PII element no longer exists.");
         }
 
-          const previousElement = mapFirestoreDocToPIIElement(
-            snapshot.id,
-            snapshot.data() as Record<string, unknown>
-          );
+        const previousElement = mapFirestoreDocToPIIElement(
+          snapshot.id,
+          snapshot.data() as Record<string, unknown>
+        );
 
         transaction.update(elementDocRef, {
           element: sanitizedElementName,
@@ -228,9 +230,7 @@ export default function EditPiiElementPage() {
       <div className="flex h-[70vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3 rounded-lg border bg-card px-6 py-5 shadow-sm">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">
-            Loading PII element…
-          </p>
+          <p className="text-sm text-muted-foreground">Loading PII element…</p>
         </div>
       </div>
     );
@@ -307,9 +307,7 @@ export default function EditPiiElementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-lg border bg-card px-6 py-5 shadow-lg">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">
-              Saving changes…
-            </p>
+            <p className="text-sm text-muted-foreground">Saving changes…</p>
           </div>
         </div>
       )}

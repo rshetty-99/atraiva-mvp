@@ -110,7 +110,7 @@ export default function PIIElementsPage() {
   const [filterRiskLevel, setFilterRiskLevel] = useState<string>("all");
   const [filterRegulated, setFilterRegulated] = useState<string>("all");
   const [filterRegulation, setFilterRegulation] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"element" | "category" | "riskLevel">(
+  const [sortBy, setSortBy] = useState<"id" | "element" | "category" | "riskLevel">(
     "element"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -213,6 +213,9 @@ export default function PIIElementsPage() {
       let comparison = 0;
 
       switch (sortBy) {
+        case "id":
+          comparison = a.id.localeCompare(b.id);
+          break;
         case "element":
           comparison = a.element.localeCompare(b.element);
           break;
@@ -286,7 +289,7 @@ export default function PIIElementsPage() {
       if (!db) {
         throw new Error("Firebase is not initialized. Check your API key.");
       }
-      const elementsRef = collection(db, "ref_pii_elements");
+      const elementsRef = collection(db, "pii_elements");
       const q = query(elementsRef, orderBy("element", "asc"));
       const querySnapshot = await getDocs(q);
 
@@ -381,7 +384,7 @@ export default function PIIElementsPage() {
 
     setIsDeleting(true);
     try {
-      const elementDocRef = doc(db, "ref_pii_elements", elementToDelete.id);
+      const elementDocRef = doc(db, "pii_elements", elementToDelete.id);
       await runTransaction(db, async (transaction) => {
         const snapshot = await transaction.get(elementDocRef);
         if (!snapshot.exists()) {
@@ -421,7 +424,7 @@ export default function PIIElementsPage() {
     }
   };
 
-  const toggleSort = (column: "element" | "category" | "riskLevel") => {
+  const toggleSort = (column: "id" | "element" | "category" | "riskLevel") => {
     if (sortBy === column) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -440,6 +443,15 @@ export default function PIIElementsPage() {
 
   const getCategoryBadge = (category: PIICategory) => {
     const info = PII_CATEGORY_INFO[category];
+    // Fallback to gray if category info is not found
+    if (!info) {
+      return (
+        <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20">
+          {category}
+        </Badge>
+      );
+    }
+    
     const colorClass =
       info.color === "red"
         ? "bg-red-500/10 text-red-500 border-red-500/20"
@@ -476,6 +488,7 @@ export default function PIIElementsPage() {
 
   const exportToCSV = () => {
     const headers = [
+      "ID",
       "Element",
       "Category",
       "Risk Level",
@@ -488,6 +501,7 @@ export default function PIIElementsPage() {
     ];
 
     const csvData = filteredElements.map((element) => [
+      element.id,
       element.element,
       element.category,
       element.riskLevel,
@@ -852,6 +866,17 @@ export default function PIIElementsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => toggleSort("id")}
+                        className="font-semibold"
+                      >
+                        ID
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                    <TableHead>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => toggleSort("element")}
                         className="font-semibold"
                       >
@@ -890,7 +915,7 @@ export default function PIIElementsPage() {
                   {paginatedElements.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className="text-center py-8 text-muted-foreground"
                       >
                         No PII elements found matching your filters
@@ -899,6 +924,15 @@ export default function PIIElementsPage() {
                   ) : (
                     paginatedElements.map((element) => (
                       <TableRow key={element.id}>
+                        <TableCell className="font-medium">
+                          <button
+                            onClick={() => handleViewElement(element)}
+                            className="hover:text-primary hover:underline cursor-pointer transition-colors"
+                            title="Click to view details"
+                          >
+                            {element.id}
+                          </button>
+                        </TableCell>
                         <TableCell className="font-medium">
                           {element.element}
                         </TableCell>
@@ -1124,6 +1158,14 @@ export default function PIIElementsPage() {
                   Basic Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      ID
+                    </label>
+                    <p className="text-base font-medium">
+                      {selectedElement.id}
+                    </p>
+                  </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
                       Element Name

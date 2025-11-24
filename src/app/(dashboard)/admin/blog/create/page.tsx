@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useSession } from "@/hooks/useSession";
@@ -32,7 +32,7 @@ import Link from "next/link";
 import { blogTemplates, applyTemplate } from "@/lib/blog/templates";
 import { ConvertedBlogData } from "@/lib/blog/url-converter";
 
-export default function CreateEditBlogPage() {
+function CreateEditBlogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoaded } = useAuth();
@@ -784,5 +784,19 @@ export default function CreateEditBlogPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateEditBlogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <CreateEditBlogContent />
+    </Suspense>
   );
 }

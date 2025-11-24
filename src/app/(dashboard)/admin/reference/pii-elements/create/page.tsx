@@ -66,7 +66,7 @@ export default function CreatePiiElementPage() {
     const examples = sanitizeMultilineInput(values.examples);
 
     try {
-      const elementsCollectionRef = collection(db, "ref_pii_elements");
+      const elementsCollectionRef = collection(db, "pii_elements");
       const elementDocRef = doc(elementsCollectionRef);
       const now = new Date();
 

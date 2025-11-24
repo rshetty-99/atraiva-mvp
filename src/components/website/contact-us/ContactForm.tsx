@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CustomFormField, { FormFieldType } from "@/components/CustomFormFields";
 import { ContactFormState } from "@/types/contact-form";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 // List of personal email domains to block
 const personalEmailDomains = [
@@ -75,7 +77,7 @@ const contactFormSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
-export function ContactForm() {
+function ContactFormContent() {
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<ContactFormState>({
     isSubmitting: false,
@@ -100,6 +102,11 @@ export function ContactForm() {
         | "demo";
     }
     return "general";
+  }, [searchParams]);
+
+  // Check if inquiry type came from URL to disable the field
+  const isInquiryTypeFromURL = useMemo(() => {
+    return searchParams.get("inquiryType") !== null;
   }, [searchParams]);
 
   const form = useForm<ContactFormValues>({
@@ -152,7 +159,29 @@ export function ContactForm() {
         }),
       });
 
+      // Log the response for debugging
+      console.log("API Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("API Error Response:", errorData);
+        
+        setFormState({
+          isSubmitting: false,
+          isSuccess: false,
+          error: errorData.message || errorData.error || "Server error",
+        });
+        
+        // Show detailed error toast
+        toast.error("Submission failed", {
+          description: errorData.message || errorData.error || `Server error (${response.status})`,
+          duration: 5000,
+        });
+        return;
+      }
+
       const result = await response.json();
+      console.log("API Success Response:", result);
 
       if (result.success) {
         setFormState({
@@ -160,50 +189,72 @@ export function ContactForm() {
           isSuccess: true,
           error: null,
         });
+        
+        // Show success toast
+        toast.success("Message sent successfully!", {
+          description: "We'll get back to you within 24 hours.",
+          duration: 3000,
+        });
+        
         form.reset();
+        
+        // If inquiry type was from URL, refresh the page to re-enable the field
+        if (isInquiryTypeFromURL) {
+          setTimeout(() => {
+            window.location.href = '/contact-us';
+          }, 2000); // Wait 2 seconds to show success message
+        }
       } else {
         setFormState({
           isSubmitting: false,
           isSuccess: false,
-          error: result.error || "An error occurred",
+          error: result.message || result.error || "An error occurred",
+        });
+        
+        // Show error toast with detailed message
+        toast.error("Submission failed", {
+          description: result.message || result.error || "An error occurred. Please try again.",
+          duration: 5000,
         });
       }
     } catch (err) {
       console.error("Contact form submission error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Network error";
+      
       setFormState({
         isSubmitting: false,
         isSuccess: false,
-        error: "An unexpected error occurred. Please try again.",
+        error: errorMessage,
+      });
+      
+      // Show error toast with detailed message
+      toast.error("Submission failed", {
+        description: errorMessage,
+        duration: 5000,
       });
     }
   };
 
   return (
-    <section className="bg-background py-20 px-4 sm:px-8 md:px-12 lg:px-20 w-full max-w-full overflow-x-hidden" style={{ overflow: "hidden", maxWidth: "100vw", width: "100%", boxSizing: "border-box", position: "relative" }}>
-      <div className="max-w-[1280px] mx-auto w-full min-w-0" style={{ maxWidth: "min(100vw, 1280px)", boxSizing: "border-box", width: "100%" }}>
-        <div className="flex flex-col lg:flex-row border-border rounded-lg w-full min-w-0 overflow-hidden" style={{ overflow: "hidden", maxWidth: "100%", width: "100%", boxSizing: "border-box" }}>
+    <section className="bg-background py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-0 border border-border rounded-lg w-full overflow-hidden">
           {/* Left Side - Hero Image */}
           <div
-            className="flex flex-col justify-stretch items-stretch w-full lg:w-1/2 gap-2.5 p-2.5 rounded-lg min-h-[300px] lg:min-h-0 min-w-0 flex-shrink-0"
+            className="w-full lg:w-1/2 min-h-[250px] sm:min-h-[300px] lg:min-h-[600px] rounded-t-lg lg:rounded-l-lg lg:rounded-tr-none bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: `url(/images/website/contact-us/contact-hero-background.jpg)`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              maxWidth: "100%",
-              boxSizing: "border-box",
-              width: "100%",
             }}
           ></div>
 
           {/* Right Side - Contact Form */}
-          <div className="flex flex-col justify-center items-start lg:items-end p-6 lg:p-10 bg-card border border-dashed border-border rounded-lg w-full lg:w-1/2 min-w-0 shrink overflow-hidden" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
-            <div className="flex flex-col justify-center gap-8 w-full max-w-full lg:max-w-[480px] min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
-              <div className="flex flex-col gap-4" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
-                <h2 className="font-lato text-[32px] font-bold leading-[1.2] text-left text-primary" style={{ maxWidth: "100%", overflow: "hidden", wordBreak: "break-word", boxSizing: "border-box" }}>
+          <div className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 bg-card">
+            <div className="flex flex-col gap-6 md:gap-8 w-full max-w-2xl mx-auto">
+              <div className="flex flex-col gap-3 md:gap-4">
+                <h2 className="font-lato text-2xl sm:text-3xl md:text-[32px] font-bold leading-[1.2] text-primary break-words">
                   Write to us!
                 </h2>
-                <p className="font-lato text-lg font-normal leading-[1.78] text-left text-foreground w-full" style={{ maxWidth: "100%", overflow: "hidden", wordBreak: "break-word", boxSizing: "border-box" }}>
+                <p className="font-lato text-base md:text-lg font-normal leading-[1.78] text-foreground break-words">
                   Need any help, just write us here and we will get back to you
                   within 24 hours
                 </p>
@@ -212,12 +263,11 @@ export function ContactForm() {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="flex flex-col gap-8"
-                  style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}
+                  className="flex flex-col gap-6 md:gap-8 w-full"
                 >
                   {/* Success/Error Messages */}
                   {formState.isSuccess && (
-                    <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg text-green-400" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
+                    <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg text-green-400 w-full">
                       <p className="font-medium">Thank you for your message!</p>
                       <p className="text-sm">
                         We will get back to you within 24 hours.
@@ -226,17 +276,17 @@ export function ContactForm() {
                   )}
 
                   {formState.error && (
-                    <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%", overflow: "hidden" }}>
+                    <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400 w-full">
                       <p className="font-medium">Error</p>
                       <p className="text-sm">{formState.error}</p>
                     </div>
                   )}
 
                   {/* Form Fields */}
-                  <div className="flex flex-col gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                  <div className="flex flex-col gap-4 md:gap-6 w-full">
                     {/* First Row - Name Fields */}
-                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                    <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full">
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="firstName"
@@ -246,7 +296,7 @@ export function ContactForm() {
                           required
                         />
                       </div>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="lastName"
@@ -259,8 +309,8 @@ export function ContactForm() {
                     </div>
 
                     {/* Second Row - Email and Phone */}
-                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                    <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full">
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="email"
@@ -271,7 +321,7 @@ export function ContactForm() {
                           required
                         />
                       </div>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="phone"
@@ -284,8 +334,8 @@ export function ContactForm() {
                     </div>
 
                     {/* Third Row - Company and Subject */}
-                    <div className="flex flex-col sm:flex-row gap-6 w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                    <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full">
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="company"
@@ -294,13 +344,14 @@ export function ContactForm() {
                           fieldType={FormFieldType.INPUT}
                         />
                       </div>
-                      <div className="flex-1 min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                      <div className="flex-1 w-full">
                         <CustomFormField
                           control={form.control}
                           name="inquiryType"
                           label="Inquiry Type"
                           placeholder="Select inquiry type"
                           fieldType={FormFieldType.SELECT}
+                          disabled={isInquiryTypeFromURL}
                         >
                           <option value="general">General Inquiry</option>
                           <option value="sales">Sales</option>
@@ -312,7 +363,7 @@ export function ContactForm() {
                     </div>
 
                     {/* Message Field */}
-                    <div className="w-full min-w-0" style={{ maxWidth: "100%", boxSizing: "border-box", width: "100%" }}>
+                    <div className="w-full">
                       <CustomFormField
                         control={form.control}
                         name="message"
@@ -328,9 +379,16 @@ export function ContactForm() {
                   <Button
                     type="submit"
                     disabled={formState.isSubmitting}
-                    className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] hover:opacity-90 w-full h-12 px-6 py-3 rounded-[48px] text-base font-medium text-white shadow-lg transition-all disabled:opacity-50"
+                    className="bg-gradient-to-r from-[#AB96F9] to-[#FF91C2] hover:opacity-90 w-full h-11 sm:h-12 px-6 py-3 rounded-[48px] text-sm sm:text-base font-medium text-white shadow-lg transition-all disabled:opacity-50"
                   >
-                    {formState.isSubmitting ? "Submitting..." : "Submit"}
+                    {formState.isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit"
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -339,5 +397,23 @@ export function ContactForm() {
         </div>
       </div>
     </section>
+  );
+}
+
+export function ContactForm() {
+  return (
+    <Suspense
+      fallback={
+        <section className="bg-background py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 w-full max-w-full overflow-x-hidden">
+          <div className="max-w-7xl mx-auto w-full">
+            <div className="flex items-center justify-center p-8">
+              <p className="text-muted-foreground">Loading form...</p>
+            </div>
+          </div>
+        </section>
+      }
+    >
+      <ContactFormContent />
+    </Suspense>
   );
 }

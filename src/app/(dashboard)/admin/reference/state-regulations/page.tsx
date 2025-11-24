@@ -30,6 +30,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Gavel,
@@ -42,6 +43,10 @@ import {
   Calendar,
   AlertCircle,
   Database,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -60,6 +65,7 @@ const US_STATES = Object.entries(US_STATES_MAP)
   }));
 
 export default function StateRegulationsPage() {
+  const router = useRouter();
   const [regulations, setRegulations] = useState<StateRegulation[]>([]);
   const [filteredRegulations, setFilteredRegulations] = useState<
     StateRegulation[]
@@ -69,15 +75,27 @@ export default function StateRegulationsPage() {
   const [filterState, setFilterState] = useState<string>("all");
   const [filterLawType, setFilterLawType] = useState<string>("all");
   const [filterIndustry, setFilterIndustry] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"state" | "updated_at" | "fetched_at">(
-    "state"
-  );
+  const [sortBy, setSortBy] = useState<
+    | "state"
+    | "updated_at"
+    | "fetched_at"
+    | "industry"
+    | "scan_type"
+    | "law_type"
+  >("state");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [hasFirebaseError, setHasFirebaseError] = useState(false);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Stats
   const [stats, setStats] = useState({
     total: 0,
+    uniqueStates: 0,
+    federalCount: 0,
+    stateCount: 0,
     byLawType: {} as Record<string, number>,
     byIndustry: {} as Record<string, number>,
   });
@@ -147,12 +165,24 @@ export default function StateRegulationsPage() {
           comparison =
             new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime();
           break;
+        case "industry":
+          comparison = (a.industry || "").localeCompare(b.industry || "");
+          break;
+        case "scan_type":
+          comparison = (a.scan_type || "").localeCompare(b.scan_type || "");
+          break;
+        case "law_type":
+          comparison = (a.parsed.law_type || "").localeCompare(
+            b.parsed.law_type || ""
+          );
+          break;
       }
 
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
     setFilteredRegulations(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [
     regulations,
     searchTerm,
@@ -340,6 +370,9 @@ export default function StateRegulationsPage() {
       // Calculate stats
       const lawTypeStats: Record<string, number> = {};
       const industryStats: Record<string, number> = {};
+      const uniqueStatesSet = new Set<string>();
+      let federalCount = 0;
+      let stateCount = 0;
 
       fetchedRegulations.forEach((reg) => {
         const lawType = reg.parsed.law_type || "unknown";
@@ -347,10 +380,30 @@ export default function StateRegulationsPage() {
 
         const industry = reg.industry || "general";
         industryStats[industry] = (industryStats[industry] || 0) + 1;
+
+        // Track unique states
+        uniqueStatesSet.add(reg.state);
+
+        // Track federal vs state
+        if (reg.state === "FEDERAL" || reg.jurisdictionType === "federal") {
+          federalCount++;
+        } else {
+          stateCount++;
+        }
+      });
+
+      console.log("Stats calculation:", {
+        total: fetchedRegulations.length,
+        uniqueStates: uniqueStatesSet.size,
+        federalCount,
+        stateCount,
       });
 
       setStats({
         total: fetchedRegulations.length,
+        uniqueStates: uniqueStatesSet.size,
+        federalCount,
+        stateCount,
         byLawType: lawTypeStats,
         byIndustry: industryStats,
       });
@@ -385,13 +438,67 @@ export default function StateRegulationsPage() {
     }
   };
 
-  const toggleSort = (column: "state" | "updated_at" | "fetched_at") => {
+  const toggleSort = (
+    column:
+      | "state"
+      | "updated_at"
+      | "fetched_at"
+      | "industry"
+      | "scan_type"
+      | "law_type"
+  ) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortBy(column);
       setSortOrder("asc");
     }
+  };
+
+  const viewRegulationDetails = (regulationId: string) => {
+    router.push(`/admin/reference/state-regulations/${regulationId}`);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRegulations.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRegulations = filteredRegulations.slice(startIndex, endIndex);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
   };
 
   const getLawTypeBadge = (lawType: string) => {
@@ -468,8 +575,8 @@ export default function StateRegulationsPage() {
         </div>
 
         {/* Stats Cards Skeleton */}
-        <div className="grid gap-4 md:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {[1, 2, 3, 4, 5].map((i) => (
             <Card key={i}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <Skeleton className="h-4 w-24" />
@@ -634,7 +741,7 @@ export default function StateRegulationsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid gap-4 md:grid-cols-4"
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-5"
       >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -651,9 +758,40 @@ export default function StateRegulationsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Law Types and Regulations
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Jurisdictions</CardTitle>
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2 mb-3">
+              <div className="text-2xl font-bold">{stats.uniqueStates}</div>
+              <div className="text-sm text-muted-foreground">total</div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <span className="text-xs text-muted-foreground">State</span>
+                </div>
+                <span className="text-base font-bold text-foreground">
+                  {stats.stateCount}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                  <span className="text-xs text-muted-foreground">Federal</span>
+                </div>
+                <span className="text-base font-bold text-foreground">
+                  {stats.federalCount}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Law Types</CardTitle>
             <Gavel className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -855,9 +993,39 @@ export default function StateRegulationsPage() {
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Law Types and Regulations</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Scan Type</TableHead>
+                    <TableHead>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleSort("law_type")}
+                        className="font-semibold"
+                      >
+                        Law Types
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                    <TableHead>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleSort("industry")}
+                        className="font-semibold"
+                      >
+                        Industry
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                    <TableHead>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleSort("scan_type")}
+                        className="font-semibold"
+                      >
+                        Scan Type
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
                     <TableHead>Keywords</TableHead>
                     <TableHead>
                       <Button
@@ -874,7 +1042,7 @@ export default function StateRegulationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRegulations.length === 0 ? (
+                  {paginatedRegulations.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={7}
@@ -884,7 +1052,7 @@ export default function StateRegulationsPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredRegulations.map((regulation) => (
+                    paginatedRegulations.map((regulation) => (
                       <TableRow key={regulation.id}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
@@ -937,15 +1105,28 @@ export default function StateRegulationsPage() {
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              window.open(regulation.url, "_blank")
-                            }
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                viewRegulationDetails(regulation.id)
+                              }
+                              title="View Details"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                window.open(regulation.url, "_blank")
+                              }
+                              title="Open URL"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -953,6 +1134,82 @@ export default function StateRegulationsPage() {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {filteredRegulations.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+                {/* Items per page selector */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Rows per page:
+                  </span>
+                  <Select
+                    value={itemsPerPage.toString()}
+                    onValueChange={(value) => {
+                      setItemsPerPage(Number(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-[70px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">
+                    {startIndex + 1}-
+                    {Math.min(endIndex, filteredRegulations.length)} of{" "}
+                    {filteredRegulations.length}
+                  </span>
+                </div>
+
+                {/* Page navigation */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => (
+                      <Button
+                        key={index}
+                        variant={page === currentPage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          if (typeof page === "number") {
+                            setCurrentPage(page);
+                          }
+                        }}
+                        disabled={typeof page === "string"}
+                        className="min-w-[40px]"
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

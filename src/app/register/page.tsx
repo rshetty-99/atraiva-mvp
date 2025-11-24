@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -100,7 +100,7 @@ const registrationSchema = z
 
 type FormValues = z.infer<typeof registrationSchema>;
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -139,58 +139,61 @@ export default function RegisterPage() {
     },
   });
 
-  const validateToken = useCallback(async (tokenParam: string) => {
-    try {
-      const response = await fetch("/api/registration-links/validate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.valid) {
-        setError(data.error || "Invalid registration link");
-        setValidating(false);
-        return;
-      }
-
-      // Link is valid, populate form with pre-filled data
-      const { link } = data;
-      setLinkData(link);
-
-      form.reset({
-        organizationName: link.organizationData.name,
-        organizationType: link.organizationData.organizationType,
-        industry: link.organizationData.industry,
-        teamSize: link.organizationData.teamSize,
-        firstName: link.primaryUserData.firstName,
-        lastName: link.primaryUserData.lastName,
-        email: link.primaryUserData.email,
-        jobTitle: link.primaryUserData.jobTitle || "",
-        role: link.primaryUserData.role,
-        password: "",
-        confirmPassword: "",
-        teamMembers: [
-          {
-            firstName: "",
-            lastName: "",
-            email: "",
-            role: "org_manager",
+  const validateToken = useCallback(
+    async (tokenParam: string) => {
+      try {
+        const response = await fetch("/api/registration-links/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        ],
-      });
+          body: JSON.stringify({ token }),
+        });
 
-      setValidating(false);
-      setStep("form");
-    } catch (error) {
-      console.error("Error validating token:", error);
-      setError("Failed to validate registration link. Please try again.");
-      setValidating(false);
-    }
-  }, [form]);
+        const data = await response.json();
+
+        if (!response.ok || !data.valid) {
+          setError(data.error || "Invalid registration link");
+          setValidating(false);
+          return;
+        }
+
+        // Link is valid, populate form with pre-filled data
+        const { link } = data;
+        setLinkData(link);
+
+        form.reset({
+          organizationName: link.organizationData.name,
+          organizationType: link.organizationData.organizationType,
+          industry: link.organizationData.industry,
+          teamSize: link.organizationData.teamSize,
+          firstName: link.primaryUserData.firstName,
+          lastName: link.primaryUserData.lastName,
+          email: link.primaryUserData.email,
+          jobTitle: link.primaryUserData.jobTitle || "",
+          role: link.primaryUserData.role,
+          password: "",
+          confirmPassword: "",
+          teamMembers: [
+            {
+              firstName: "",
+              lastName: "",
+              email: "",
+              role: "org_manager",
+            },
+          ],
+        });
+
+        setValidating(false);
+        setStep("form");
+      } catch (error) {
+        console.error("Error validating token:", error);
+        setError("Failed to validate registration link. Please try again.");
+        setValidating(false);
+      }
+    },
+    [form]
+  );
 
   // Validate token on mount
   useEffect(() => {
@@ -278,7 +281,10 @@ export default function RegisterPage() {
       }, 3000);
     } catch (error: unknown) {
       console.error("Error completing registration:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to complete registration";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to complete registration";
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -795,5 +801,26 @@ export default function RegisterPage() {
         </Form>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                <p className="text-lg font-medium">Loading registration...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }

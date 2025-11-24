@@ -1,10 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function TestPage() {
   const [testResults, setTestResults] = useState<string[]>([]);
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const [userAgent, setUserAgent] = useState<string>("");
+
+  // Get viewport and user agent only on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      setUserAgent(navigator.userAgent);
+
+      // Update viewport on resize
+      const handleResize = () => {
+        setViewport({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   const addResult = (result: string) => {
     setTestResults((prev) => [...prev, result]);
@@ -14,15 +38,28 @@ export default function TestPage() {
     setTestResults(["🧪 Starting Atraiva Homepage Tests..."]);
 
     // Test 1: Check viewport
-    const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
-    addResult(`📱 Current viewport: ${viewport.width}x${viewport.height}`);
+    if (typeof window !== "undefined") {
+      const currentViewport = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+      addResult(`📱 Current viewport: ${currentViewport.width}x${currentViewport.height}`);
 
-    // Test 2: Check if we're on the right page
-    if (window.location.pathname === "/test") {
-      addResult("✅ Test page loaded correctly");
+      // Test 2: Check if we're on the right page
+      if (window.location.pathname === "/test") {
+        addResult("✅ Test page loaded correctly");
+      }
+
+      // Test 4: Responsive breakpoint detection
+      if (currentViewport.width < 640) {
+        addResult("📱 Mobile viewport detected");
+      } else if (currentViewport.width < 1024) {
+        addResult("📱 Tablet viewport detected");
+      } else {
+        addResult("🖥️ Desktop viewport detected");
+      }
+    } else {
+      addResult("⚠️ Window object not available (server-side rendering)");
     }
 
     // Test 3: Check if main page is accessible
@@ -35,15 +72,6 @@ export default function TestPage() {
       }
     } catch (error) {
       addResult("❌ Error accessing homepage");
-    }
-
-    // Test 4: Responsive breakpoint detection
-    if (viewport.width < 640) {
-      addResult("📱 Mobile viewport detected");
-    } else if (viewport.width < 1024) {
-      addResult("📱 Tablet viewport detected");
-    } else {
-      addResult("🖥️ Desktop viewport detected");
     }
 
     addResult("🏁 Test completed!");
@@ -81,7 +109,11 @@ export default function TestPage() {
                 Clear Results
               </Button>
               <Button
-                onClick={() => window.open("/", "_blank")}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.open("/", "_blank");
+                  }
+                }}
                 variant="secondary"
                 className="w-full"
               >
@@ -96,12 +128,14 @@ export default function TestPage() {
             <div className="space-y-2 text-sm">
               <div>
                 <span className="font-medium">Viewport:</span>{" "}
-                {window.innerWidth}x{window.innerHeight}
+                {viewport.width > 0
+                  ? `${viewport.width}x${viewport.height}`
+                  : "Loading..."}
               </div>
               <div>
                 <span className="font-medium">User Agent:</span>
                 <span className="text-xs">
-                  {navigator.userAgent.slice(0, 50)}...
+                  {userAgent ? `${userAgent.slice(0, 50)}...` : "Loading..."}
                 </span>
               </div>
               <div>

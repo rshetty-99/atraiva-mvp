@@ -12,7 +12,7 @@ Successfully implemented a comprehensive PII Reference Data management page with
 
 **Features**:
 
-- ✅ Real-time data fetching from `ref_pii_elements` Firestore collection
+- ✅ Real-time data fetching from `pii_elements` Firestore collection
 - ✅ Advanced search functionality (element name, category, regulations)
 - ✅ Multiple filter options:
   - Category filter (14 unique PII categories)
@@ -91,7 +91,7 @@ Successfully implemented a comprehensive PII Reference Data management page with
 
 ## 📊 Data Structure
 
-### Firestore Collection: `ref_pii_elements`
+### Firestore Collection: `pii_elements`
 
 - **Total Documents**: 161 PII elements
 - **Categories**: 14 distinct categories
@@ -283,7 +283,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 
 ```javascript
 // Add to firestore.rules
-match /ref_pii_elements/{elementId} {
+match /pii_elements/{elementId} {
   allow read: if request.auth != null;
   allow write: if request.auth != null &&
     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['super_admin', 'platform_admin'];
@@ -342,7 +342,7 @@ Successfully created a production-ready PII Reference Data management page with:
 ---
 
 **Created**: October 19, 2025  
-**Collection**: `ref_pii_elements`  
+**Collection**: `pii_elements`  
 **Total Elements**: 161  
 **Status**: ✅ Production Ready
 

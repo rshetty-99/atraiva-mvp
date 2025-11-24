@@ -27,6 +27,7 @@ export function Header() {
     { href: "/home", label: "Home" },
     { href: "/aboutus", label: "About Us" },
     { href: "/features", label: "Features" },
+    { href: "/docs/public", label: "Docs" },
     { href: "/resources", label: "Resources" },
     { href: "/contact-us", label: "Contact Us" },
   ];

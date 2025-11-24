@@ -58,7 +58,7 @@ Successfully created a comprehensive **PII Reference Data Management Page** that
 ### 3. Firestore Collection
 
 ```
-Collection: ref_pii_elements
+Collection: pii_elements
 Documents: 161 PII elements
 Structure: Detailed schema with categories, risk levels, regulations
 ```
@@ -346,7 +346,7 @@ PIIElementsPage (Client Component)
 ```
 1. Page Load
    ↓
-2. Fetch from Firestore (ref_pii_elements collection)
+2. Fetch from Firestore (pii_elements collection)
    ↓
 3. Process & Transform Data
    ↓
@@ -704,7 +704,7 @@ org_user          |  ❌  |  ❌
 ### Firestore Security Rules
 
 ```javascript
-match /ref_pii_elements/{elementId} {
+match /pii_elements/{elementId} {
   allow read: if request.auth != null;
   allow write: if request.auth != null &&
     get(/databases/$(database)/documents/users/$(request.auth.uid))
@@ -756,7 +756,7 @@ match /ref_pii_elements/{elementId} {
 
 **Status**: ✅ **Production Ready**  
 **Route**: `/admin/reference/pii-elements`  
-**Collection**: `ref_pii_elements`  
+**Collection**: `pii_elements`  
 **Total Elements**: 161  
 **Created**: October 19, 2025
 

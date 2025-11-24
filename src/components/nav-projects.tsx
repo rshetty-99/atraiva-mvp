@@ -40,8 +40,6 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden py-0">
-      {/* Divider line before Projects section */}
-      <div className="border-t border-gray-700 mx-2 my-2"></div>
       <SidebarGroupLabel className="px-4 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">
         Projects
       </SidebarGroupLabel>

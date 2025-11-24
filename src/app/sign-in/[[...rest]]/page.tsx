@@ -4,10 +4,10 @@ import Image from "next/image";
 import { SignIn } from "@clerk/nextjs";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { toast } from "sonner";
 
-export default function SignInPage() {
+function SignInContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
 
@@ -112,5 +112,23 @@ export default function SignInPage() {
         </div>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthLayout>
+          <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
+            <div className="text-center">
+              <p className="text-muted-foreground">Loading sign in...</p>
+            </div>
+          </div>
+        </AuthLayout>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }

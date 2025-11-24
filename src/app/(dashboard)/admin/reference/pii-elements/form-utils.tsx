@@ -181,12 +181,24 @@ const isValidRegulation = (value: unknown): value is Regulation =>
   typeof value === "string" &&
   (ALL_REGULATIONS as readonly string[]).includes(value);
 
+const isValidCategory = (value: unknown): value is PIICategory =>
+  typeof value === "string" &&
+  (ALL_CATEGORIES as readonly string[]).includes(value as PIICategory);
+
+const isValidRiskLevel = (value: unknown): value is RiskLevel =>
+  typeof value === "string" &&
+  (ALL_RISK_LEVELS as readonly string[]).includes(value as RiskLevel);
+
 export const mapFirestoreDocToPIIElement = (
   id: string,
   data: Record<string, unknown>
 ): PIIElement => {
-  const category = (data.category as PIICategory) || "Core Identifiers";
-  const riskLevel = (data.riskLevel as RiskLevel) || "medium";
+  const category = isValidCategory(data.category)
+    ? data.category
+    : "Core Identifiers";
+  const riskLevel = isValidRiskLevel(data.riskLevel)
+    ? data.riskLevel
+    : "medium";
   const applicableRegulations = Array.isArray(data.applicableRegulations)
     ? data.applicableRegulations.filter(isValidRegulation)
     : [];

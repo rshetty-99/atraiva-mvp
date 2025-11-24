@@ -181,7 +181,7 @@ async function importPIIElements(dryRun = true) {
     } else {
       console.log("📤 Importing to Firestore...\n");
 
-      const collectionRef = collection(db, "ref_pii_elements");
+      const collectionRef = collection(db, "pii_elements");
       let totalCount = 0;
       let batchCount = 0;
       let batch = writeBatch(db);
@@ -223,7 +223,7 @@ async function importPIIElements(dryRun = true) {
       console.log(
         `\n🎉 Successfully imported ${totalCount} PII elements to Firestore!`
       );
-      console.log("\nCollection: ref_pii_elements");
+      console.log("\nCollection: pii_elements");
       console.log("Next steps:");
       console.log("  1. Verify data in Firebase Console");
       console.log("  2. Add detection patterns for each element");

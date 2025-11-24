@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "tipcyber-dev",
+    "development": "tipcyber-dev",
+    "staging": "tipcyber-uat",
+    "production": "tipcyber-113b1"
+  }
+}
+
