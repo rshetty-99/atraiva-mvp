@@ -1,9 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
-
-First, run the development server:
-
+I case you need to Cloe the repositry follw the steps below Other wise go to ## 5. Getting Started
+# 1. create an app directory
+# 2. CD to the created direcory.
+## 3.clone the repositry
+    git clone atraiva-mvp
+## 4. Install dependency
+npm install
+ 
+## 5. Getting Started
+## First, run the development server:
 ```bash
 npm run dev
 # or
