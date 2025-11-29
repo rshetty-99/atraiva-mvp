@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, FolderLock, FolderPlus, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, FolderLock, FolderPlus, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,63 +26,14 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBreaches } from "@/hooks/useBreachData";
-import type { BreachRecord, BreachSeverity, BreachLifecycleStatus } from "@/types/breach";
+import { useIncidents, type IncidentRow } from "@/hooks/useIncidents";
 
-interface IncidentRow {
-  id: string;
-  organization: string;
-  severity: BreachSeverity | "unknown";
-  status: BreachLifecycleStatus | "unknown";
-  jurisdictions: string[];
-  upcomingDeadline?: string;
-  notificationsCompleted: number;
-  notificationsTotal: number;
-  evidenceCount: number;
-  updatedAt: string;
-}
+// IncidentRow type is now imported from useIncidents hook
 
-const FALLBACK_ROWS: IncidentRow[] = [
-  {
-    id: "INC-957302",
-    organization: "org_101",
-    severity: "critical",
-    status: "reported",
-    jurisdictions: ["CA", "NY", "TX"],
-    upcomingDeadline: "2025-07-29T00:00:00.000Z",
-    notificationsCompleted: 1,
-    notificationsTotal: 3,
-    evidenceCount: 2,
-    updatedAt: "2025-07-14T09:15:22.000Z",
-  },
-  {
-    id: "INC-957301",
-    organization: "org_102",
-    severity: "medium",
-    status: "resolved",
-    jurisdictions: ["MA", "CT"],
-    upcomingDeadline: "2025-08-09T00:00:00.000Z",
-    notificationsCompleted: 3,
-    notificationsTotal: 3,
-    evidenceCount: 5,
-    updatedAt: "2025-07-10T14:45:10.000Z",
-  },
-  {
-    id: "INC-957300",
-    organization: "org_103",
-    severity: "high",
-    status: "contained",
-    jurisdictions: ["FL"],
-    upcomingDeadline: "2025-07-20T00:00:00.000Z",
-    notificationsCompleted: 0,
-    notificationsTotal: 2,
-    evidenceCount: 0,
-    updatedAt: "2025-06-20T11:12:30.000Z",
-  },
-];
+// Removed FALLBACK_ROWS - now using real Firestore data
 
 const severityStyles: Record<
-  BreachSeverity | "unknown",
+  "critical" | "high" | "medium" | "low" | "unknown",
   { label: string; className: string }
 > = {
   critical: {
@@ -107,36 +59,37 @@ const severityStyles: Record<
 };
 
 const statusStyles: Record<
-  BreachLifecycleStatus | "unknown",
+  | "draft"
+  | "in_progress"
+  | "simulation_initialized"
+  | "simulation_completed"
+  | "cancelled"
+  | "unknown",
   { label: string; className: string }
 > = {
   draft: {
     label: "Draft",
     className: "bg-muted text-muted-foreground",
   },
-  reported: {
-    label: "Reported",
-    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200",
+  in_progress: {
+    label: "In Progress",
+    className:
+      "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200",
   },
-  investigating: {
-    label: "Investigating",
-    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200",
+  simulation_initialized: {
+    label: "Simulation Initialized",
+    className:
+      "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200",
   },
-  contained: {
-    label: "Contained",
-    className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200",
+  simulation_completed: {
+    label: "Simulation Completed",
+    className:
+      "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200",
   },
-  resolved: {
-    label: "Resolved",
-    className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200",
-  },
-  closed: {
-    label: "Closed",
-    className: "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200",
-  },
-  archived: {
-    label: "Archived",
-    className: "bg-slate-300 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+  cancelled: {
+    label: "Cancelled",
+    className:
+      "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200",
   },
   unknown: {
     label: "Unknown",
@@ -144,70 +97,33 @@ const statusStyles: Record<
   },
 };
 
-function mapBreachToRow(breach: BreachRecord): IncidentRow {
-  const notifications = breach.notifications ?? [];
-
-  const pendingNotification = notifications
-    .map((notification) => {
-      const due = notification.plannedDueAt ?? notification.statusHistory?.[0]?.updatedAt;
-      const latestStatus =
-        notification.statusHistory?.[notification.statusHistory.length - 1]?.status ??
-        "pending";
-      return {
-        due,
-        status: latestStatus,
-      };
-    })
-    .filter((notification) => {
-      const terminalStatuses = ["sent", "acknowledged", "waived", "failed"];
-      return notification.due && !terminalStatuses.includes(notification.status);
-    })
-    .sort(
-      (a, b) =>
-        new Date(a.due ?? "").getTime() - new Date(b.due ?? "").getTime()
-    )[0];
-
-  const completedNotifications = notifications.filter((notification) => {
-    const latestStatus =
-      notification.statusHistory?.[notification.statusHistory.length - 1]?.status;
-    return latestStatus === "sent" || latestStatus === "acknowledged";
-  }).length;
-
-  return {
-    id: breach.id,
-    organization: breach.organizationId,
-    severity: breach.severity ?? "medium",
-    status: breach.status ?? "reported",
-    jurisdictions: breach.impact?.impactedJurisdictions ?? [],
-    upcomingDeadline: pendingNotification?.due,
-    notificationsCompleted: completedNotifications,
-    notificationsTotal: notifications.length,
-    evidenceCount: breach.evidence?.length ?? 0,
-    updatedAt: breach.updatedAt,
-  };
-}
+// Removed mapBreachToRow - now using useIncidents hook which handles mapping
 
 export default function IncidentsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [jurisdictionFilter, setJurisdictionFilter] = useState("");
 
-  const { data: breaches, isLoading, isFetching, isError, refetch } = useBreaches();
-
-  const rows = useMemo(() => {
-    if (breaches && breaches.length > 0) {
-      return breaches.map(mapBreachToRow);
-    }
-    return FALLBACK_ROWS;
-  }, [breaches]);
+  const {
+    data: rows,
+    isLoading,
+    isFetching,
+    isError,
+    refetch,
+  } = useIncidents();
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const matchesSearch =
         searchTerm.length === 0 ||
         row.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.organization.toLowerCase().includes(searchTerm.toLowerCase());
+        row.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (row.organizationName &&
+          row.organizationName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()));
 
       const matchesSeverity =
         severityFilter === "all" || row.severity === severityFilter;
@@ -221,17 +137,19 @@ export default function IncidentsPage() {
           j.toLowerCase().includes(jurisdictionFilter.toLowerCase())
         );
 
-      return matchesSearch && matchesSeverity && matchesStatus && matchesJurisdiction;
+      return (
+        matchesSearch && matchesSeverity && matchesStatus && matchesJurisdiction
+      );
     });
   }, [rows, searchTerm, severityFilter, statusFilter, jurisdictionFilter]);
 
   const handleRefresh = async () => {
     try {
       await refetch();
-      toast.success("Breaches refreshed");
+      toast.success("Incidents refreshed");
     } catch (error) {
       console.error(error);
-      toast.error("Unable to refresh breach queue");
+      toast.error("Unable to refresh incidents");
     }
   };
 
@@ -246,7 +164,8 @@ export default function IncidentsPage() {
             Incidents Queue
           </h1>
           <p className="text-sm text-muted-foreground">
-            Track breach investigations, outstanding notifications, and evidence status.
+            Track incident simulations, investigations, and analysis status
+            across all organizations.
           </p>
         </div>
         <div className="flex gap-2">
@@ -264,7 +183,7 @@ export default function IncidentsPage() {
           <Button
             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             onClick={() => {
-              console.log("Log new incident");
+              router.push("/admin/incident-simulation");
             }}
           >
             <Plus className="h-5 w-5 mr-2" />
@@ -278,7 +197,7 @@ export default function IncidentsPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <Input
               type="text"
-              placeholder="Search by breach ID or organization..."
+              placeholder="Search by incident ID or organization..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
@@ -301,12 +220,15 @@ export default function IncidentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="reported">Reported</SelectItem>
-                <SelectItem value="investigating">Investigating</SelectItem>
-                <SelectItem value="contained">Contained</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="simulation_initialized">
+                  Simulation Initialized
+                </SelectItem>
+                <SelectItem value="simulation_completed">
+                  Simulation Completed
+                </SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
             <Input
@@ -326,7 +248,7 @@ export default function IncidentsPage() {
             <TableHeader className="bg-gray-50 dark:bg-gray-700">
               <TableRow>
                 <TableHead className="px-6 py-3 text-xs font-semibold uppercase text-gray-700 dark:text-gray-400">
-                  Breach ID
+                  Incident ID
                 </TableHead>
                 <TableHead className="px-6 py-3 text-xs font-semibold uppercase text-gray-700 dark:text-gray-400">
                   Severity
@@ -360,7 +282,10 @@ export default function IncidentsPage() {
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <TableRow key={`skeleton-${index}`} className="border-b dark:border-gray-700">
+                  <TableRow
+                    key={`skeleton-${index}`}
+                    className="border-b dark:border-gray-700"
+                  >
                     {Array.from({ length: 10 }).map((__, cellIndex) => (
                       <TableCell key={cellIndex} className="px-6 py-4">
                         <Skeleton className="h-4 w-24" />
@@ -383,26 +308,54 @@ export default function IncidentsPage() {
                     key={row.id}
                     className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
-                    <TableCell className="px-6 py-4 font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                      <Link href={`/admin/incidents/${row.id}`}>{row.id}</Link>
+                    <TableCell className="px-6 py-4 font-medium">
+                      {row.status === "simulation_initialized" ? (
+                        <span
+                          className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                          onClick={() => {
+                            toast.info("Processing in progress...", {
+                              description: "Analysis is currently being performed. Please check back shortly.",
+                              duration: 3000, // 3 seconds
+                            });
+                          }}
+                        >
+                          {row.id}
+                        </span>
+                      ) : (
+                        <Link
+                          href={`/admin/incidents/${row.id}`}
+                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {row.id}
+                        </Link>
+                      )}
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       <Badge
-                        className={`px-2 py-0.5 text-xs font-semibold ${severityStyles[row.severity]?.className}`}
+                        className={`px-2 py-0.5 text-xs font-semibold ${
+                          severityStyles[row.severity]?.className
+                        }`}
                       >
                         {severityStyles[row.severity]?.label ?? "Unknown"}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      <Badge
-                        variant="secondary"
-                        className={`px-2 py-0.5 text-xs font-semibold ${statusStyles[row.status]?.className}`}
-                      >
-                        {statusStyles[row.status]?.label ?? "Unknown"}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={`px-2 py-0.5 text-xs font-semibold ${
+                            statusStyles[row.status]?.className
+                          }`}
+                        >
+                          {statusStyles[row.status]?.label ?? "Unknown"}
+                        </Badge>
+                        {row.status === "simulation_initialized" && (
+                          <Loader2 className="h-4 w-4 animate-spin text-amber-600 dark:text-amber-400" />
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 whitespace-nowrap">
-                      {row.organization}
+                      {row.organizationName || row.organization}
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       {row.jurisdictions.length > 0
@@ -412,12 +365,13 @@ export default function IncidentsPage() {
                     <TableCell className="px-6 py-4 text-sm">
                       {row.upcomingDeadline
                         ? new Date(row.upcomingDeadline).toLocaleString()
-                        : "No pending deadlines"}
+                        : "—"}
                     </TableCell>
                     <TableCell className="px-6 py-4 text-sm">
                       {row.notificationsTotal > 0 ? (
                         <span>
-                          {row.notificationsCompleted}/{row.notificationsTotal} sent
+                          {row.notificationsCompleted}/{row.notificationsTotal}{" "}
+                          sent
                         </span>
                       ) : (
                         "—"
@@ -466,7 +420,8 @@ export default function IncidentsPage() {
         </div>
         {isError ? (
           <div className="border-t border-dashed border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-            Unable to load live breach data. Showing sample records until Firebase is configured.
+            Unable to load incidents from Firestore. Please check your Firebase
+            configuration.
           </div>
         ) : null}
       </Card>

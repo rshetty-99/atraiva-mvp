@@ -1,0 +1,5 @@
+/* Add padding between "Choose File" button and "no file chosen" text */
+.file-input-wrapper input[type="file"]::file-selector-button {
+  margin-right: 1rem; /* 16px padding */
+}
+

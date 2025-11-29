@@ -49,6 +49,30 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  // Webpack configuration to handle Firebase telemetry errors
+  // ⚠️ Note: When using `--turbopack` in dev mode, this webpack config is ignored
+  // This is expected behavior - the warning is harmless. The webpack config will
+  // still be used in production builds (which don't use Turbopack).
+  // If you want to suppress the warning, you can remove this config, but then
+  // production builds may need alternative handling for Firebase fallbacks.
+  webpack: (config, { isServer }) => {
+    // Suppress Firebase telemetry errors in browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+      };
+    }
+    return config;
+  },
+
+  // Disable Firebase telemetry
+  env: {
+    FIREBASE_TELEMETRY_DISABLED: "1",
+  },
 };
 
 export default nextConfig;

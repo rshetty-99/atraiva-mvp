@@ -653,3 +653,202 @@ export interface RegistrationEmail {
     info?: any;
   };
 }
+
+// Incident Simulation Types
+export interface IncidentSimulation {
+  id: string;
+
+  // Ownership
+  ownership: {
+    organizationId: string;
+    clientId?: string; // For admin-created simulations
+    createdBy: string;
+    createdByName?: string;
+    createdByEmail?: string;
+    isSimulation: boolean; // Always true for simulations
+  };
+
+  // Step 1: Initial Details
+  initialDetails: {
+    clientName: string;
+    loggerName: string; // Logging person's name & title
+    loggerContact: string; // Email & phone
+    incidentDiscoveryDate: Date; // Date & time with timezone
+  };
+
+  // Step 2: Discovery and Incident Type
+  discovery: {
+    discoveryMethod:
+      | "ransomware_note"
+      | "internal_alert"
+      | "employee_report"
+      | "customer_complaint"
+      | "law_enforcement"
+      | "third_party"
+      | "other";
+    discoveryMethodOther?: string;
+    summary: string; // Brief summary in plain English
+    incidentTypes: Array<
+      | "ransomware"
+      | "bec_phishing"
+      | "unauthorized_access"
+      | "lost_stolen_device"
+      | "accidental_exposure"
+      | "insider_threat"
+      | "unknown"
+    >;
+  };
+
+  // Step 3: Immediate Impact & Containment
+  impact: {
+    isActive: "yes" | "no" | "unknown";
+    businessOperationsImpact: string;
+    containmentSteps: string;
+  };
+
+  // Step 4: Data Scope & Risk Assessment
+  dataScope: {
+    dataSources: Array<
+      | "email_exchange"
+      | "file_shares_sharepoint"
+      | "databases"
+      | "cloud_storage"
+      | "crm_systems"
+      | "erp_systems"
+      | "all_unknown"
+    >;
+    dataTypes: Array<
+      | "pii"
+      | "financial"
+      | "phi"
+      | "ip_trade_secrets"
+      | "customer_data"
+      | "employee_data"
+      | "pci"
+      | "unknown"
+    >;
+    estimatedRecordsAffected:
+      | "under_1k"
+      | "1k_10k"
+      | "10k_100k"
+      | "over_100k"
+      | "unknown";
+  };
+
+  // Step 6: Initial Technical Pointers
+  technical: {
+    keySystems: string; // Systems/assets to investigate
+    compromisedAccounts: {
+      hasCompromised: "yes" | "no" | "unknown";
+      accountNames?: string;
+    };
+    purviewScanPriorities: Array<
+      | "compromised_accounts_data"
+      | "map_sensitive_data"
+      | "trace_data_lineage"
+      | "audit_access_patterns"
+      | "classification_scan"
+      | "dlp_alerts"
+    >;
+  };
+
+  // Step 7: Immediate Next Steps (auto-generated checklist)
+  nextSteps: {
+    executePurviewQueries: boolean;
+    initiateRegulatoryTimeline: boolean;
+    scheduleStakeholderCalls: boolean;
+    preserveLogsEvidence: boolean;
+    coordinateITContainment: boolean;
+  };
+
+  // Purview Scan (optional)
+  purviewScan?: {
+    fileName: string;
+    filePath: string;
+    fileUrl: string;
+    fileSize: number;
+    mimeType: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  };
+
+  // Severity (mandatory)
+  severity: "critical" | "high" | "medium" | "low" | "unknown";
+
+  // Status
+  status:
+    | "draft"
+    | "in_progress"
+    | "simulation_initialized"
+    | "simulation_completed"
+    | "cancelled";
+  currentStep: number; // 1-7
+
+  // Metadata
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt?: Date;
+  cancelledAt?: Date;
+}
+
+// Incident Details Collection (subcollection or separate collection)
+export interface IncidentDetail {
+  id: string;
+  incidentId: string; // Reference to incident simulation
+
+  // Additional detailed information
+  notes?: string;
+  attachments?: Array<{
+    name: string;
+    url: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  }>;
+
+  // Workflow tracking
+  workflowState?: {
+    purviewScanInitiated?: boolean;
+    purviewScanCompleted?: boolean;
+    regulatoryNotificationsGenerated?: boolean;
+    stakeholderCallsScheduled?: boolean;
+    evidencePreserved?: boolean;
+    itContainmentCoordinated?: boolean;
+  };
+
+  // Metadata
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Incident Status Collection - for triggering Cloud Run analysis
+export interface IncidentStatus {
+  id: string;
+  incidentId: string;
+  organizationId: string;
+  status: "pending" | "analyzing" | "completed" | "failed";
+  analysisType: "purview_scan" | "incident_data" | "combined";
+  triggeredAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  cloudRunJobId?: string;
+  analysisResults?: {
+    insights: string[];
+    risks: Array<{
+      severity: "low" | "medium" | "high" | "critical";
+      description: string;
+      category?: string;
+    }>;
+    recommendations: string[];
+    complianceGaps: string[];
+    dataClassification?: {
+      piiCount?: number;
+      phiCount?: number;
+      pciCount?: number;
+      otherSensitiveCount?: number;
+    };
+  };
+  error?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}

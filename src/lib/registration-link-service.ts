@@ -2,6 +2,7 @@
 // Handles creation, validation, and management of registration links
 
 import { randomBytes } from "crypto";
+import { Timestamp } from "firebase/firestore";
 import {
   registrationLinkService,
   registrationLinkQueries,
@@ -66,12 +67,23 @@ export async function createRegistrationLink(data: {
   error?: string;
 }> {
   try {
+    console.log("=== Creating Registration Link ===");
+    console.log("Input data:", {
+      organizationName: data.organizationData?.name,
+      primaryUserEmail: data.primaryUserData?.email,
+      createdBy: data.createdBy,
+      createdByEmail: data.createdByEmail,
+    });
+
     // Check if there's already an active link for this email
+    console.log("Checking for existing active links...");
     const hasActive = await registrationLinkQueries.hasActiveLink(
       data.primaryUserData.email
     );
+    console.log("Has active link:", hasActive);
 
     if (hasActive) {
+      console.log("Active link already exists for email:", data.primaryUserData.email);
       return {
         success: false,
         error:
@@ -81,31 +93,56 @@ export async function createRegistrationLink(data: {
 
     // Generate secure token
     const token = generateSecureToken();
+    console.log("Generated token:", token.substring(0, 10) + "...");
 
     // Calculate expiration (3 days from now)
     const expiresAt = calculateExpirationDate();
+    console.log("Expiration date:", expiresAt);
 
     // Create registration link document
-    const registrationLink: Omit<RegistrationLink, "id"> = {
+    // Note: FirestoreService.create will add createdAt and updatedAt using serverTimestamp()
+    // We need to convert Date objects to Timestamps for Firestore
+    const registrationLinkData = {
       token,
       organizationData: data.organizationData,
       primaryUserData: data.primaryUserData,
-      paymentStatus: "completed",
+      paymentStatus: "completed" as const,
       paymentReference: data.paymentReference,
-      status: "pending",
+      status: "pending" as const,
       createdBy: data.createdBy,
       createdByEmail: data.createdByEmail,
-      createdAt: new Date(),
-      expiresAt,
+      // Convert Date to Timestamp for Firestore
+      expiresAt: Timestamp.fromDate(expiresAt),
       emailSent: false,
       emailResendCount: 0,
       notes: data.notes,
     };
 
+    console.log("Registration link document prepared:", {
+      token: token.substring(0, 10) + "...",
+      status: registrationLinkData.status,
+      organizationName: registrationLinkData.organizationData?.name,
+      primaryUserEmail: registrationLinkData.primaryUserData?.email,
+      expiresAt: expiresAt.toISOString(),
+    });
+
     // Save to Firestore
+    console.log("Saving to Firestore collection: registrationLinks");
     const linkId = await registrationLinkService.create(
-      registrationLink as Record<string, unknown>
+      registrationLinkData as Record<string, unknown>
     );
+    console.log("Registration link created successfully with ID:", linkId);
+
+    // Verify the document was created
+    const createdLink = await registrationLinkService.getById(linkId);
+    if (!createdLink) {
+      console.error("ERROR: Registration link document was not found after creation!");
+      return {
+        success: false,
+        error: "Registration link was created but could not be verified. Please check Firestore.",
+      };
+    }
+    console.log("Registration link verified in Firestore");
 
     return {
       success: true,
@@ -113,10 +150,17 @@ export async function createRegistrationLink(data: {
       token,
     };
   } catch (error) {
-    console.error("Error creating registration link:", error);
+    console.error("ERROR creating registration link:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error details:", {
+      message: errorMessage,
+      stack: errorStack,
+      error,
+    });
     return {
       success: false,
-      error: "Failed to create registration link. Please try again.",
+      error: `Failed to create registration link: ${errorMessage}. Please check the console for details.`,
     };
   }
 }
@@ -184,7 +228,28 @@ export async function sendRegistrationEmail(
     };
 
     // Save email to trigger Firebase Extension
-    await registrationEmailService.create(emailData as any);
+    console.log("Creating registration email document in Firestore...");
+    console.log("Email data:", {
+      to: emailData.to,
+      subject: emailData.subject,
+      hasHtml: !!emailData.html,
+      hasText: !!emailData.text,
+    });
+    
+    const emailDocId = await registrationEmailService.create(emailData as any);
+    console.log("Registration email document created with ID:", emailDocId);
+
+    // Verify the email document was created
+    const createdEmail = await registrationEmailService.getById(emailDocId);
+    if (!createdEmail) {
+      console.error("Failed to verify email document creation");
+      return {
+        success: false,
+        error: "Email document was not created in Firestore. Please check Firebase Extension configuration.",
+      };
+    }
+
+    console.log("Email document verified. Firebase Extension should process it.");
 
     // Update registration link
     await registrationLinkService.update(linkId, {
@@ -194,12 +259,20 @@ export async function sendRegistrationEmail(
       status: "sent",
     } as any);
 
-    return { success: true };
+    console.log("Registration link updated. Email sending process initiated.");
+
+    return { 
+      success: true,
+      emailDocId,
+      message: "Email queued for delivery. Please verify Firebase Extension is configured and running.",
+    };
   } catch (error) {
     console.error("Error sending registration email:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error details:", errorMessage, error);
     return {
       success: false,
-      error: "Failed to send registration email. Please try again.",
+      error: `Failed to send registration email: ${errorMessage}. Please check Firebase Extension configuration.`,
     };
   }
 }

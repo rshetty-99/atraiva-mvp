@@ -37,6 +37,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import PhoneInput from "react-phone-number-input";
+import type { E164Number } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import {
   ArrowLeft,
   ArrowRight,
@@ -67,13 +70,30 @@ const formSchema = z.object({
   teamSize: z.enum(["1-10", "11-50", "51-200", "201-1000", "1000+"]),
   subscriptionPlan: z.enum(["free", "basic", "pro", "enterprise"]).optional(),
 
-  // Optional Organization Fields
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zipCode: z.string().optional(),
-  country: z.string().optional(),
-  website: z.string().url().optional().or(z.literal("")),
+  // Address Fields (required for step 2)
+  street: z.string().min(1, "Street address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(1, "ZIP/Postal code is required"),
+  country: z.string().min(1, "Country is required"),
+  website: z
+    .string()
+    .refine(
+      (val) => {
+        // Allow empty string or valid URL
+        if (!val || val.trim() === "") return true;
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: "Please enter a valid URL (e.g., https://example.com)",
+      }
+    )
+    .optional(),
   phone: z.string().optional(),
 
   // Primary User Data
@@ -116,6 +136,61 @@ const industries = [
   "Energy",
   "Media",
   "Other",
+];
+
+// US States list
+const usStates = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+  "District of Columbia",
 ];
 
 // Step configuration
@@ -200,8 +275,30 @@ export default function CreateRegistrationLinkPage() {
     }
   }, [isLoaded, session, router]);
 
-  // Step navigation functions
-  const handleNext = () => {
+  // Step navigation functions with validation
+  const handleNext = async () => {
+    // Get the field names for the current step
+    const stepFields: Record<number, (keyof FormValues)[]> = {
+      0: ["organizationName", "organizationType", "industry", "teamSize", "website"], // Organization (website is optional but must be valid if provided)
+      1: ["street", "city", "state", "zipCode", "country"], // Address
+      2: ["firstName", "lastName", "email", "username", "role"], // User
+      3: [], // Additional (all optional)
+    };
+
+    const fieldsToValidate = stepFields[currentStep] || [];
+
+    if (fieldsToValidate.length > 0) {
+      // Trigger validation for current step fields
+      const isValid = await form.trigger(fieldsToValidate);
+      
+      if (!isValid) {
+        // Show error message
+        toast.error("Please fill in all required fields correctly before proceeding.");
+        return;
+      }
+    }
+
+    // Move to next step if validation passes
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -213,7 +310,8 @@ export default function CreateRegistrationLinkPage() {
     }
   };
 
-  // Step validation
+  // Step validation - checks if fields are filled (for UI feedback)
+  // Actual validation happens in handleNext using form.trigger()
   const isStepValid = () => {
     switch (currentStep) {
       case 0: // Organization
@@ -247,10 +345,13 @@ export default function CreateRegistrationLinkPage() {
   };
 
   const onSubmit = async (values: FormValues) => {
+    console.log("=== Frontend: onSubmit called ===");
+    console.log("Form values:", values);
     try {
       setLoading(true);
 
       // Prepare organization data
+      console.log("Preparing organization data...");
       const organizationData = {
         name: values.organizationName,
         organizationType: values.organizationType,
@@ -280,6 +381,13 @@ export default function CreateRegistrationLinkPage() {
       };
 
       // Create registration link
+      console.log("=== Frontend: Calling API ===");
+      console.log("Request payload:", {
+        organizationName: organizationData.name,
+        primaryUserEmail: primaryUserData.email,
+        sendEmail: values.sendEmail,
+      });
+
       const response = await fetch("/api/registration-links/create", {
         method: "POST",
         headers: {
@@ -294,19 +402,32 @@ export default function CreateRegistrationLinkPage() {
         }),
       });
 
+      console.log("=== Frontend: API Response ===");
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (!response.ok) {
         const data = await response.json();
+        console.error("API returned error:", data);
         throw new Error(data.error || "Failed to create registration link");
       }
 
       const data = await response.json();
+      console.log("API response data:", data);
 
       if (data.emailSent) {
-        toast.success("Registration link created and email sent successfully!");
+        toast.success("Registration link created and email queued for delivery!", {
+          description: data.warning || "Email has been queued. Verify Firebase Extension is configured to send emails.",
+          duration: 5000,
+        });
       } else {
-        toast.success("Registration link created successfully!");
+        toast.success("Registration link created successfully!", {
+          description: "Email was not sent. You can resend it from the registration links list.",
+        });
         if (data.emailError) {
-          toast.warning(`Email delivery failed: ${data.emailError}`);
+          toast.warning(`Email delivery failed: ${data.emailError}`, {
+            duration: 6000,
+          });
         }
       }
 
@@ -595,10 +716,16 @@ export default function CreateRegistrationLinkPage() {
                                 <FormItem>
                                   <FormLabel>Phone</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      placeholder="+1 (555) 123-4567"
-                                      {...field}
-                                    />
+                                    <div className="[&_.PhoneInput]:flex [&_.PhoneInput]:items-center [&_.PhoneInput]:gap-2 [&_.PhoneInputInput]:h-10 [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:rounded-md [&_.PhoneInputInput]:border [&_.PhoneInputInput]:border-input [&_.PhoneInputInput]:bg-background [&_.PhoneInputInput]:px-3 [&_.PhoneInputInput]:py-2 [&_.PhoneInputInput]:text-sm [&_.PhoneInputInput]:ring-offset-background [&_.PhoneInputInput]:placeholder:text-muted-foreground [&_.PhoneInputInput]:focus-visible:outline-none [&_.PhoneInputInput]:focus-visible:ring-2 [&_.PhoneInputInput]:focus-visible:ring-ring [&_.PhoneInputInput]:focus-visible:ring-offset-2 [&_.PhoneInputInput]:disabled:cursor-not-allowed [&_.PhoneInputInput]:disabled:opacity-50 [&_.PhoneInputCountry]:mr-2 [&_.PhoneInputCountrySelect]:h-10 [&_.PhoneInputCountrySelect]:rounded-md [&_.PhoneInputCountrySelect]:border [&_.PhoneInputCountrySelect]:border-input [&_.PhoneInputCountrySelect]:bg-background [&_.PhoneInputCountryIcon]:border [&_.PhoneInputCountryIcon]:border-input [&_.PhoneInputCountryIcon]:rounded">
+                                      <PhoneInput
+                                        defaultCountry="US"
+                                        placeholder="Enter phone number"
+                                        international
+                                        withCountryCallingCode
+                                        value={field.value as E164Number | undefined}
+                                        onChange={(value) => field.onChange(value || "")}
+                                      />
+                                    </div>
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -652,9 +779,24 @@ export default function CreateRegistrationLinkPage() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>State/Province *</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="CA" {...field} />
-                                  </FormControl>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select state" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {usStates.map((state) => (
+                                        <SelectItem key={state} value={state}>
+                                          {state}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -775,10 +917,16 @@ export default function CreateRegistrationLinkPage() {
                                 <FormItem>
                                   <FormLabel>Phone Number</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      placeholder="+1 (555) 123-4567"
-                                      {...field}
-                                    />
+                                    <div className="[&_.PhoneInput]:flex [&_.PhoneInput]:items-center [&_.PhoneInput]:gap-2 [&_.PhoneInputInput]:h-10 [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:rounded-md [&_.PhoneInputInput]:border [&_.PhoneInputInput]:border-input [&_.PhoneInputInput]:bg-background [&_.PhoneInputInput]:px-3 [&_.PhoneInputInput]:py-2 [&_.PhoneInputInput]:text-sm [&_.PhoneInputInput]:ring-offset-background [&_.PhoneInputInput]:placeholder:text-muted-foreground [&_.PhoneInputInput]:focus-visible:outline-none [&_.PhoneInputInput]:focus-visible:ring-2 [&_.PhoneInputInput]:focus-visible:ring-ring [&_.PhoneInputInput]:focus-visible:ring-offset-2 [&_.PhoneInputInput]:disabled:cursor-not-allowed [&_.PhoneInputInput]:disabled:opacity-50 [&_.PhoneInputCountry]:mr-2 [&_.PhoneInputCountrySelect]:h-10 [&_.PhoneInputCountrySelect]:rounded-md [&_.PhoneInputCountrySelect]:border [&_.PhoneInputCountrySelect]:border-input [&_.PhoneInputCountrySelect]:bg-background [&_.PhoneInputCountryIcon]:border [&_.PhoneInputCountryIcon]:border-input [&_.PhoneInputCountryIcon]:rounded">
+                                      <PhoneInput
+                                        defaultCountry="US"
+                                        placeholder="Enter phone number"
+                                        international
+                                        withCountryCallingCode
+                                        value={field.value as E164Number | undefined}
+                                        onChange={(value) => field.onChange(value || "")}
+                                      />
+                                    </div>
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

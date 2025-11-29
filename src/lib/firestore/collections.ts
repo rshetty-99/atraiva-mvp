@@ -29,6 +29,9 @@ import {
   AuditLog,
   RegistrationLink,
   RegistrationEmail,
+  IncidentSimulation,
+  IncidentDetail,
+  IncidentStatus,
 } from "./types";
 
 // Collection references
@@ -44,6 +47,9 @@ export const collections = {
   regulationTemplates: "regulationTemplates",
   registrationLinks: "registrationLinks",
   registrationEmails: "registrationEmails",
+  incidents: "incidents",
+  incidentDetails: "incident_details",
+  incidentStatuses: "incident_statuses",
 } as const;
 
 // Generic CRUD operations
@@ -92,7 +98,11 @@ export class FirestoreService<T> {
     })) as T[];
   }
 
-  async getWhere(field: string, operator: WhereFilterOp, value: unknown): Promise<T[]> {
+  async getWhere(
+    field: string,
+    operator: WhereFilterOp,
+    value: unknown
+  ): Promise<T[]> {
     const q = query(
       collection(db, this.collectionName),
       where(field, operator, value)
@@ -282,8 +292,21 @@ export const registrationEmailService = new FirestoreService<RegistrationEmail>(
   collections.registrationEmails
 );
 
+// Incident Simulation Services
+export const incidentService = new FirestoreService<IncidentSimulation>(
+  collections.incidents
+);
+export const incidentDetailService = new FirestoreService<IncidentDetail>(
+  collections.incidentDetails
+);
+export const incidentStatusService = new FirestoreService<IncidentStatus>(
+  collections.incidentStatuses
+);
+
 // Helper function to convert Firestore Timestamps to Dates for RegistrationLink
-function convertRegistrationLinkDates(data: Record<string, unknown>): RegistrationLink {
+function convertRegistrationLinkDates(
+  data: Record<string, unknown>
+): RegistrationLink {
   return {
     ...data,
     createdAt: data.createdAt?.toDate?.() || data.createdAt,
@@ -387,5 +410,119 @@ export const registrationLinkQueries = {
     );
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
+  },
+};
+
+// Incident Status specialized queries
+export const incidentStatusQueries = {
+  async getByIncidentId(incidentId: string): Promise<IncidentStatus[]> {
+    const q = query(
+      collection(db, collections.incidentStatuses),
+      where("incidentId", "==", incidentId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IncidentStatus[];
+  },
+
+  async getByStatus(
+    status: IncidentStatus["status"]
+  ): Promise<IncidentStatus[]> {
+    return incidentStatusService.getWhere("status", "==", status);
+  },
+
+  async getPendingAnalyses(): Promise<IncidentStatus[]> {
+    const q = query(
+      collection(db, collections.incidentStatuses),
+      where("status", "==", "pending"),
+      orderBy("triggeredAt", "asc"),
+      limit(10)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IncidentStatus[];
+  },
+
+  async getLatestByIncident(
+    incidentId: string
+  ): Promise<IncidentStatus | null> {
+    const q = query(
+      collection(db, collections.incidentStatuses),
+      where("incidentId", "==", incidentId),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return null;
+    return {
+      id: querySnapshot.docs[0].id,
+      ...querySnapshot.docs[0].data(),
+    } as IncidentStatus;
+  },
+};
+
+// Incident Simulation specialized queries
+export const incidentQueries = {
+  async getByOrganization(
+    organizationId: string
+  ): Promise<IncidentSimulation[]> {
+    return incidentService.getWhere(
+      "ownership.organizationId",
+      "==",
+      organizationId
+    );
+  },
+
+  async getByStatus(
+    status: IncidentSimulation["status"]
+  ): Promise<IncidentSimulation[]> {
+    return incidentService.getWhere("status", "==", status);
+  },
+
+  async getSimulationsByOrganization(
+    organizationId: string
+  ): Promise<IncidentSimulation[]> {
+    const q = query(
+      collection(db, collections.incidents),
+      where("ownership.organizationId", "==", organizationId),
+      where("ownership.isSimulation", "==", true),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IncidentSimulation[];
+  },
+
+  async getByCreator(userId: string): Promise<IncidentSimulation[]> {
+    const q = query(
+      collection(db, collections.incidents),
+      where("ownership.createdBy", "==", userId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IncidentSimulation[];
+  },
+
+  async getIncidentDetails(incidentId: string): Promise<IncidentDetail[]> {
+    const q = query(
+      collection(db, collections.incidentDetails),
+      where("incidentId", "==", incidentId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IncidentDetail[];
   },
 };

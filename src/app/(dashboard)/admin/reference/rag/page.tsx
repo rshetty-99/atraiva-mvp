@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useDropzone } from "react-dropzone";
+import "./rag-styles.css";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Inbox, UploadCloud, Info } from "lucide-react";
+import { Inbox, UploadCloud, Info, FileUp } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface UploadProgress {
   fileName: string;
@@ -34,6 +37,43 @@ export default function RagUploadPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFiles(event.target.files);
   };
+
+  const handleFilesSelected = useCallback((selectedFiles: File[]) => {
+    if (selectedFiles.length === 0) return;
+    
+    // Convert File[] to FileList-like object
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach((file) => {
+      dataTransfer.items.add(file);
+    });
+    setFiles(dataTransfer.files);
+  }, []);
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0) {
+        toast.error("No valid files selected");
+        return;
+      }
+      handleFilesSelected(acceptedFiles);
+      toast.success(`${acceptedFiles.length} file(s) selected`);
+    },
+    [handleFilesSelected]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "text/markdown": [".md"],
+    },
+    multiple: true,
+    disabled: uploading,
+    maxFiles: 10,
+  });
 
   const handleUpload = async () => {
     if (!files || files.length === 0) {
@@ -144,17 +184,48 @@ export default function RagUploadPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="rag-files">Files</Label>
-              <Input
-                id="rag-files"
-                type="file"
-                multiple
-                accept=".pdf,.txt,.doc,.docx,.md"
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
+              <div
+                {...getRootProps()}
+                className={cn(
+                  "file-input-wrapper border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
+                  isDragActive
+                    ? "border-primary bg-primary/5"
+                    : "border-muted-foreground/25 hover:border-primary/50",
+                  uploading && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <input {...getInputProps()} id="rag-files" />
+                <div className="flex flex-col items-center justify-center gap-2 text-center">
+                  {isDragActive ? (
+                    <>
+                      <FileUp className="h-8 w-8 text-primary" />
+                      <p className="text-sm font-medium text-primary">
+                        Drop files here...
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">
+                          Drag & drop files here, or{" "}
+                          <span className="text-primary underline">click to browse</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Supported formats: PDF, DOC/DOCX, TXT, Markdown
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  {files && files.length > 0 && (
+                    <Badge variant="outline" className="mt-2">
+                      {files.length} file(s) selected
+                    </Badge>
+                  )}
+                </div>
+              </div>
               <p className="text-xs text-muted-foreground">
-                Supported formats: PDF, DOC/DOCX, TXT, Markdown. Limit 10 files per
-                upload.
+                Limit 10 files per upload.
               </p>
             </div>
             <div className="space-y-2">

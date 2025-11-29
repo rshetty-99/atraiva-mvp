@@ -23,9 +23,37 @@ test.describe('Clerk and Firestore Integration', () => {
   const testEnterprises = generateMockEnterprises().slice(0, 1); // Test with 1 enterprise
   const testUsers = generateMockUsers(testEnterprises);
 
-  test.describe.skip('Data Creation and Verification', () => {
-    // Skipped by default to avoid creating test data during normal test runs
-    // Remove .skip to run these tests
+  test.describe('Data Creation and Verification', () => {
+    // These tests create actual data in Clerk and Firestore
+    // They require CLERK_SECRET_KEY and Firebase configuration
+    
+    // Load environment variables in case they weren't loaded in config
+    test.beforeAll(() => {
+      // Re-load env vars to ensure they're available in test context
+      const { config: loadEnv } = require('dotenv');
+      const path = require('path');
+      const envPath = path.resolve(__dirname, '../../../.env.local');
+      const envFallback = path.resolve(__dirname, '../../../.env');
+      
+      // Load .env.local first (takes precedence)
+      const envLocalResult = loadEnv({ path: envPath, error: false });
+      const envResult = loadEnv({ path: envFallback, error: false });
+      
+      // Debug: Log what was loaded (only show if CLERK_SECRET_KEY is still missing)
+      if (!process.env.CLERK_SECRET_KEY) {
+        console.warn('[Integration Tests] CLERK_SECRET_KEY not found after loading env files');
+        console.warn(`  .env.local loaded: ${!!envLocalResult.parsed}`);
+        console.warn(`  .env loaded: ${!!envResult.parsed}`);
+        console.warn(`  .env.local path: ${envPath}`);
+      }
+    });
+    
+    // Skip entire suite if CLERK_SECRET_KEY is missing
+    test.beforeEach(({ }, testInfo) => {
+      if (!process.env.CLERK_SECRET_KEY) {
+        testInfo.skip(true, `CLERK_SECRET_KEY is required for integration tests. Current value: ${process.env.CLERK_SECRET_KEY ? 'set' : 'undefined'}`);
+      }
+    });
     
     test('should create organization in both Clerk and Firestore', async () => {
       const enterprise = testEnterprises[0];

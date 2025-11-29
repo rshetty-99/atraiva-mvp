@@ -30,7 +30,7 @@ export function Logo({
   // Determine the current theme
   const isDark = resolvedTheme === "dark";
 
-  console.log("Logo: resolvedTheme =", resolvedTheme, "isDark =", isDark);
+  // console.log("Logo: resolvedTheme =", resolvedTheme, "isDark =", isDark);
 
   // Use a fallback during SSR to prevent hydration mismatch
   if (!mounted) {
